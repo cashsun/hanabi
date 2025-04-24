@@ -1,0 +1,1 @@
+- [ ] Azure auto setup need deployment name [link](https://sdk.vercel.ai/providers/ai-sdk-providers/azure#azure-openai-provider)
