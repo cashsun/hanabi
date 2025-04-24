@@ -9,6 +9,6 @@ export const useAppStore = create<AppState>((set) => ({
     ready: hasConfig(), 
 }))
 
-export const setAppReady = () => {
+export const setAppReady = (ready: boolean) => {
     useAppStore.setState({ ready: true })
 }

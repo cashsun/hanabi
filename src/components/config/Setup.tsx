@@ -1,13 +1,18 @@
-import {Badge, Spinner} from '@inkjs/ui';
-import fs from 'fs';
-import {Box, Text} from 'ink';
+import {Spinner} from '@inkjs/ui';
+import {Box, Text, Newline} from 'ink';
 import React, {FC, useEffect, useState} from 'react';
-import {configPath, defaultConfig, getConfig, writeConfig} from './util.js';
-import {setAppReady} from '../../store/appState.js';
 import {AddLLM} from './AddLLM.js';
+import {defaultConfig, removeConfig, writeConfig} from './util.js';
 
-export const Setup: FC = () => {
-	const [step, setStep] = useState(1);
+export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
+	const [step, setStep] = useState(0);
+	
+	useEffect(() => {
+		if (isReset) {
+			removeConfig();
+		}
+		setStep(1)
+	}, [isReset]);
 
 	useEffect(() => {
 		switch (step) {
@@ -34,7 +39,9 @@ export const Setup: FC = () => {
 			{step === 2 && (
 				<Box flexDirection="column">
 					<Text color="green">⟡ Now, let's add your first LLM.</Text>
-					<AddLLM />
+					<Box borderColor="green">
+						<AddLLM />
+					</Box>
 				</Box>
 			)}
 		</Box>

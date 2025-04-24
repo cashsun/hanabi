@@ -14,7 +14,6 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"start": "tsx src/cli.tsx",
-		"reset": "rm /Users/kaishisun/.hanabi.json",
 		"link-bin": "npm i -g --force .",
 		"test": "prettier --check . && xo && ava"
 	},
@@ -42,6 +41,8 @@
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^3.0.1",
+		"@types/lodash-es": "4.17.12",
+		"@types/node": "22.15.0",
 		"@types/react": "^18.0.32",
 		"@vdemedes/prettier-config": "^2.0.1",
 		"ava": "^5.2.0",

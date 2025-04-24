@@ -1,117 +1,97 @@
 import {ConfirmInput, Select, TextInput} from '@inkjs/ui';
 import {Box, Text} from 'ink';
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {
+	FC,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {v4 as uniqueId} from 'uuid';
 import {setAppReady} from '../../store/appState.js';
-import {ModelSelector} from '../ModelSelector.js';
-import {getConfig, loadConfigToEnv, writeConfig} from './util.js';
-
-const providers: {label: LLM['provider']; value: LLM['provider']}[] = [
-	{
-		label: 'OpenAI',
-		value: 'OpenAI',
-	},
-	{
-		label: 'Google',
-		value: 'Google',
-	},
-	{
-		label: 'Azure',
-		value: 'Azure',
-	},
-	{
-		label: 'Deepseek',
-		value: 'Deepseek',
-	},
-	{
-		label: 'Ollama',
-		value: 'Ollama',
-	},
-	{
-		label: 'OpenAI-Compatible',
-		value: 'OpenAI-Compatible',
-	},
-];
+import {ModelSelector} from './ModelSelector.js';
+import {
+	DEFAULT_API_VERSION,
+	getConfig,
+	loadConfigToEnv,
+	writeConfig,
+} from './util.js';
+import {ProviderPicker} from './ProviderPicker.js';
+import {DefaultModelPicker} from './DefaultModelPicker.js';
 
 export const AddLLM: FC = () => {
 	const [step, setStep] = useState(1);
-	const [provider, setProvider] = useState<LLM['provider'] | undefined>();
-	const [apiKey, setApiKey] = useState<LLM['apiKey'] | undefined>();
-	const [apiUrl, setApiUrl] = useState<LLM['apiUrl'] | undefined>();
-	const [model, setModel] = useState<string>();
-	const asDefault = useRef(false);
+	const id = useMemo(() => uniqueId(), []);
+	const [provider, setProvider] = useState<LLM['provider']>();
+	const [apiKey, setApiKey] = useState<LLM['apiKey']>();
+	const [apiUrl, setApiUrl] = useState<LLM['apiUrl']>();
+	const [apiVersion, setApiVersion] =
+		useState<LLM['apiVersion']>(DEFAULT_API_VERSION);
+	const llm = useRef<LLM>();
+	llm.current = {
+		id,
+		provider,
+		apiKey,
+		apiUrl,
+		apiVersion,
+	} as LLM;
 
 	useEffect(() => {
 		if (step === -1) {
 			// Get the current config from file
 			const config = getConfig();
 			const llms = config.llms;
-			// Create a new LLM configuration object
-			const llm: LLM = {
-				id: uniqueId(),
-				provider,
-				apiKey,
-				apiUrl,
-			};
-			let found: LLM;
+
+			let found: LLM | undefined;
 			// Update existing LLM if provider matches (except for OpenAI-Compatible)
 			const newLlms = llms.map(l => {
 				if (l.provider === provider && provider !== 'OpenAI-Compatible') {
 					found = l;
+					const {id, ...override} = llm.current ?? {};
 					return {
 						...l,
-						apiKey,
-						apiUrl,
+						...override,
 					};
 				}
 				return l;
 			});
 			// Add new LLM if no existing one was found
 			if (!found) {
-				found = llm;
-				newLlms.push(llm);
+				found = llm.current;
+				newLlms.push(found!);
 			}
-			const defaultModel: HanabiConfig['defaultModel'] = asDefault.current
-				? {
-						id: found.id,
-						model: model || '',
-				  }
-				: config.defaultModel;
 			// Save the updated config to file
-			writeConfig({llms: newLlms, defaultModel});
+			writeConfig({llms: newLlms as LLM[]});
 			loadConfigToEnv();
 			// Signal that the app is ready
-			setAppReady();
+			setAppReady(true);
 		}
 	}, [step]);
 
 	return (
 		<Box flexDirection="column">
-			{step !== 5 && (
-				<>
-					<Text color="green">⟡ Select a provider below:</Text>
-					<Select
-						options={providers}
-						onChange={(val: LLM['provider']) => {
-							setProvider(val);
-							setStep(2);
-						}}
-					/>
-				</>
+			{step !== 6 && step !== -1 && (
+				<ProviderPicker
+					onSelect={p => {
+						setProvider(p);
+						setStep(2);
+					}}
+				/>
 			)}
 
 			{step === 2 && (
 				<>
 					<Text color="green">⟡ Paste your API key for {provider}:</Text>
 					<TextInput
-						placeholder="Provider API Key"
+						placeholder={'Provider API Key'}
 						onSubmit={v => {
 							setApiKey(v);
-							if (provider == 'OpenAI-Compatible') {
+							if (provider == 'OpenAI-Compatible' || provider === 'Azure') {
 								setStep(3);
 							} else {
 								// finish
-								setStep(4);
+								setStep(5);
 							}
 						}}
 					/>
@@ -119,45 +99,50 @@ export const AddLLM: FC = () => {
 			)}
 			{step === 3 && (
 				<>
-					<Text color="green">⟡ Your custom API url:</Text>
+					<Text color="green">⟡ {provider} API base URL:</Text>
 					<TextInput
-						placeholder="API base URL, e.g. http://localhost:1234/v1"
+						placeholder=" e.g. http://localhost:1234/v1, https://<resource-name>.openai.azure.com/openai"
 						onSubmit={v => {
 							setApiUrl(v);
 							// finish
-							setStep(4);
+							setStep(provider === 'Azure' ? 4 : 5);
 						}}
 					/>
 				</>
 			)}
 			{step === 4 && (
+				<>
+					<Text color="green">⟡ Specify {provider} API Version:</Text>
+					<TextInput
+						placeholder={`${DEFAULT_API_VERSION} (default)`}
+						onSubmit={v => {
+							setApiVersion(v || DEFAULT_API_VERSION);
+							// finish
+							setStep(5);
+						}}
+					/>
+				</>
+			)}
+			{step === 5 && (
 				<Text color="green">
 					⟡ Use this model as default?{' '}
 					<ConfirmInput
 						onConfirm={() => {
-							asDefault.current = true;
-							setStep(5);
+							setStep(6);
 						}}
 						onCancel={() => {
-							asDefault.current = false;
 							setStep(-1);
 						}}
 					/>
 				</Text>
 			)}
-			{step === 5 && (
-				<>
-					<Text color="green">⟡ Select a model below:</Text>
-					<ModelSelector
-						provider={provider}
-						apiKey={apiKey}
-						apiUrl={apiUrl}
-						onSelect={m => {
-							setModel(m);
-							setStep(-1);
-						}}
-					/>
-				</>
+			{step === 6 && provider && (
+				<DefaultModelPicker
+					llm={llm.current}
+					onSelect={() => {
+						setStep(-1);
+					}}
+				/>
 			)}
 		</Box>
 	);
