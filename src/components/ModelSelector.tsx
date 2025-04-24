@@ -1,5 +1,5 @@
 import React, {FC, useMemo} from 'react';
-import {useModelList} from '../hooks/list-models.js';
+import {useModelList} from '../hooks/useListModels.js';
 import {Text} from 'ink';
 import {Spinner, Select, SelectProps} from '@inkjs/ui';
 
@@ -26,7 +26,7 @@ export const ModelSelector: FC<Props> = ({
 			})) ?? []
 		);
 	}, [data]);
-    
+
 	if (isFetching) {
 		return <Spinner label="Fetching models..." />;
 	}
