@@ -9,7 +9,7 @@ import {CoreMessage} from 'ai';
 import {Box, Text} from 'ink';
 import {map} from 'lodash-es';
 import {ollama} from 'ollama-ai-provider';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {FC, useEffect, useMemo, useState} from 'react';
 import {useChat} from '../../hooks/useChat.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {DEFAULT_API_VERSION, getConfig} from '../config/util.js';
@@ -50,11 +50,16 @@ const getModel = (
 	return compatible(defaultModel.model);
 };
 
-export const Chat = () => {
+export const Chat: FC<{singleQuestion?: boolean; query?: string}> = ({
+	singleQuestion,
+	query,
+}) => {
 	const config = useMemo(() => getConfig(), []);
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
 	const model = getModel(config.llms, defaultModel);
-	const [messages, setMessages] = React.useState<CoreMessage[]>([]);
+	const [messages, setMessages] = React.useState<CoreMessage[]>(
+		query ? [{role: 'user', content: query}] : [],
+	);
 	const [input, setInput] = useState('');
 	const {data, isFetching, isLoading, error} = useChat(model, messages);
 	const pickingFile = new RegExp(`${chatHandles.FILE} $`).test(input);
@@ -79,6 +84,11 @@ export const Chat = () => {
 			/>
 		);
 	}
+	useEffect(() => {
+		if (messages.length === 2 && singleQuestion) {
+			process.exit(0);
+		}
+	}, [messages, singleQuestion]);
 
 	return (
 		<Box flexDirection="column">
@@ -87,7 +97,7 @@ export const Chat = () => {
 					if (message.role === 'user') {
 						return (
 							<Box marginTop={1} key={index}>
-								<Text color="gray">User: {message.content.toString()}</Text>
+								<Text color="gray">[User] {message.content.toString()}</Text>
 							</Box>
 						);
 					}
@@ -110,7 +120,7 @@ export const Chat = () => {
 					Chat {'>'}{' '}
 				</Text>
 				{isFetching && <Spinner label=" Thinking..." />}
-				{!isLoading && (
+				{!isFetching && (
 					<TextInput
 						placeholder={` ${defaultModel.model}`}
 						onChange={setInput}

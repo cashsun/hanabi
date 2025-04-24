@@ -8,9 +8,10 @@ import { useAppStore } from './store/appState.js';
 
 interface Props {
 	command?: string;
+	query?: string;
 }
 
-export default function App({command}: Props) {
+export default function App({command, query}: Props) {
 	const isReset = command === 'reset';
 	const ready = useAppStore(state => (isReset ? false : state.ready));
 
@@ -24,5 +25,5 @@ export default function App({command}: Props) {
 		return <Setup isReset={isReset} />;
 	}
 
-	return <Chat />;
+	return <Chat singleQuestion={command === 'ask'} query={query} />;
 }
