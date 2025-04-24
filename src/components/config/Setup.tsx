@@ -1,8 +1,8 @@
-import {Spinner} from '@inkjs/ui';
-import {Box, Text, Newline} from 'ink';
-import React, {FC, useEffect, useState} from 'react';
-import {AddLLM} from './AddLLM.js';
-import {defaultConfig, removeConfig, writeConfig} from './util.js';
+import { Spinner } from '@inkjs/ui';
+import { Box, Text } from 'ink';
+import React, { FC, useEffect, useState } from 'react';
+import { AddLLM } from './AddLLM.js';
+import { defaultConfig, removeConfig, writeConfig } from './util.js';
 
 export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
 	const [step, setStep] = useState(0);

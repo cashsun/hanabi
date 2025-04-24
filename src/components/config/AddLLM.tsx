@@ -1,24 +1,22 @@
-import {ConfirmInput, Select, TextInput} from '@inkjs/ui';
-import {Box, Text} from 'ink';
+import { ConfirmInput, TextInput } from '@inkjs/ui';
+import { Box, Text } from 'ink';
 import React, {
 	FC,
 	useEffect,
-	useImperativeHandle,
 	useMemo,
 	useRef,
-	useState,
+	useState
 } from 'react';
-import {v4 as uniqueId} from 'uuid';
-import {setAppReady} from '../../store/appState.js';
-import {ModelSelector} from './ModelSelector.js';
+import { v4 as uniqueId } from 'uuid';
+import { setAppReady } from '../../store/appState.js';
+import { DefaultModelPicker } from './DefaultModelPicker.js';
+import { ProviderPicker } from './ProviderPicker.js';
 import {
 	DEFAULT_API_VERSION,
 	getConfig,
 	loadConfigToEnv,
 	writeConfig,
 } from './util.js';
-import {ProviderPicker} from './ProviderPicker.js';
-import {DefaultModelPicker} from './DefaultModelPicker.js';
 
 export const AddLLM: FC = () => {
 	const [step, setStep] = useState(1);

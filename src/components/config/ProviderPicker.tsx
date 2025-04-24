@@ -1,6 +1,6 @@
-import React, {FC, useMemo} from 'react';
-import {Box, Text} from 'ink';
-import {Select} from '@inkjs/ui';
+import { Select } from '@inkjs/ui';
+import { Box, Text } from 'ink';
+import React, { FC, useMemo } from 'react';
 import { getConfig } from './util.js';
 
 export const providers: {label: string; value: LLM['provider']}[] = [

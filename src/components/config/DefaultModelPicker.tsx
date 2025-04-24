@@ -6,6 +6,7 @@ import {getConfig, writeConfig} from './util.js';
 
 interface Props {
 	llm?: LLM;
+	/** callback after default model has been saved to config */
 	onSelect?: (model: string) => void;
 }
 
