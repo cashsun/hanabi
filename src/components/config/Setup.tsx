@@ -33,7 +33,7 @@ export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
 			{step === 1 && <Spinner label="Creating .hanabi.json" />}
 			{step > 1 && (
 				<Box>
-					<Text>✓ Config file created.</Text>
+					<Text><Text color="green">✓</Text> Config file created.</Text>
 				</Box>
 			)}
 			{step === 2 && (

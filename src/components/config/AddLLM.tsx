@@ -1,12 +1,6 @@
 import { ConfirmInput, TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
-import React, {
-	FC,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uniqueId } from 'uuid';
 import { setAppReady } from '../../store/appState.js';
 import { DefaultModelPicker } from './DefaultModelPicker.js';
@@ -141,6 +135,11 @@ export const AddLLM: FC = () => {
 						setStep(-1);
 					}}
 				/>
+			)}
+			{step === -1 && (
+				<Box>
+					<Text><Text color="green">✓</Text> Config file updated.</Text>
+				</Box>
 			)}
 		</Box>
 	);
