@@ -1,14 +1,19 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cashsun/hanabi.git"
+	},
 	"bin": {
 		"hanabi": "dist/cli.js"
 	},
 	"type": "module",
 	"engines": {
-		"node": ">=16"
+		"node": ">=20.10.0 || >=22",
+		"pnpm": ">=9.0.0"
 	},
 	"scripts": {
 		"build": "tsc",
