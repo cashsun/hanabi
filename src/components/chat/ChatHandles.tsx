@@ -21,7 +21,7 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	COPY: 'Last Msg',
 	FILE: 'Add file',
 	MCP: 'Use MCP',
-	LLM: 'change llm',
+	LLM: 'Change llm',
 };
 
 export const ChatHandles: FC = () => {
