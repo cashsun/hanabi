@@ -19,9 +19,10 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	EXIT: 'Exit Hanabi',
 	RESET: 'Reset chat',
 	COPY: 'Last Msg',
+	LLM: 'Change llm',
+	
 	FILE: 'Add file',
 	MCP: 'Use MCP',
-	LLM: 'Change llm',
 };
 
 export const ChatHandles: FC = () => {

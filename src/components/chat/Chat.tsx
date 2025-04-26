@@ -1,20 +1,20 @@
-import {createAzure} from '@ai-sdk/azure';
-import {deepseek} from '@ai-sdk/deepseek';
-import {google} from '@ai-sdk/google';
-import {openai} from '@ai-sdk/openai';
-import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
+import { createAzure } from '@ai-sdk/azure';
+import { deepseek } from '@ai-sdk/deepseek';
+import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import Markdown from '@inkkit/ink-markdown';
-import {CoreMessage, UserContent} from 'ai';
+import { CoreMessage, UserContent } from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
-import {Box, Text} from 'ink';
-import {last} from 'lodash-es';
-import {ollama} from 'ollama-ai-provider';
-import React, {FC, useEffect, useMemo, useState} from 'react';
-import {useChat} from '../../hooks/useChat.js';
-import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
-import {DEFAULT_API_VERSION, getConfig} from '../config/util.js';
-import {ChatInput} from './ChatInput.js';
+import { Box, Text } from 'ink';
+import { last } from 'lodash-es';
+import { ollama } from 'ollama-ai-provider';
+import React, { FC, useEffect, useMemo, useState } from 'react';
+import { useChat } from '../../hooks/useChat.js';
+import { DefaultModelPicker } from '../config/DefaultModelPicker.js';
+import { DEFAULT_API_VERSION, getConfig } from '../config/util.js';
+import { ChatInput } from './ChatInput.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -65,15 +65,15 @@ const getModel = (
 	}
 };
 
-export const Chat: FC<{singleQuestion?: boolean; query?: string}> = ({
-	singleQuestion,
-	query,
-}) => {
+export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const config = useMemo(() => getConfig(), []);
+
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
 	const model = getModel(config.llms, defaultModel);
 	const [messages, setMessages] = React.useState<CoreMessage[]>(
-		query ? [{role: 'user', content: query}] : [],
+		singleRunQuery && singleRunQuery !== '1'
+			? [{role: 'user', content: singleRunQuery}]
+			: [],
 	);
 	const {data, isFetching, error} = useChat(model, messages);
 
@@ -83,11 +83,13 @@ export const Chat: FC<{singleQuestion?: boolean; query?: string}> = ({
 		}
 	}, [data]);
 
-	useEffect(() => {
-		if (messages.length === 2 && singleQuestion) {
-			process.exit(0);
-		}
-	}, [messages, singleQuestion]);
+	if (messages.length === 2 && singleRunQuery) {
+		return (
+			<Text>
+				<Markdown>{dedent`${messages[1]?.content.toString()}`}</Markdown>
+			</Text>
+		);
+	}
 
 	if (!defaultModel) {
 		return (
