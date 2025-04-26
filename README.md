@@ -27,7 +27,8 @@ $ hanabi reset
 ```
 
 ## TODOs
-- [ ] include local files in chat
+- [x] include local files in chat
+- [ ] add config to exclude custom files
 - [ ] mcp support
 - [ ] add more LLM providers
 - [ ] Flowise agent support

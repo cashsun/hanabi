@@ -36,6 +36,7 @@ type HanabiConfig = {
     defaultModel?: {
         id: string;
         model: string;
+        provider: LLM['provider']
     };
     llms: LLM[]
 }

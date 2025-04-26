@@ -36,9 +36,9 @@ export const AddLLM: FC = () => {
 			const llms = config.llms;
 
 			let found: LLM | undefined;
-			// Update existing LLM if provider matches (except for OpenAI-Compatible)
+			// Update existing LLM if provider matches
 			const newLlms = llms.map(l => {
-				if (l.provider === provider && provider !== 'OpenAI-Compatible') {
+				if (l.provider === provider) {
 					found = l;
 					const {id, ...override} = llm.current ?? {};
 					return {

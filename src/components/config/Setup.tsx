@@ -21,7 +21,7 @@ export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
 				// give some time to show the spinner
 				setTimeout(() => {
 					setStep(2);
-				}, 1000);
+				}, 500);
 				break;
 			}
 		}

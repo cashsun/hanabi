@@ -25,5 +25,7 @@ export default function App({command, query}: Props) {
 		return <Setup isReset={isReset} />;
 	}
 
+	
+
 	return <Chat singleQuestion={command === 'ask'} query={query} />;
 }
