@@ -85,7 +85,7 @@ export const AddLLM: FC<{
 								setStep(3);
 							} else {
 								// finish
-								setStep(5);
+								setStep(onSelect ? 6 : 5);
 							}
 						}}
 					/>
@@ -99,7 +99,7 @@ export const AddLLM: FC<{
 						onSubmit={v => {
 							setApiUrl(v);
 							// finish
-							setStep(provider === 'Azure' ? 4 : 5);
+							setStep(provider === 'Azure' ? 4 : onSelect ? 6 : 5);
 						}}
 					/>
 				</>
@@ -112,7 +112,7 @@ export const AddLLM: FC<{
 						onSubmit={v => {
 							setApiVersion(v || DEFAULT_API_VERSION);
 							// finish
-							setStep(5);
+							setStep(onSelect ? 6 : 5);
 						}}
 					/>
 				</>
@@ -133,7 +133,7 @@ export const AddLLM: FC<{
 			{step === 6 && provider && (
 				<DefaultModelPicker
 					llm={llm.current}
-					onSelect={(model) => {
+					onSelect={model => {
 						setStep(-1);
 						onSelect?.(model);
 					}}
