@@ -25,7 +25,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"prepublishOnly": "npm run build",
+		"prepublishOnly": "pnpm build",
 		"dev": "tsc --watch",
 		"start": "tsx src/cli.tsx",
 		"link-bin": "npm i -g --force .",
