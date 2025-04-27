@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
 import { Box, Text } from 'ink';
+import React, { FC, useMemo } from 'react';
 import { configPath, getConfig } from './util.js';
 
 /**

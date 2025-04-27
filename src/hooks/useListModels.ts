@@ -23,8 +23,10 @@ export const useModelList = (
 ) => {
 	return useQuery<string[], Error>({
 		queryKey: ['modelList', provider, apiKey, apiUrl, apiVersion],
-		enabled: !!provider,
 		queryFn: async () => {
+			if(!provider){
+				return []
+			}
 			let apiUrlToUse = `${apiUrl}/models`;
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${apiKey}`,

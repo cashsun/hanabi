@@ -30,6 +30,10 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	Act as an AI assistant with access to various tools (if provided). 
 	User might be using a terminal interface to interact with you.
 	
+	## Context
+	- Today is ${new Date().toISOString()}
+	- Timezone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+
 	## Help Documentation
 	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
 	show the following help documenation
@@ -173,6 +177,8 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 							<Box
 								borderColor="magenta"
 								borderStyle="doubleSingle"
+								borderLeft={false}
+								borderRight={false}
 								paddingX={1}
 								key={index}
 							>
@@ -199,7 +205,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 						}
 						setMessages(prev => [
 							...prev,
-							{role: 'assistant', content: 'Copied to clipboard!'},
+							{role: 'assistant', content: '⟡ Copied to clipboard!'},
 						]);
 					}
 				}}

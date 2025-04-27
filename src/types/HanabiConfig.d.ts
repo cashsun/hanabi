@@ -37,9 +37,8 @@ interface StdioMCPConfig {
     command: string,
 	args: string[],
     version?: string;
-    env?: Record<string, string>
-	/** in milliseconds */
-	timeout?: number;
+    env?: Record<string, string>,
+    cwd?: string;
 }
 
 interface RemoteMCPConfig {

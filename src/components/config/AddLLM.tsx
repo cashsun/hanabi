@@ -125,7 +125,7 @@ export const AddLLM: FC<{
 			)}
 			{step === 5 && (
 				<Text color="green">
-					⟡ Use this model as default?{' '}
+					⟡ Use this provider as default? {' '}
 					<ConfirmInput
 						onConfirm={() => {
 							setStep(6);

@@ -10,7 +10,6 @@ export const useChat = (
 ) => {
 	return useQuery({
 		queryKey: ['use-chat', model, messages, mcpKeys],
-		enabled: !!model && !!messages.length,
 		queryFn: async () => {
             const maxSteps = getConfig().maxSteps ?? 90;
 			if (messages.at(-1)?.role !== 'user') {

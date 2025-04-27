@@ -43,7 +43,8 @@ export async function getMcpTools(serverKeys: string[]) {
 						command: c.command,
 						args: c.args,
 						env: c.env,
-						stderr: process.stderr
+						stderr: process.stderr,
+						cwd: c.cwd
 					});
 
 					const stdioClient = new Client({

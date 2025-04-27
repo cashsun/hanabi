@@ -11,12 +11,12 @@
 ## Install
 
 ```bash
-$ npm install --global hanabi-cli
+$ npm install -g hanabi-cli
 ```
 
 ## CLI
 
-Get Help (WIP)
+Get Help
 
 ```
 $ hanabi --help
@@ -32,6 +32,12 @@ Reset config file
 
 ```
 $ hanabi reset
+```
+
+Ask single question and print result. (Yes Hanabi auto injects today's date and timezone for you as context)
+
+```
+$ hanabi ask -q "how's the weather tomorrow?"
 ```
 
 ## MCP Servers
@@ -125,7 +131,7 @@ All files included in the .gitignore will also be auto excluded.
 
 ## Custom System Prompt
 
-Hanabi comes with predefined simple system prompt to show docs on terminal commands. You can provide extra system prompt in the config.
+Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in the config.
 
 ```json
 // <user home folder>/.hanabi.json
@@ -147,6 +153,7 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 - [x] mcp support
 - [x] add config to exclude custom files pattern
 - [x] support for custom system prompts (via cli and config)
+- [ ] support local `.hanabi.json` override, smililar to how .npmrc works
 - [ ] add web server host mode (ie api and web interface)
 - [ ] Flowise agent support
 - [ ] Dify agent support
