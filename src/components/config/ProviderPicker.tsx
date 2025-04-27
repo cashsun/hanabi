@@ -32,7 +32,7 @@ export const providers: {label: string; value: LLM['provider']}[] = [
 ];
 
 export const ProviderPicker: FC<{
-	onSelect: (p: LLM['provider']) => void;
+	onSelect: (p: LLM['provider'], defaultModel?: HanabiConfig['defaultModel']) => void;
 	useExisting?: boolean;
 }> = ({onSelect, useExisting}) => {
 	const [isNew, setIsNew] = useState(false);
@@ -50,7 +50,16 @@ export const ProviderPicker: FC<{
 	}, []);
 
 	if (isNew) {
-		return <AddLLM />;
+		return (
+			<AddLLM
+				onSelect={(defaultModel) => {
+					setIsNew(false);
+					if(defaultModel){
+						onSelect(defaultModel.provider, defaultModel);
+					}
+				}}
+			/>
+		);
 	}
 
 	return (

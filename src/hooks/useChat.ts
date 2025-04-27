@@ -1,22 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
-import { CoreMessage, generateText, LanguageModelV1 } from "ai";
-import { last } from 'lodash-es';
+import {useQuery} from '@tanstack/react-query';
+import {CoreMessage, generateText, LanguageModelV1} from 'ai';
+import {getMcpTools, useMcpTools} from './useMcpTools.js';
 
-export const useChat = (model: LanguageModelV1 | undefined, messages: CoreMessage[]) => {
-    return useQuery({
-        queryKey: ['use-chat', model, messages],
-        enabled: !!model && !!messages.length,
-        queryFn: async () => {
-            if(last(messages)?.role === 'assistant'){
-                return '';
-            }
-            const {text} = await generateText({
-                model: model!,
-                messages,
-            });
-            
-            return text;
-        }
-    })
+const maxSteps = 90;
 
-}
+export const useChat = (
+	model: LanguageModelV1 | undefined,
+	messages: CoreMessage[],
+	mcpKeys: string[],
+) => {
+	return useQuery({
+		queryKey: ['use-chat', model, messages, mcpKeys],
+		enabled: !!model && !!messages.length,
+		queryFn: async () => {
+			if (messages.at(-1)?.role === 'assistant') {
+				return [];
+			}
+			const tools = await getMcpTools(mcpKeys);
+			const {text, response} = await generateText({
+				model: model!,
+				messages,
+				tools,
+				maxSteps,
+			});
+			console.log('text :>> ', text);
+			return response.messages;
+		},
+	});
+};

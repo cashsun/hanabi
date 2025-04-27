@@ -1,10 +1,9 @@
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
-	AZURE_API_URL,
 	DEEPSEEK_API_URL,
 	GOOGLE_AI_API_URL,
 	OLLAMA_API_URL,
-	OPENAI_API_URL,
+	OPENAI_API_URL
 } from './endpoints.js';
 export const useModelList = (
 	provider: LLM['provider'] | undefined,
@@ -23,7 +22,6 @@ export const useModelList = (
 			} else if (provider === 'Google') {
 				apiUrlToUse = `${GOOGLE_AI_API_URL}/models`;
 			} else if (provider === 'Azure') {
-				// TODO: this is wrong, need to get the resource name from the config
 				apiUrlToUse = `${apiUrl}/models?api-version=${apiVersion}`;
 			} else if (provider === 'Deepseek') {
 				apiUrlToUse = `${DEEPSEEK_API_URL}/models`;

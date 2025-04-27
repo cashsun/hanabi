@@ -7,7 +7,7 @@ import { getConfig, loadConfigToEnv, writeConfig } from './util.js';
 interface Props {
 	llm?: LLM;
 	/** callback after default model has been saved to config */
-	onSelect?: (model: string) => void;
+	onSelect?: (defaultModel: HanabiConfig['defaultModel']) => void;
 }
 
 export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
@@ -18,8 +18,11 @@ export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
 		return (
 			<ProviderPicker
 				useExisting
-				onSelect={p => {
+				onSelect={(p, d) => {
 					setLLMToUse(config.llms.find(llm => llm.provider === p));
+					if(d){
+						onSelect?.(d)
+					}
 				}}
 			/>
 		);
@@ -32,16 +35,17 @@ export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
 				llm={llmToUse}
 				onSelect={model => {
 					if (llmToUse) {
+						const defaultModel = {
+							id: llmToUse.id,
+							model,
+							provider: llmToUse.provider,
+						};
 						writeConfig({
-							defaultModel: {
-								id: llmToUse.id,
-								model,
-								provider: llmToUse.provider,
-							},
+							defaultModel
 						});
 						loadConfigToEnv()
+						onSelect?.(defaultModel);
 					}
-					onSelect?.(model);
 				}}
 			/>
 		</Box>

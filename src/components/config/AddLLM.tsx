@@ -1,10 +1,10 @@
-import { ConfirmInput, TextInput } from '@inkjs/ui';
-import { Box, Text } from 'ink';
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { v4 as uniqueId } from 'uuid';
-import { setAppReady } from '../../store/appState.js';
-import { DefaultModelPicker } from './DefaultModelPicker.js';
-import { ProviderPicker } from './ProviderPicker.js';
+import {ConfirmInput, TextInput} from '@inkjs/ui';
+import {Box, Text} from 'ink';
+import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
+import {v4 as uniqueId} from 'uuid';
+import {setAppReady} from '../../store/appState.js';
+import {DefaultModelPicker} from './DefaultModelPicker.js';
+import {ProviderPicker} from './ProviderPicker.js';
 import {
 	DEFAULT_API_VERSION,
 	getConfig,
@@ -12,7 +12,9 @@ import {
 	writeConfig,
 } from './util.js';
 
-export const AddLLM: FC = () => {
+export const AddLLM: FC<{
+	onSelect?: (model: HanabiConfig['defaultModel']) => void;
+}> = ({onSelect}) => {
 	const [step, setStep] = useState(1);
 	const id = useMemo(() => uniqueId(), []);
 	const [provider, setProvider] = useState<LLM['provider']>();
@@ -131,14 +133,17 @@ export const AddLLM: FC = () => {
 			{step === 6 && provider && (
 				<DefaultModelPicker
 					llm={llm.current}
-					onSelect={() => {
+					onSelect={(model) => {
 						setStep(-1);
+						onSelect?.(model);
 					}}
 				/>
 			)}
 			{step === -1 && (
 				<Box>
-					<Text><Text color="green">✓</Text> Config file updated.</Text>
+					<Text>
+						<Text color="green">✓</Text> Config file updated.
+					</Text>
 				</Box>
 			)}
 		</Box>

@@ -1,14 +1,15 @@
-import { Spinner, TextInput, TextInputProps } from '@inkjs/ui';
-import { TextPart, UserContent } from 'ai';
+import {Spinner, TextInput, TextInputProps} from '@inkjs/ui';
+import {TextPart, UserContent} from 'ai';
 import dedent from 'dedent';
 import fs from 'fs';
-import { Box, Text, useInput } from 'ink';
+import {Box, Text, TextProps, useInput} from 'ink';
 import mime from 'mime-types';
 import os from 'os';
-import React, { FC, useCallback, useState } from 'react';
-import { DefaultModelPicker } from '../config/DefaultModelPicker.js';
-import { FilePicker } from '../FilePicker.js';
-import { ChatHandles, chatHandles, suggestions } from './ChatHandles.js';
+import React, {FC, useCallback, useMemo, useState} from 'react';
+import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
+import {FilePicker} from '../FilePicker.js';
+import {ChatHandles, chatHandles, suggestions} from './ChatHandles.js';
+import {McpPicker} from '../McpPicker.js';
 
 const isReset = (msg?: string) => msg && chatHandles.RESET === msg.trim();
 const isCopy = (msg?: string) => msg && chatHandles.COPY === msg.trim();
@@ -20,16 +21,37 @@ export const ChatInput: FC<{
 	defaultModel: HanabiConfig['defaultModel'];
 	isFetching?: boolean;
 	defaultValue?: TextInputProps['defaultValue'];
-	onSubmit: (msg: UserContent) => void;
+	onSubmit: (msg: UserContent, mcpKeys: string[]) => void;
 	onReset?: () => void;
 	onCopy?: () => void;
-	onLLM?: ()=>void;
+	onLLM?: () => void;
 }> = ({defaultModel, isFetching, onSubmit, onReset, onCopy, onLLM}) => {
 	const [value, setValue] = useState('');
 	const [showInput, setShowInput] = useState(true);
 	const [files, setFiles] = useState<string[]>([]);
+	const [mcpKeys, setMcpKeys] = useState<string[]>([]);
 	const [pickingLLM, setPickingLLM] = useState(false);
-	const pickingFile = new RegExp(`${chatHandles.FILE} $`).test(value ?? '');
+	const pickingFile = new RegExp(`${chatHandles.FILE}$`).test(value ?? '');
+	const pickingMCP = new RegExp(`${chatHandles.MCP}$`).test(value ?? '');
+	const activeHandles = useMemo(() => {
+		const hdles: {type: string; label: string; color: TextProps['color']}[] =
+			[];
+		if (mcpKeys.length) {
+			hdles.push({
+				type: chatHandles.MCP,
+				label: '@mcp',
+				color: 'magentaBright',
+			});
+		}
+		if (files.length) {
+			hdles.push({
+				type: chatHandles.FILE,
+				label: `@file(${files.length})`,
+				color: 'yellow',
+			});
+		}
+		return hdles;
+	}, [files, mcpKeys]);
 
 	useInput((t, key) => {
 		if (key.tab) {
@@ -40,7 +62,18 @@ export const ChatInput: FC<{
 			}
 		}
 		if (key.backspace || (key.delete && os.type() === 'Darwin' && !value)) {
-			setFiles([]);
+			if (activeHandles.at(-1)) {
+				switch (activeHandles.at(-1)?.type as keyof typeof chatHandles) {
+					case chatHandles.FILE: {
+						setFiles([]);
+						break;
+					}
+					case chatHandles.MCP: {
+						setMcpKeys([]);
+						break;
+					}
+				}
+			}
 		}
 	});
 
@@ -58,8 +91,19 @@ export const ChatInput: FC<{
 				onConfirm={files => {
 					setFiles(files);
 					setValue(prev =>
-						prev.replace(new RegExp(`${chatHandles.FILE} $`), ``),
+						prev.replace(new RegExp(`${chatHandles.FILE}$`), ``),
 					);
+				}}
+			/>
+		);
+	}
+
+	if (pickingMCP) {
+		return (
+			<McpPicker
+				onSelect={mcps => {
+					setMcpKeys(mcps);
+					setValue(prev => prev.replace(new RegExp(`${chatHandles.MCP}$`), ``));
 				}}
 			/>
 		);
@@ -69,9 +113,9 @@ export const ChatInput: FC<{
 		return (
 			<DefaultModelPicker
 				onSelect={() => {
-					setPickingLLM(false)
+					setPickingLLM(false);
 					setFiles([]);
-					onLLM?.()
+					onLLM?.();
 				}}
 			/>
 		);
@@ -79,14 +123,28 @@ export const ChatInput: FC<{
 
 	return (
 		<Box flexDirection="column">
-			<Box borderColor="blueBright" borderStyle="single" paddingX={1}>
-				<Text color="blueBright" bold>
-					Chat {'>'}{' '}
-				</Text>
+			<Box
+				borderColor="blueBright"
+				flexWrap="wrap"
+				borderStyle="single"
+				paddingX={1}
+			>
+				<Box flexBasis="auto" flexShrink={0}>
+					<Text color="blueBright" bold>
+						Chat {'>'}{' '}
+					</Text>
+				</Box>
 				{isFetching && <Spinner label="Thinking..." />}
-				{!isFetching && !!files.length && (
-					<Text backgroundColor="gray">{files.length} file(s)</Text>
+				{!isFetching && (
+					<Box flexBasis="auto" flexShrink={0}>
+						{activeHandles.map(ah => (
+							<Text key={ah.label} backgroundColor={ah.color}>
+								{ah.label}
+							</Text>
+						))}
+					</Box>
 				)}
+
 				{!isFetching && showInput && (
 					<TextInput
 						placeholder={` ${defaultModel?.model}`}
@@ -112,8 +170,8 @@ export const ChatInput: FC<{
 							}
 							if (isLLM(msg)) {
 								setPickingLLM(true);
-								setValue('')
-								setFiles([])
+								setValue('');
+								setFiles([]);
 								refreshInput();
 								return;
 							}
@@ -122,7 +180,7 @@ export const ChatInput: FC<{
 							let finalMsg: UserContent = [{type: 'text', text: msg}];
 							if (!!files.length) {
 								files.forEach(f => {
-									(finalMsg[0] as TextPart).text += `\n< ${f} >`;
+									(finalMsg[0] as TextPart).text += `\n@file: ${f}`;
 									const mimeType = mime.lookup(f) || 'text/plain';
 									if (mimeType.startsWith('image')) {
 										finalMsg.push({
@@ -144,7 +202,10 @@ export const ChatInput: FC<{
 										} else {
 											finalMsg.push({
 												type: 'file',
-												mimeType: mimeType === 'application/json'? 'text/plain': mimeType,
+												mimeType:
+													mimeType === 'application/json'
+														? 'text/plain'
+														: mimeType,
 												data: fs.readFileSync(f),
 											});
 										}
@@ -152,7 +213,7 @@ export const ChatInput: FC<{
 								});
 							}
 							setFiles([]);
-							onSubmit?.(finalMsg);
+							onSubmit?.(finalMsg, mcpKeys);
 						}}
 					/>
 				)}
