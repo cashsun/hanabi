@@ -17,13 +17,12 @@ export const useChat = (
 				return [];
 			}
 			const tools = await getMcpTools(mcpKeys);
-			const {text, response} = await generateText({
+			const {response} = await generateText({
 				model: model!,
 				messages,
 				tools,
 				maxSteps,
 			});
-			console.log('text :>> ', text);
 			return response.messages;
 		},
 	});

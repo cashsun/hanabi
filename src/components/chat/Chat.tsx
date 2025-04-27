@@ -79,9 +79,10 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
 	useEffect(() => {
 		if (data && !error) {
+			console.log('messages :>> ', data);
 			setMessages(prev => [
 				...prev,
-				...data.filter(m => m.role === 'assistant'),
+				...data,
 			]);
 		}
 	}, [data]);
