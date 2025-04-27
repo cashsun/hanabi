@@ -1,6 +1,6 @@
 # hanabi-cli
 
-> A command line AI chat interface to any LLM model, with files & MCP support. Use it as your copilot alternative or any other use case.
+> A command line AI chat interface to any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
 
 ![Chat demo](screenshots/Screenshot.png)
 
@@ -147,13 +147,16 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 }
 ```
 
+## Local config file override
+You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name.
+
 ## TODOs
 
 - [x] include local files in chat
 - [x] mcp support
 - [x] add config to exclude custom files pattern
 - [x] support for custom system prompts (via cli and config)
-- [ ] support local `.hanabi.json` override, smililar to how .npmrc works
+- [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
 - [ ] add web server host mode (ie api and web interface)
 - [ ] Flowise agent support
 - [ ] Dify agent support

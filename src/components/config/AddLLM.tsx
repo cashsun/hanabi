@@ -6,7 +6,6 @@ import {setAppReady} from '../../store/appState.js';
 import {DefaultModelPicker} from './DefaultModelPicker.js';
 import {ProviderPicker} from './ProviderPicker.js';
 import {
-	DEFAULT_AZURE_API_VERSION,
 	getConfig,
 	getDefaultApiVersion,
 	loadConfigToEnv,
@@ -21,9 +20,7 @@ export const AddLLM: FC<{
 	const [provider, setProvider] = useState<LLM['provider']>();
 	const [apiKey, setApiKey] = useState<LLM['apiKey']>();
 	const [apiUrl, setApiUrl] = useState<LLM['apiUrl']>();
-	const [apiVersion, setApiVersion] = useState<LLM['apiVersion']>(
-		DEFAULT_AZURE_API_VERSION,
-	);
+	const [apiVersion, setApiVersion] = useState<LLM['apiVersion']>();
 	const llm = useRef<LLM>();
 	llm.current = {
 		id,

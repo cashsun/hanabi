@@ -1,8 +1,8 @@
-import {resolve} from 'path';
-import os from 'os';
-import fs from 'fs';
 import {populate} from 'dotenv';
-import {merge} from 'lodash-es';
+import fs from 'fs';
+import {merge, unionBy} from 'lodash-es';
+import os from 'os';
+import {resolve} from 'path';
 
 function getResourceNameFromUrl(urlString: string) {
 	try {
@@ -56,16 +56,16 @@ export const defaultConfig: HanabiConfig = {
 			name: 'file system',
 			transport: 'stdio',
 			command: 'npx',
-			args: [
-				'-y',
-				'@modelcontextprotocol/server-filesystem',
-				'.',
-			],
+			args: ['-y', '@modelcontextprotocol/server-filesystem', '.'],
 		},
 	},
 };
 
-export const configPath = resolve(os.homedir(), '.hanabi.json');
+const localConfigPath = resolve(process.cwd(), '.hanabi.json');
+const userConfigPath = resolve(os.homedir(), '.hanabi.json');
+export const configPath = fs.existsSync(localConfigPath)
+	? localConfigPath
+	: userConfigPath;
 
 /**
  * merge the existing config with the provided config and write it to the config file.
@@ -88,7 +88,22 @@ export const removeConfig = () => {
 
 export const getConfig = () => {
 	if (!hasConfig()) {
-		return defaultConfig;
+		throw Error('No config file found. Please re-run hanabi.');
+	}
+	if (configPath === localConfigPath) {
+		const localConfig: Partial<HanabiConfig> = JSON.parse(
+			fs.readFileSync(configPath, 'utf-8'),
+		);
+		const userConfig: HanabiConfig | undefined = fs.existsSync(userConfigPath)
+			? JSON.parse(fs.readFileSync(userConfigPath, 'utf-8'))
+			: undefined;
+
+		const merged = merge({}, userConfig, localConfig) as HanabiConfig;
+		merged.llms = unionBy(
+			[...localConfig.llms??[], ...(userConfig?.llms ?? [])],
+			'provider',
+		);
+		return merged;
 	}
 	const config = fs.readFileSync(configPath, 'utf-8');
 	return JSON.parse(config) as HanabiConfig;

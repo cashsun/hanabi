@@ -20,7 +20,7 @@ const ListLLMAndMcpServers: FC = () => {
       {/* LLMs Section */}
       <Box flexDirection="column" marginBottom={1}>
         <Text bold underline>
-          Language Models ({config.llms.length})
+          Providers ({config.llms.length})
         </Text>
         
         {config.llms.length === 0 ? (
@@ -28,9 +28,9 @@ const ListLLMAndMcpServers: FC = () => {
         ) : (
           config.llms.map((llm: LLM, index: number) => (
             <Box key={index} flexDirection="column" marginLeft={2} marginTop={1}>
-              <Text bold color="green">{llm.id}</Text>
+              <Text bold color="green">{llm.provider}</Text>
               <Box marginLeft={2} flexDirection="column">
-                <Text>Provider: <Text color="cyan">{llm.provider}</Text></Text>
+                {llm.id && <Text>ID: <Text color="gray">{llm.id}</Text></Text>}
                 {llm.apiUrl && <Text>API URL: <Text color="gray">{llm.apiUrl}</Text></Text>}
                 {llm.apiVersion && <Text>API Version: <Text color="gray">{llm.apiVersion}</Text></Text>}
               </Box>
