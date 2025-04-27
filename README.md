@@ -1,8 +1,10 @@
 # hanabi-cli
 
-> A command line interface to chat with any AI models, with MCP support. Use is as copilot alternative or any other use case.
+> A command line AI chat interface to with any LLM model, with files & MCP support. Use it as your copilot alternative or any other use case.
 
-![Chat demo](screenshots/screenshot1.png)
+![Chat demo](screenshots/screenshot.png)
+![Chat demo 2](screenshots/screenshot2.png)
+![Coding demo 3](screenshots/screenshot3.png)
 
 ## Install
 
