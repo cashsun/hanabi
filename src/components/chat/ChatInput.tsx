@@ -1,17 +1,17 @@
-import {Spinner, TextInput, TextInputProps} from '@inkjs/ui';
-import {TextPart, UserContent} from 'ai';
+import {Spinner, TextInput, type TextInputProps} from '@inkjs/ui';
+import type {TextPart, UserContent} from 'ai';
+import clipboardy from 'clipboardy';
 import dedent from 'dedent';
 import fs from 'fs';
-import {Box, Text, TextProps, useInput} from 'ink';
+import {Box, Text, type TextProps, useInput} from 'ink';
 import mime from 'mime-types';
 import os from 'os';
 import {resolve} from 'path';
-import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {type FC, useCallback, useMemo, useState} from 'react';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {FilePicker} from '../FilePicker.js';
-import {ChatHandles, chatHandles, suggestions} from './ChatHandles.js';
 import {McpPicker} from '../McpPicker.js';
-import clipboardy from 'clipboardy';
+import {ChatHandles, chatHandles, suggestions} from './ChatHandles.js';
 
 const wkdir = process.cwd();
 
@@ -24,7 +24,6 @@ const isExit = (msg?: string) =>
 export const ChatInput: FC<{
 	defaultModel: HanabiConfig['defaultModel'];
 	isFetching?: boolean;
-	defaultValue?: TextInputProps['defaultValue'];
 	onSubmit: (msg: UserContent, mcpKeys: string[]) => void;
 	onReset?: () => void;
 	onCopy?: () => void;
@@ -42,7 +41,7 @@ export const ChatInput: FC<{
 		value ?? '',
 	);
 
-	const activeHandles = useMemo(() => {
+	const activeParamHandles = useMemo(() => {
 		const hdles: {type: string; label: string; color: TextProps['color']}[] =
 			[];
 		if (mcpKeys.length) {
@@ -81,8 +80,8 @@ export const ChatInput: FC<{
 			}
 		}
 		if (key.backspace || (key.delete && os.type() === 'Darwin' && !value)) {
-			if (activeHandles.at(-1)) {
-				switch (activeHandles.at(-1)?.type as keyof typeof chatHandles) {
+			if (activeParamHandles.at(-1)) {
+				switch (activeParamHandles.at(-1)?.type as keyof typeof chatHandles) {
 					case chatHandles.FILE: {
 						setFiles([]);
 						break;
@@ -95,6 +94,11 @@ export const ChatInput: FC<{
 						setClipboard(false);
 						break;
 					}
+					default: {
+						throw new Error(
+							`Unhandled chat handle: ${activeParamHandles.at(-1)?.type}`,
+						);
+					}
 				}
 			}
 		}
@@ -104,7 +108,9 @@ export const ChatInput: FC<{
 	// default value instead.
 	const refreshInput = useCallback(() => {
 		setShowInput(false);
-		setTimeout(() => setShowInput(true), 0);
+		setTimeout(() => {
+			setShowInput(true);
+		}, 0);
 	}, []);
 
 	if (pickingFile) {
@@ -166,7 +172,7 @@ export const ChatInput: FC<{
 				{isFetching && <Spinner label="Thinking..." />}
 				{!isFetching && (
 					<Box flexBasis="auto" flexShrink={0}>
-						{activeHandles.map(ah => (
+						{activeParamHandles.map(ah => (
 							<Text key={ah.label} backgroundColor={ah.color}>
 								{ah.label}
 							</Text>
@@ -181,6 +187,9 @@ export const ChatInput: FC<{
 						suggestions={suggestions}
 						defaultValue={value}
 						onSubmit={msg => {
+							if (!msg) {
+								return;
+							}
 							if (isExit(msg)) {
 								process.exit(0);
 							}
@@ -208,11 +217,11 @@ export const ChatInput: FC<{
 							setValue('');
 							const clip = clipboard ? clipboardy.readSync() : undefined;
 							const clipText = clip ? `\n\n\`\`\`\n${clip}\n\`\`\`` : '';
-							let finalMsg: UserContent = [
+							const finalMsg: UserContent = [
 								{type: 'text', text: `${msg}${clipText}`},
 							];
-							if (!!files.length) {
-								files.forEach(f => {
+							if (files.length) {
+								for (const f of files) {
 									(finalMsg[0] as TextPart).text += `\n@file: ${f}`;
 									const mimeType = mime.lookup(f) || 'text/plain';
 									if (mimeType.startsWith('image')) {
@@ -232,7 +241,7 @@ export const ChatInput: FC<{
 											// so we include the file content
 											(finalMsg[0] as TextPart).text += dedent`\n
 											\`\`\`
-											\n${fs.readFileSync(f, {encoding: 'utf-8'})}\n
+											\n${fs.readFileSync(f, {encoding: 'utf8'})}\n
 											\`\`\`
 											`;
 										} else {
@@ -246,7 +255,7 @@ export const ChatInput: FC<{
 											});
 										}
 									}
-								});
+								}
 							}
 							setFiles([]);
 							onSubmit?.(finalMsg, mcpKeys);

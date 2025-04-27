@@ -1,12 +1,11 @@
-import {MultiSelect, Select, Spinner, TextInput} from '@inkjs/ui';
+import {MultiSelect} from '@inkjs/ui';
 import {Box, Text, useInput} from 'ink';
-import React, {FC, useMemo, useState} from 'react';
-import {useModelList} from '../hooks/useListModels.js';
+import React, {type FC, useMemo, useState} from 'react';
 import {getConfig} from './config/util.js';
 
-interface Props {
-	onSelect: (mcpServerKeys: string[]) => void;
-}
+type Props = {
+	readonly onSelect: (mcpServerKeys: string[]) => void;
+};
 
 export const McpPicker: FC<Props> = ({onSelect}) => {
 	const [warning, setWarning] = useState('');
@@ -20,7 +19,7 @@ export const McpPicker: FC<Props> = ({onSelect}) => {
 		});
 	}, []);
 
-	useInput((t, key) => {
+	useInput((_t, key) => {
 		if (warning && !key.return) {
 			setWarning('');
 		}
@@ -33,26 +32,28 @@ export const McpPicker: FC<Props> = ({onSelect}) => {
 		<Box flexDirection="column">
 			<Text color="green">Pick Your MCP servers</Text>
 			{warning && <Text color="yellow">{warning}</Text>}
-			{!options.length && (
+			{options.length === 0 && (
 				<Text color="gray">
 					No MCP server config found. Find instructions here:
 					https://github.com/cashsun/hanabi?tab=readme-ov-file#mcp-servers
 				</Text>
 			)}
-			{!!options.length && <MultiSelect
-				options={options}
-				visibleOptionCount={10}
-				onChange={() => {}}
-				onSubmit={keys => {
-					if (!keys.length) {
-						setWarning(
-							'No server selected. Use [SPACE] to pick or [ESC] to exit.',
-						);
-					} else {
-						onSelect(keys);
-					}
-				}}
-			/>}
+			{!!options.length && (
+				<MultiSelect
+					options={options}
+					visibleOptionCount={10}
+					onChange={() => {}}
+					onSubmit={keys => {
+						if (keys.length) {
+							onSelect(keys);
+						} else {
+							setWarning(
+								'No server selected. Use [SPACE] to pick or [ESC] to exit.',
+							);
+						}
+					}}
+				/>
+			)}
 		</Box>
 	);
 };

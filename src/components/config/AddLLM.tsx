@@ -1,6 +1,6 @@
 import {ConfirmInput, TextInput} from '@inkjs/ui';
 import {Box, Text} from 'ink';
-import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
+import React, {type FC, useEffect, useMemo, useRef, useState} from 'react';
 import {v4 as uniqueId} from 'uuid';
 import {setAppReady} from '../../store/appState.js';
 import {DefaultModelPicker} from './DefaultModelPicker.js';
@@ -22,13 +22,15 @@ export const AddLLM: FC<{
 	const [apiUrl, setApiUrl] = useState<LLM['apiUrl']>();
 	const [apiVersion, setApiVersion] = useState<LLM['apiVersion']>();
 	const llm = useRef<LLM>();
-	llm.current = {
-		id,
-		provider,
-		apiKey,
-		apiUrl,
-		apiVersion,
-	} as LLM;
+	if (provider) {
+		llm.current = {
+			id,
+			provider,
+			apiKey,
+			apiUrl,
+			apiVersion,
+		} as LLM;
+	}
 
 	useEffect(() => {
 		if (step === -1) {
@@ -55,14 +57,14 @@ export const AddLLM: FC<{
 				newLlms.push(found!);
 			}
 			// Save the updated config to file
-			writeConfig({llms: newLlms as LLM[]});
+			writeConfig({llms: newLlms});
 			loadConfigToEnv();
 			// Signal that the app is ready
 			setAppReady(true);
 
 			onSelect?.(config.defaultModel);
 		}
-	}, [step, onSelect]);
+	}, [step, onSelect, provider]);
 
 	return (
 		<Box flexDirection="column">
@@ -79,10 +81,10 @@ export const AddLLM: FC<{
 				<>
 					<Text color="green">⟡ Paste your API key for {provider}:</Text>
 					<TextInput
-						placeholder={'Provider API Key'}
+						placeholder="Provider API Key"
 						onSubmit={v => {
 							setApiKey(v);
-							if (provider == 'OpenAI-Compatible' || provider === 'Azure') {
+							if (provider === 'OpenAI-Compatible' || provider === 'Azure') {
 								setStep(3);
 							} else if (provider === 'Anthropic') {
 								setStep(4);
@@ -122,7 +124,7 @@ export const AddLLM: FC<{
 			)}
 			{step === 5 && (
 				<Text color="green">
-					⟡ Use this provider as default? {' '}
+					⟡ Use this provider as default?{' '}
 					<ConfirmInput
 						onConfirm={() => {
 							setStep(6);

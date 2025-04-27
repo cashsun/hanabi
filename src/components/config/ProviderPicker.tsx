@@ -1,6 +1,6 @@
 import {Select} from '@inkjs/ui';
 import {Box, Text} from 'ink';
-import React, {FC, useMemo, useState} from 'react';
+import React, {type FC, useMemo, useState} from 'react';
 import {getConfig} from './util.js';
 import {AddLLM} from './AddLLM.js';
 
@@ -36,7 +36,10 @@ export const providers: {label: string; value: LLM['provider']}[] = [
 ];
 
 export const ProviderPicker: FC<{
-	onSelect: (p: LLM['provider'], defaultModel?: HanabiConfig['defaultModel']) => void;
+	onSelect: (
+		p: LLM['provider'],
+		defaultModel?: HanabiConfig['defaultModel'],
+	) => void;
 	useExisting?: boolean;
 }> = ({onSelect, useExisting}) => {
 	const [isNew, setIsNew] = useState(false);
@@ -51,14 +54,14 @@ export const ProviderPicker: FC<{
 			];
 		}
 		return providers;
-	}, []);
+	}, [useExisting]);
 
 	if (isNew) {
 		return (
 			<AddLLM
-				onSelect={(defaultModel) => {
+				onSelect={defaultModel => {
 					setIsNew(false);
-					if(defaultModel){
+					if (defaultModel) {
 						onSelect(defaultModel.provider, defaultModel);
 					}
 				}}

@@ -1,21 +1,23 @@
-import { MultiSelect, Select, Spinner, TextInput } from '@inkjs/ui';
-import { Box, Text, useInput } from 'ink';
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
-import { useListFIles } from '../hooks/useListFiles.js';
+import {MultiSelect, Select, Spinner, TextInput} from '@inkjs/ui';
+import {Box, Text, useInput} from 'ink';
+import React, {type FC, useCallback, useMemo, useRef, useState} from 'react';
+import {useListFIles} from '../hooks/useListFiles.js';
 
 export const FilePicker: FC<{
 	multi?: boolean;
-	onConfirm: (files: string[]) => void;
+	readonly onConfirm: (files: string[]) => void;
 }> = ({multi, onConfirm}) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [showInput, setShowInput] = useState(true);
 	const [warning, setWarning] = useState('');
 	const selected = useRef<string[]>([]);
-  const {data: allFiles, isFetching} = useListFIles()
+	const {data: allFiles, isFetching} = useListFIles();
 
 	const refreshInput = useCallback(() => {
 		setShowInput(false);
-		setTimeout(() => setShowInput(true), 0);
+		setTimeout(() => {
+			setShowInput(true);
+		}, 0);
 	}, []);
 
 	useInput((t, key) => {
@@ -31,16 +33,17 @@ export const FilePicker: FC<{
 		let filtered = allFiles ?? [];
 		if (searchTerm && allFiles) {
 			const regex = new RegExp(searchTerm, 'ig');
-			filtered = selected.current.concat(
-				allFiles.filter(f => regex.test(f) && !selected.current.includes(f)),
-			);
+			filtered = [
+				...selected.current,
+				...allFiles.filter(f => regex.test(f) && !selected.current.includes(f)),
+			];
 		}
 		return filtered.map(f => ({label: f, value: f}));
 	}, [allFiles, searchTerm]);
 
-    if (isFetching) {
-      return <Spinner label="Listing files..." />;
-    }
+	if (isFetching) {
+		return <Spinner label="Listing files..." />;
+	}
 
 	return (
 		<Box
@@ -88,7 +91,9 @@ export const FilePicker: FC<{
 				<Select
 					visibleOptionCount={10}
 					options={options}
-					onChange={val => onConfirm([val])}
+					onChange={val => {
+						onConfirm([val]);
+					}}
 				/>
 			)}
 		</Box>

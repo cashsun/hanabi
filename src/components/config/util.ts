@@ -23,13 +23,12 @@ function getResourceNameFromUrl(urlString: string) {
 		// Check if parts array is not empty before accessing the first element.
 		if (parts.length > 0) {
 			return parts[0]; // e.g., "your-resource-name"
-		} else {
-			// This case is unlikely if the URL constructor succeeded and hostname exists,
-			// but it's good practice to handle it.
-			console.warn('Could not split hostname into parts:', hostname);
-			return null;
 		}
-	} catch (error) {
+		// This case is unlikely if the URL constructor succeeded and hostname exists,
+		// but it's good practice to handle it.
+		console.warn('Could not split hostname into parts:', hostname);
+		return null;
+	} catch (error: unknown) {
 		// Handle potential errors if the input string is not a valid URL.
 		console.error('Invalid URL provided:', error);
 		return null; // Indicate failure by returning null
@@ -88,24 +87,24 @@ export const removeConfig = () => {
 
 export const getConfig = () => {
 	if (!hasConfig()) {
-		throw Error('No config file found. Please re-run hanabi.');
+		return defaultConfig;
 	}
 	if (configPath === localConfigPath) {
 		const localConfig: Partial<HanabiConfig> = JSON.parse(
-			fs.readFileSync(configPath, 'utf-8'),
+			fs.readFileSync(configPath, 'utf8'),
 		);
 		const userConfig: HanabiConfig | undefined = fs.existsSync(userConfigPath)
-			? JSON.parse(fs.readFileSync(userConfigPath, 'utf-8'))
+			? JSON.parse(fs.readFileSync(userConfigPath, 'utf8'))
 			: undefined;
 
 		const merged = merge({}, userConfig, localConfig) as HanabiConfig;
 		merged.llms = unionBy(
-			[...localConfig.llms??[], ...(userConfig?.llms ?? [])],
+			[...(localConfig.llms ?? []), ...(userConfig?.llms ?? [])],
 			'provider',
 		);
 		return merged;
 	}
-	const config = fs.readFileSync(configPath, 'utf-8');
+	const config = fs.readFileSync(configPath, 'utf8');
 	return JSON.parse(config) as HanabiConfig;
 };
 
@@ -118,21 +117,23 @@ export const loadConfigToEnv = () => {
 	for (const llm of config.llms) {
 		switch (llm.provider) {
 			case 'OpenAI':
-				envs['OPENAI_API_KEY'] = llm.apiKey;
+				envs.OPENAI_API_KEY = llm.apiKey;
 				break;
 			case 'Azure':
-				envs['AZURE_API_KEY'] = llm.apiKey;
-				envs['AZURE_API_VERSION'] = llm.apiVersion;
-				envs['AZURE_RESOURCE_NAME'] = getResourceNameFromUrl(llm.apiUrl);
+				envs.AZURE_API_KEY = llm.apiKey;
+				envs.AZURE_API_VERSION = llm.apiVersion;
+				envs.AZURE_RESOURCE_NAME = getResourceNameFromUrl(llm.apiUrl);
 				break;
 			case 'Google':
-				envs['GOOGLE_GENERATIVE_AI_API_KEY'] = llm.apiKey;
+				envs.GOOGLE_GENERATIVE_AI_API_KEY = llm.apiKey;
 				break;
 			case 'Anthropic':
-				envs['ANTHROPIC_API_KEY'] = llm.apiKey;
+				envs.ANTHROPIC_API_KEY = llm.apiKey;
 				break;
 			case 'Deepseek':
-				envs['DEEPSEEK_API_KEY'] = llm.apiKey;
+				envs.DEEPSEEK_API_KEY = llm.apiKey;
+				break;
+			default:
 				break;
 		}
 	}

@@ -1,12 +1,13 @@
-import { createAzure } from '@ai-sdk/azure';
-import { deepseek } from '@ai-sdk/deepseek';
-import { google } from '@ai-sdk/google';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { ollama } from 'ollama-ai-provider';
+import {anthropic} from '@ai-sdk/anthropic';
+import {createAzure} from '@ai-sdk/azure';
+import {deepseek} from '@ai-sdk/deepseek';
+import {google} from '@ai-sdk/google';
+import {openai} from '@ai-sdk/openai';
+import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
+import {ollama} from 'ollama-ai-provider';
 
 import {useQuery} from '@tanstack/react-query';
+import {getDefaultApiVersion} from '../components/config/util.js';
 import {
 	ANTHROPIC_API_URL,
 	DEEPSEEK_API_URL,
@@ -14,23 +15,25 @@ import {
 	OLLAMA_API_URL,
 	OPENAI_API_URL,
 } from './endpoints.js';
-import {getDefaultApiVersion} from '../components/config/util.js';
+
 export const useModelList = (
 	provider: LLM['provider'] | undefined,
 	apiKey: string | undefined,
 	apiUrl: string | undefined,
 	apiVersion: string | undefined,
 ) => {
-	return useQuery<string[], Error>({
+	return useQuery<string[]>({
 		queryKey: ['modelList', provider, apiKey, apiUrl, apiVersion],
-		queryFn: async () => {
-			if(!provider){
-				return []
+		async queryFn() {
+			if (!provider) {
+				return [];
 			}
+
 			let apiUrlToUse = `${apiUrl}/models`;
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${apiKey}`,
 			};
+
 			if (provider === 'OpenAI') {
 				apiUrlToUse = `${OPENAI_API_URL}/models`;
 			} else if (provider === 'Google') {
@@ -51,7 +54,7 @@ export const useModelList = (
 			const response = await fetch(`${apiUrlToUse}`, {
 				method: 'GET',
 				headers,
-			}).then(res => res.json());
+			}).then(async res => res.json());
 
 			return response.data.map((model: any) =>
 				model.id.replace(/^models\//, ''),
@@ -59,7 +62,6 @@ export const useModelList = (
 		},
 	});
 };
-
 
 export const getModel = (
 	llms: HanabiConfig['llms'],
@@ -69,11 +71,13 @@ export const getModel = (
 	if (!llm || !defaultModel) {
 		return undefined;
 	}
+
 	const modelName = defaultModel.model; // Extract model name for clarity
 
 	switch (llm.provider) {
-		case 'Google':
+		case 'Google': {
 			return google(modelName);
+		}
 		case 'Azure': {
 			const azure = createAzure({
 				apiVersion: llm.apiVersion ?? getDefaultApiVersion(llm.provider),

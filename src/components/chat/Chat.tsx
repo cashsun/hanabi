@@ -1,10 +1,10 @@
 import Markdown from '@inkkit/ink-markdown';
-import {CoreMessage, CoreSystemMessage, TextPart, UserContent} from 'ai';
+import type {CoreMessage, CoreSystemMessage, TextPart, UserContent} from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
 import {Box, Text} from 'ink';
 
-import React, {FC, useEffect, useMemo, useState} from 'react';
+import React, {type FC, useEffect, useMemo, useState} from 'react';
 import {useChat} from '../../hooks/useChat.js';
 import {getModel} from '../../hooks/useListModels.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
@@ -32,7 +32,7 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	
 	## Context
 	- Today is ${new Date().toISOString()}
-	- Timezone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+	- Timezone is ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
 
 	## Help Documentation
 	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
@@ -82,7 +82,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 		if (data && !error) {
 			setMessages(prev => [...prev, ...data]);
 		}
-	}, [data]);
+	}, [data, error]);
 
 	if (messages.at(-1)?.role === 'assistant' && singleRunQuery) {
 		let message = '';
@@ -192,7 +192,9 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 			<ChatInput
 				defaultModel={defaultModel}
 				isFetching={isFetching}
-				onReset={() => setMessages(systemMessages)}
+				onReset={() => {
+					setMessages(systemMessages);
+				}}
 				onCopy={() => {
 					const lastMessage = messages.at(-1);
 					if (lastMessage) {

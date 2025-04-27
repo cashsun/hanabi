@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
-import { Box, Text } from 'ink';
-import { pick } from 'lodash-es';
+import {Box, Text} from 'ink';
+import {pick} from 'lodash-es';
+import React, {type FC} from 'react';
 
 export const chatHandles = {
 	// quick commands
@@ -33,14 +33,16 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 export const ChatHandles: FC = () => {
 	return (
 		<Box paddingX={1} marginTop={0} flexWrap="wrap">
-			{Object.entries(pick(descriptions, 'HELP', 'FILE', 'MCP')).map(([key, desp]) => (
-				<Box key={key} height={1}>
-					<Text backgroundColor="gray" bold>
-						{chatHandles[key as keyof(typeof chatHandles)]}
-					</Text>
-					<Text color="gray"> {desp} </Text>
-				</Box>
-			))}
+			{Object.entries(pick(descriptions, 'HELP', 'FILE', 'MCP')).map(
+				([key, desp]) => (
+					<Box key={key} height={1}>
+						<Text backgroundColor="gray" bold>
+							{chatHandles[key as keyof typeof chatHandles]}
+						</Text>
+						<Text color="gray"> {desp} </Text>
+					</Box>
+				),
+			)}
 		</Box>
 	);
 };

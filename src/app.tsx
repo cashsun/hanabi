@@ -1,18 +1,15 @@
+import {createInterface} from 'node:readline';
+import {ConfirmInput} from '@inkjs/ui';
+import {Text} from 'ink';
 import React, {useEffect, useState} from 'react';
 import {Chat} from './components/chat/Chat.js';
-import {Setup} from './components/config/Setup.js';
-import {
-	configPath,
-	defaultConfig,
-	loadConfigToEnv,
-} from './components/config/util.js';
-import {useAppStore} from './store/appState.js';
 import ListLLMAndMcpServers from './components/config/ListLLMAndMcpServers.js';
-import {ConfirmInput} from '@inkjs/ui';
-import {Newline, Text} from 'ink';
+import {Setup} from './components/config/Setup.js';
+import {configPath, loadConfigToEnv} from './components/config/util.js';
+import {useAppStore} from './store/appState.js';
 
 if (process.platform === 'win32') {
-	var rl = require('readline').createInterface({
+	const rl = createInterface({
 		input: process.stdin,
 		output: process.stdout,
 	});
@@ -22,10 +19,10 @@ if (process.platform === 'win32') {
 	});
 }
 
-interface Props {
-	command?: string;
-	query?: string;
-}
+type Props = {
+	readonly command?: string;
+	readonly query?: string;
+};
 
 export default function App({command, query}: Props) {
 	const isReset = command === 'reset';
@@ -46,7 +43,7 @@ export default function App({command, query}: Props) {
 		if (!confirmReset && isReset) {
 			return (
 				<>
-					<Text color="yellowBright">⟡ Are you sure to reset the config?{' '}</Text>
+					<Text color="yellowBright">⟡ Are you sure to reset the config? </Text>
 					<Text color="gray">({configPath})</Text>
 					<ConfirmInput
 						onConfirm={() => {
@@ -59,6 +56,7 @@ export default function App({command, query}: Props) {
 				</>
 			);
 		}
+
 		return <Setup isReset={isReset} />;
 	}
 

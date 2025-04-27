@@ -1,7 +1,7 @@
-import { Select, Spinner, TextInput } from '@inkjs/ui';
-import { Box, Text } from 'ink';
-import React, { FC, useMemo, useState } from 'react';
-import { useModelList } from '../../hooks/useListModels.js';
+import {Select, Spinner, TextInput} from '@inkjs/ui';
+import {Box, Text} from 'ink';
+import React, {type FC, useMemo, useState} from 'react';
+import {useModelList} from '../../hooks/useListModels.js';
 
 interface Props {
 	llm: LLM | undefined;

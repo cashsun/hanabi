@@ -37,8 +37,7 @@ const cli = meow(
 const queryClient = new QueryClient();
 
 render(
-  <QueryClientProvider client={queryClient}>
-	<App command={cli.input.at(0)} query={cli.flags.q}/>
-  </QueryClientProvider>
+	<QueryClientProvider client={queryClient}>
+		<App command={cli.input.at(0)} query={cli.flags.q} />
+	</QueryClientProvider>,
 );
-

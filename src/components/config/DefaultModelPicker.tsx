@@ -1,8 +1,8 @@
-import { Box, Text } from 'ink';
-import React, { FC, useMemo, useState } from 'react';
-import { ModelSelector } from './ModelSelector.js';
-import { ProviderPicker } from './ProviderPicker.js';
-import { getConfig, loadConfigToEnv, writeConfig } from './util.js';
+import {Box, Text} from 'ink';
+import React, {type FC, useMemo, useState} from 'react';
+import {ModelSelector} from './ModelSelector.js';
+import {ProviderPicker} from './ProviderPicker.js';
+import {getConfig, loadConfigToEnv, writeConfig} from './util.js';
 
 interface Props {
 	llm?: LLM;
@@ -20,8 +20,8 @@ export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
 				useExisting
 				onSelect={(p, d) => {
 					setLLMToUse(config.llms.find(llm => llm.provider === p));
-					if(d){
-						onSelect?.(d)
+					if (d) {
+						onSelect?.(d);
 					}
 				}}
 			/>
@@ -41,9 +41,9 @@ export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
 							provider: llmToUse.provider,
 						};
 						writeConfig({
-							defaultModel
+							defaultModel,
 						});
-						loadConfigToEnv()
+						loadConfigToEnv();
 						onSelect?.(defaultModel);
 					}
 				}}
