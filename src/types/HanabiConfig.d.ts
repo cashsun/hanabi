@@ -56,6 +56,7 @@ type LLM = CommonLLM | AzureLLM | OllamaLLM | OpenAICompatibleLLM;
 
 type HanabiConfig = {
     llms: LLM[];
+    systemPrompt?: string,
     maxSteps?: number;
     defaultModel?: {
         model: string;

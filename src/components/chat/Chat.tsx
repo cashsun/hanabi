@@ -1,5 +1,5 @@
 import Markdown from '@inkkit/ink-markdown';
-import {CoreAssistantMessage, CoreMessage, CoreSystemMessage, TextPart, UserContent} from 'ai';
+import {CoreMessage, CoreSystemMessage, TextPart, UserContent} from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
 import {Box, Text} from 'ink';
@@ -9,8 +9,8 @@ import {useChat} from '../../hooks/useChat.js';
 import {getModel} from '../../hooks/useListModels.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {getConfig} from '../config/util.js';
+import {chatHandles, descriptions} from './ChatHandles.js';
 import {ChatInput} from './ChatInput.js';
-import {descriptions, chatHandles} from './ChatHandles.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -24,7 +24,7 @@ const formatUserMessage = (content: UserContent) => {
 	return content.toString();
 };
 
-const systemMessage: CoreSystemMessage = {
+const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	role: 'system',
 	content: `
 	Act as an AI assistant with access to various tools (if provided). 
@@ -34,28 +34,43 @@ const systemMessage: CoreSystemMessage = {
 	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
 	show the following help documenation
 	
-	\'\'\'markdown
+	'''markdown
 	Here are the list of commands and tools you can use
 
 	${Object.entries(descriptions)
 		.map(([key, desp]) => {
 			return `${chatHandles[key as keyof typeof chatHandles]}\t${desp}`;
 		})
-		.join('\n\n')} \n
-	\'\'\'
+		.join('\n\n')} 
+
+	'''
 	
 	`,
+});
+
+const getSystemMessages = (config: HanabiConfig): CoreSystemMessage[] => {
+	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
+
+	if (config.systemPrompt) {
+		messages.push({
+			role: 'system',
+			content: config.systemPrompt,
+		});
+	}
+
+	return messages;
 };
 
 export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const config = useMemo(() => getConfig(), []);
+	const systemMessages = useMemo(() => getSystemMessages(config), [config]);
 
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
 	const model = getModel(config.llms, defaultModel);
 	const [messages, setMessages] = React.useState<CoreMessage[]>(
 		singleRunQuery && singleRunQuery !== '1'
-			? [{role: 'user', content: singleRunQuery}]
-			: [systemMessage],
+			? [...systemMessages, {role: 'user', content: singleRunQuery}]
+			: systemMessages,
 	);
 	const [mcpKeys, setMcpKeys] = useState<string[]>([]);
 	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
@@ -69,7 +84,9 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 		let message = '';
 		const lastMessage = messages.at(-1);
 		if (Array.isArray(lastMessage?.content)) {
-			message = (lastMessage.content as TextPart[]).find(c => c.type === 'text')?.text ?? '';
+			message =
+				(lastMessage.content as TextPart[]).find(c => c.type === 'text')
+					?.text ?? '';
 		} else {
 			message = lastMessage?.content.toString() ?? '';
 		}
@@ -169,7 +186,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 			<ChatInput
 				defaultModel={defaultModel}
 				isFetching={isFetching}
-				onReset={() => setMessages([systemMessage])}
+				onReset={() => setMessages(systemMessages)}
 				onCopy={() => {
 					const lastMessage = messages.at(-1);
 					if (lastMessage) {
@@ -187,9 +204,9 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 					}
 				}}
 				onLLM={() => {
-					const config = getConfig();
-					setDefaultModel(config.defaultModel);
-					setMessages([systemMessage]);
+					const newConfig = getConfig();
+					setDefaultModel(newConfig.defaultModel);
+					setMessages(getSystemMessages(newConfig));
 				}}
 				onSubmit={(msg, keys) => {
 					setMcpKeys(keys);

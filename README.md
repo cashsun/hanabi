@@ -119,6 +119,24 @@ All files included in the .gitignore will also be auto excluded.
 }
 ```
 
+## Custom System Prompt
+
+Hanabi comes with predefined simple system prompt to show docs on terminal commands. You can provide extra system prompt in the config.
+
+```json
+// <user home folder>/.hanabi.json
+{
+	"systemPrompt": "When generating unit tests, always use vitest.",
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	},
+    // ...
+}
+```
+
 ## TODOs
 
 - [x] include local files in chat
