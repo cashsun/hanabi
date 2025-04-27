@@ -1,6 +1,17 @@
 # hanabi-cli
 
-> A command line AI chat interface to any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
+> A command line AI chat interface for any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
+
+## Table of Contents
+
+- [Install](#install)
+- [CLI](#cli)
+- [MCP Servers](#mcp-servers)
+- [Exclude files](#exclude-files)
+- [Custom System Prompt](#custom-system-prompt)
+- [Local config file override](#local-config-file-override)
+- [TODOs](#todos)
+
 
 ![Chat demo](screenshots/Screenshot.png)
 
