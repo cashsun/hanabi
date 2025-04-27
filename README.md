@@ -1,10 +1,12 @@
 # hanabi-cli
 
-> A command line AI chat interface to with any LLM model, with files & MCP support. Use it as your copilot alternative or any other use case.
+> A command line AI chat interface to any LLM model, with files & MCP support. Use it as your copilot alternative or any other use case.
 
-![Chat demo](screenshots/screenshot.png)
-![Chat demo 2](screenshots/screenshot2.png)
-![Coding demo 3](screenshots/screenshot3.png)
+![Chat demo](screenshots/Screenshot.png)
+
+![Chat demo 2](screenshots/Screenshot2.png)
+
+![Coding demo 3](screenshots/Screenshot3.png)
 
 ## Install
 
@@ -144,7 +146,7 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 - [x] include local files in chat
 - [x] mcp support
 - [x] add config to exclude custom files pattern
-- [ ] support for custom system prompts (via cli and config)
+- [x] support for custom system prompts (via cli and config)
 - [ ] add web server host mode (ie api and web interface)
 - [ ] Flowise agent support
 - [ ] Dify agent support
