@@ -14,7 +14,7 @@ export const useChat = (
 		queryKey: ['use-chat', model, messages, mcpKeys],
 		enabled: !!model && !!messages.length,
 		queryFn: async () => {
-			if (messages.at(-1)?.role === 'assistant') {
+			if (messages.at(-1)?.role !== 'user') {
 				return [];
 			}
 			const tools = await getMcpTools(mcpKeys);

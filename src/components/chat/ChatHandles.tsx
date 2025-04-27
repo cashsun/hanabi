@@ -1,8 +1,10 @@
 import React, { FC } from 'react';
 import { Box, Text } from 'ink';
+import { pick } from 'lodash-es';
 
 export const chatHandles = {
 	// quick commands
+	HELP: '/help',
 	EXIT: '/exit',
 	RESET: '/reset',
 	COPY: '/copy',
@@ -11,24 +13,27 @@ export const chatHandles = {
 	// params
 	FILE: '@file',
 	MCP: '@mcp',
+	CLIP: '@clip',
 };
 
 export const suggestions = Object.values(chatHandles);
 
 export const descriptions: {[key in keyof typeof chatHandles]: string} = {
-	EXIT: 'Exit Hanabi',
-	RESET: 'Reset chat',
-	COPY: 'Last Msg',
-	LLM: 'Change llm',
-	
-	FILE: 'Add file',
+	HELP: 'Quick help',
+	EXIT: 'Exit Hanabi CLI',
+	RESET: 'Reset current chat',
+	COPY: 'Copy last agent message onto clipboard',
+	LLM: 'Change current language model',
+
+	FILE: 'Add files',
 	MCP: 'Use MCP',
+	CLIP: 'Use clipboard text',
 };
 
 export const ChatHandles: FC = () => {
 	return (
 		<Box paddingX={1} marginTop={0} flexWrap="wrap">
-			{Object.entries(descriptions).map(([key, desp]) => (
+			{Object.entries(pick(descriptions, 'HELP', 'FILE', 'MCP')).map(([key, desp]) => (
 				<Box key={key} height={1}>
 					<Text backgroundColor="gray" bold>
 						{chatHandles[key as keyof(typeof chatHandles)]}

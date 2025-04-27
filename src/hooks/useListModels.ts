@@ -1,3 +1,11 @@
+import { createAzure } from '@ai-sdk/azure';
+import { deepseek } from '@ai-sdk/deepseek';
+import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { ollama } from 'ollama-ai-provider';
+
 import {useQuery} from '@tanstack/react-query';
 import {
 	ANTHROPIC_API_URL,
@@ -48,4 +56,44 @@ export const useModelList = (
 			);
 		},
 	});
+};
+
+
+export const getModel = (
+	llms: HanabiConfig['llms'],
+	defaultModel: HanabiConfig['defaultModel'],
+) => {
+	const llm = llms.find(l => l.provider === defaultModel?.provider);
+	if (!llm || !defaultModel) {
+		return undefined;
+	}
+	const modelName = defaultModel.model; // Extract model name for clarity
+
+	switch (llm.provider) {
+		case 'Google':
+			return google(modelName);
+		case 'Azure': {
+			const azure = createAzure({
+				apiVersion: llm.apiVersion ?? getDefaultApiVersion(llm.provider),
+			});
+			return azure(modelName);
+		}
+		case 'Deepseek':
+			return deepseek(modelName);
+		case 'Anthropic':
+			return anthropic(modelName);
+		case 'OpenAI':
+			return openai(modelName);
+		case 'Ollama':
+			return ollama(modelName);
+		default: {
+			// OpenAI Compatible
+			const compatible = createOpenAICompatible({
+				name: llm.provider,
+				apiKey: llm.apiKey,
+				baseURL: llm.apiUrl ?? '',
+			});
+			return compatible(modelName);
+		}
+	}
 };

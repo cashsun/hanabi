@@ -6,11 +6,12 @@ import {Box, Text, TextProps, useInput} from 'ink';
 import mime from 'mime-types';
 import os from 'os';
 import {resolve} from 'path';
-import React, {FC, useCallback, useMemo, useState} from 'react';
+import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {FilePicker} from '../FilePicker.js';
 import {ChatHandles, chatHandles, suggestions} from './ChatHandles.js';
 import {McpPicker} from '../McpPicker.js';
+import clipboardy from 'clipboardy';
 
 const wkdir = process.cwd();
 
@@ -34,8 +35,13 @@ export const ChatInput: FC<{
 	const [files, setFiles] = useState<string[]>([]);
 	const [mcpKeys, setMcpKeys] = useState<string[]>([]);
 	const [pickingLLM, setPickingLLM] = useState(false);
+	const [clipboard, setClipboard] = useState(false);
 	const pickingFile = new RegExp(`${chatHandles.FILE}$`).test(value ?? '');
 	const pickingMCP = new RegExp(`${chatHandles.MCP}$`).test(value ?? '');
+	const includingClipboard = new RegExp(`${chatHandles.CLIP}$`).test(
+		value ?? '',
+	);
+
 	const activeHandles = useMemo(() => {
 		const hdles: {type: string; label: string; color: TextProps['color']}[] =
 			[];
@@ -46,6 +52,15 @@ export const ChatInput: FC<{
 				color: 'magentaBright',
 			});
 		}
+
+		if (clipboard) {
+			hdles.push({
+				type: chatHandles.CLIP,
+				label: `@clip`,
+				color: 'cyan',
+			});
+		}
+
 		if (files.length) {
 			hdles.push({
 				type: chatHandles.FILE,
@@ -53,8 +68,9 @@ export const ChatInput: FC<{
 				color: 'yellow',
 			});
 		}
+
 		return hdles;
-	}, [files, mcpKeys]);
+	}, [files, mcpKeys, clipboard]);
 
 	useInput((t, key) => {
 		if (key.tab) {
@@ -73,6 +89,10 @@ export const ChatInput: FC<{
 					}
 					case chatHandles.MCP: {
 						setMcpKeys([]);
+						break;
+					}
+					case chatHandles.CLIP: {
+						setClipboard(false);
 						break;
 					}
 				}
@@ -110,6 +130,12 @@ export const ChatInput: FC<{
 				}}
 			/>
 		);
+	}
+
+	if (includingClipboard) {
+		setClipboard(true);
+		setValue(prev => prev.replace(new RegExp(`${chatHandles.CLIP}$`), ``));
+		refreshInput();
 	}
 
 	if (pickingLLM) {
@@ -180,7 +206,11 @@ export const ChatInput: FC<{
 							}
 
 							setValue('');
-							let finalMsg: UserContent = [{type: 'text', text: msg}];
+							const clip = clipboard ? clipboardy.readSync() : undefined;
+							const clipText = clip ? `\n\n\`\`\`\n${clip}\n\`\`\`` : '';
+							let finalMsg: UserContent = [
+								{type: 'text', text: `${msg}${clipText}`},
+							];
 							if (!!files.length) {
 								files.forEach(f => {
 									(finalMsg[0] as TextPart).text += `\n@file: ${f}`;
@@ -194,7 +224,9 @@ export const ChatInput: FC<{
 									} else {
 										if (
 											defaultModel?.provider === 'OpenAI' ||
-											defaultModel?.provider === 'Azure' || (defaultModel?.provider === 'Anthropic' && !mimeType.endsWith('/pdf'))
+											defaultModel?.provider === 'Azure' ||
+											(defaultModel?.provider === 'Anthropic' &&
+												!mimeType.endsWith('/pdf'))
 										) {
 											// OpenAI models does not support raw files yet via completion API
 											// so we include the file content

@@ -124,6 +124,8 @@ All files included in the .gitignore will also be auto excluded.
 - [x] include local files in chat
 - [x] mcp support
 - [x] add config to exclude custom files pattern
+- [ ] support for custom system prompts (via cli and config)
+- [ ] add web server host mode (ie api and web interface)
 - [ ] Flowise agent support
 - [ ] Dify agent support
 - [ ] n8n agent support ?

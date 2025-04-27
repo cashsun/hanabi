@@ -1,20 +1,16 @@
-import { createAzure } from '@ai-sdk/azure';
-import { deepseek } from '@ai-sdk/deepseek';
-import { google } from '@ai-sdk/google';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import Markdown from '@inkkit/ink-markdown';
-import { CoreMessage, UserContent } from 'ai';
+import {CoreMessage, CoreSystemMessage, UserContent} from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
-import { Box, Text } from 'ink';
-import { ollama } from 'ollama-ai-provider';
-import React, { FC, useEffect, useMemo, useState } from 'react';
-import { useChat } from '../../hooks/useChat.js';
-import { DefaultModelPicker } from '../config/DefaultModelPicker.js';
-import { DEFAULT_AZURE_API_VERSION, getConfig } from '../config/util.js';
-import { ChatInput } from './ChatInput.js';
+import {Box, Text} from 'ink';
+
+import React, {FC, useEffect, useMemo, useState} from 'react';
+import {useChat} from '../../hooks/useChat.js';
+import {getModel} from '../../hooks/useListModels.js';
+import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
+import {getConfig} from '../config/util.js';
+import {ChatInput} from './ChatInput.js';
+import { descriptions, chatHandles } from './ChatHandles.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -28,43 +24,25 @@ const formatUserMessage = (content: UserContent) => {
 	return content.toString();
 };
 
-const getModel = (
-	llms: HanabiConfig['llms'],
-	defaultModel: HanabiConfig['defaultModel'],
-) => {
-	const llm = llms.find(l => l.provider === defaultModel?.provider);
-	if (!llm || !defaultModel) {
-		return undefined;
-	}
-	const modelName = defaultModel.model; // Extract model name for clarity
+const systemMessage: CoreSystemMessage = {
+	role: 'system',
+	content: `
+	Act as an AI assistant with access to various tools (if provided). 
+	User might be using a terminal interface to interact with you.
+	
+	## Help Documentation
+	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
+	show the following help documenation
+	
+	\'\'\'markdown
+	Here are the list of commands and tools you can use
 
-	switch (llm.provider) {
-		case 'Google':
-			return google(modelName);
-		case 'Azure': {
-			const azure = createAzure({
-				apiVersion: llm.apiVersion ?? DEFAULT_AZURE_API_VERSION,
-			});
-			return azure(modelName);
-		}
-		case 'Deepseek':
-			return deepseek(modelName);
-		case 'Anthropic':
-			return anthropic(modelName);
-		case 'OpenAI':
-			return openai(modelName);
-		case 'Ollama':
-			return ollama(modelName);
-		default: {
-			// OpenAI Compatible
-			const compatible = createOpenAICompatible({
-				name: llm.provider,
-				apiKey: llm.apiKey,
-				baseURL: llm.apiUrl ?? '',
-			});
-			return compatible(modelName);
-		}
-	}
+	${Object.entries(descriptions).map(([key, desp])=>{
+		return `**${chatHandles[key as keyof(typeof chatHandles)]}**\t${desp}`
+	}).join('\n\n')}
+	\'\'\'
+	
+	`,
 };
 
 export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
@@ -75,16 +53,13 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const [messages, setMessages] = React.useState<CoreMessage[]>(
 		singleRunQuery && singleRunQuery !== '1'
 			? [{role: 'user', content: singleRunQuery}]
-			: [],
+			: [systemMessage],
 	);
 	const [mcpKeys, setMcpKeys] = useState<string[]>([]);
 	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
 	useEffect(() => {
 		if (data && !error) {
-			setMessages(prev => [
-				...prev,
-				...data,
-			]);
+			setMessages(prev => [...prev, ...data]);
 		}
 	}, [data]);
 
@@ -136,6 +111,9 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 										<Box
 											borderColor="magenta"
 											borderStyle="doubleSingle"
+											borderLeft={false}
+											borderRight={false}
+											borderBottom={false}
 											paddingX={1}
 											key={`${index}-${idx}`}
 										>
@@ -148,10 +126,15 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 									return (
 										<Box
 											borderColor="magenta"
-											borderStyle="doubleSingle"
+											flexDirection="column"
+											gap={1}
 											paddingX={1}
+											borderStyle="doubleSingle"
+											borderLeft={false}
+											borderRight={false}
 											key={`${index}-${idx}`}
 										>
+											<Text color="magentaBright">⟡ {defaultModel.model}</Text>
 											<Markdown>{dedent`${part.text}`}</Markdown>
 										</Box>
 									);
@@ -177,7 +160,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 			<ChatInput
 				defaultModel={defaultModel}
 				isFetching={isFetching}
-				onReset={() => setMessages([])}
+				onReset={() => setMessages([systemMessage])}
 				onCopy={() => {
 					const lastMessage = messages.at(-1);
 					if (lastMessage) {
@@ -197,7 +180,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 				onLLM={() => {
 					const config = getConfig();
 					setDefaultModel(config.defaultModel);
-					setMessages([]);
+					setMessages([systemMessage]);
 				}}
 				onSubmit={(msg, keys) => {
 					setMcpKeys(keys);
