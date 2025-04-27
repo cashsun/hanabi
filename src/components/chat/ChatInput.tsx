@@ -5,11 +5,14 @@ import fs from 'fs';
 import {Box, Text, TextProps, useInput} from 'ink';
 import mime from 'mime-types';
 import os from 'os';
+import {resolve} from 'path';
 import React, {FC, useCallback, useMemo, useState} from 'react';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {FilePicker} from '../FilePicker.js';
 import {ChatHandles, chatHandles, suggestions} from './ChatHandles.js';
 import {McpPicker} from '../McpPicker.js';
+
+const wkdir = process.cwd();
 
 const isReset = (msg?: string) => msg && chatHandles.RESET === msg.trim();
 const isCopy = (msg?: string) => msg && chatHandles.COPY === msg.trim();
@@ -186,7 +189,7 @@ export const ChatInput: FC<{
 										finalMsg.push({
 											type: 'image',
 											mimeType,
-											image: fs.readFileSync(f),
+											image: fs.readFileSync(resolve(wkdir, f)),
 										});
 									} else {
 										if (
@@ -194,6 +197,7 @@ export const ChatInput: FC<{
 											defaultModel?.provider === 'Azure'
 										) {
 											// OpenAI models does not support raw files yet via completion API
+											// so we include the file content
 											(finalMsg[0] as TextPart).text += dedent`\n
 											\`\`\`
 											\n${fs.readFileSync(f, {encoding: 'utf-8'})}\n
@@ -206,7 +210,7 @@ export const ChatInput: FC<{
 													mimeType === 'application/json'
 														? 'text/plain'
 														: mimeType,
-												data: fs.readFileSync(f),
+												data: fs.readFileSync(resolve(wkdir, f)),
 											});
 										}
 									}

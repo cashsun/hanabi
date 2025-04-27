@@ -1,20 +1,19 @@
-import {createAzure} from '@ai-sdk/azure';
-import {deepseek} from '@ai-sdk/deepseek';
-import {google} from '@ai-sdk/google';
-import {openai} from '@ai-sdk/openai';
-import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
+import { createAzure } from '@ai-sdk/azure';
+import { deepseek } from '@ai-sdk/deepseek';
+import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import Markdown from '@inkkit/ink-markdown';
-import {CoreMessage, UserContent} from 'ai';
+import { CoreMessage, UserContent } from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
-import {Box, Newline, Text} from 'ink';
-import {last} from 'lodash-es';
-import {ollama} from 'ollama-ai-provider';
-import React, {FC, useEffect, useMemo, useState} from 'react';
-import {useChat} from '../../hooks/useChat.js';
-import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
-import {DEFAULT_API_VERSION, getConfig} from '../config/util.js';
-import {ChatInput} from './ChatInput.js';
+import { Box, Text } from 'ink';
+import { ollama } from 'ollama-ai-provider';
+import React, { FC, useEffect, useMemo, useState } from 'react';
+import { useChat } from '../../hooks/useChat.js';
+import { DefaultModelPicker } from '../config/DefaultModelPicker.js';
+import { DEFAULT_API_VERSION, getConfig } from '../config/util.js';
+import { ChatInput } from './ChatInput.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {

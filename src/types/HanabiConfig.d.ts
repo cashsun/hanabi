@@ -66,4 +66,6 @@ type HanabiConfig = {
 	mcpServers?: {
 		[key: string]: MCPServerConfig;
 	};
+    /** glob file/folder patterns */
+    exclude?: string[]
 };

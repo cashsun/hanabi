@@ -78,11 +78,34 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 }
 ```
 
+## Exclude files
+To prevent files from being accessed, add [globby](https://github.com/sindresorhus/globby) patterns in the config
+
+All files included in the .gitignore will also be auto excluded.
+
+```json
+// <user home folder>/.hanabi.json
+{
+    "exclude": [
+        "certificates",
+        "screenshots/**/*",
+        "passwords/*",
+        "*.pid"
+    ],
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
 ## TODOs
 
 - [x] include local files in chat
-- [ ] add config to exclude custom files
 - [x] mcp support
+- [x] add config to exclude custom files
 - [ ] add more LLM providers
 - [ ] Flowise agent support
 - [ ] Dify agent support

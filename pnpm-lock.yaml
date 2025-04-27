@@ -47,6 +47,9 @@ importers:
       dotenv:
         specifier: 16.5.0
         version: 16.5.0
+      globby:
+        specifier: 14.1.0
+        version: 14.1.0
       ink:
         specifier: ^5.2.0
         version: 5.2.0(@types/react@18.3.20)(react@18.3.1)
@@ -433,6 +436,10 @@ packages:
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+
+  '@sindresorhus/merge-streams@2.3.0':
+    resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
+    engines: {node: '>=18'}
 
   '@sindresorhus/tsconfig@3.0.1':
     resolution: {integrity: sha512-0/gtPNTY3++0J2BZM5nHHULg0BIMw886gqdn8vWN+Av6bgF5ZU2qIcHubAn+Z9KNvJhO8WFE+9kDOU3n6OcKtA==}
@@ -1559,6 +1566,10 @@ packages:
     resolution: {integrity: sha512-Y1zNGV+pzQdh7H39l9zgB4PJqjRNqydvdYCDG4HFXM4XuvSaQQlEc91IU1yALL8gUTDomgBAfz3XJdmUS+oo0w==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  globby@14.1.0:
+    resolution: {integrity: sha512-0Ia46fDOaT7k4og1PDW4YbodWWr3scS2vAr2lTbsplOt2WkKp0vQbkI9wKis/T5LV/dqPjO3bpS/z6GTJB82LA==}
+    engines: {node: '>=18'}
+
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
@@ -1633,6 +1644,10 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
+    engines: {node: '>= 4'}
+
+  ignore@7.0.4:
+    resolution: {integrity: sha512-gJzzk+PQNznz8ysRrC0aOkBNVRBDtE1n53IqyqEf3PXrYwomFs5q4pGMizBMJF+ykh03insJ27hB8gSrD2Hn8A==}
     engines: {node: '>= 4'}
 
   import-fresh@3.3.1:
@@ -2392,6 +2407,10 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
+  path-type@6.0.0:
+    resolution: {integrity: sha512-Vj7sf++t5pBD637NSfkxpHSMfWaeig5+DKWLhcqIYx6mWQz5hdJTGDVMQiJcw1ZYkhs7AazKDGpRVji1LJCZUQ==}
+    engines: {node: '>=18'}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -2993,6 +3012,10 @@ packages:
     resolution: {integrity: sha512-yLSH4py7oFH3oG/9K+XWrz1pSi3dfUrWEnInbxMfArOfc1+33BlGPQtLsOYwvdMy11AwUBetYuaRxSPqgkq+8g==}
     engines: {node: '>=4'}
 
+  unicorn-magic@0.3.0:
+    resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
+    engines: {node: '>=18'}
+
   unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
@@ -3451,6 +3474,8 @@ snapshots:
   '@rtsao/scc@1.1.0': {}
 
   '@sindresorhus/is@4.6.0': {}
+
+  '@sindresorhus/merge-streams@2.3.0': {}
 
   '@sindresorhus/tsconfig@3.0.1': {}
 
@@ -4844,6 +4869,15 @@ snapshots:
       merge2: 1.4.1
       slash: 4.0.0
 
+  globby@14.1.0:
+    dependencies:
+      '@sindresorhus/merge-streams': 2.3.0
+      fast-glob: 3.3.3
+      ignore: 7.0.4
+      path-type: 6.0.0
+      slash: 5.1.0
+      unicorn-magic: 0.3.0
+
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
@@ -4903,6 +4937,8 @@ snapshots:
   ignore-by-default@2.1.0: {}
 
   ignore@5.3.2: {}
+
+  ignore@7.0.4: {}
 
   import-fresh@3.3.1:
     dependencies:
@@ -5615,6 +5651,8 @@ snapshots:
 
   path-type@4.0.0: {}
 
+  path-type@6.0.0: {}
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -6259,6 +6297,8 @@ snapshots:
   undici-types@6.21.0: {}
 
   unicode-emoji-modifier-base@1.0.0: {}
+
+  unicorn-magic@0.3.0: {}
 
   unpipe@1.0.0: {}
 
