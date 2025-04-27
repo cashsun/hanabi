@@ -1,8 +1,7 @@
-import {MultiSelect, Select, TextInput} from '@inkjs/ui';
-import {globbySync} from 'globby';
-import {Box, Text, useInput} from 'ink';
-import React, {FC, useCallback, useMemo, useRef, useState} from 'react';
-import {getConfig} from './config/util.js';
+import { MultiSelect, Select, Spinner, TextInput } from '@inkjs/ui';
+import { Box, Text, useInput } from 'ink';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { useListFIles } from '../hooks/useListFiles.js';
 
 export const FilePicker: FC<{
 	multi?: boolean;
@@ -12,10 +11,7 @@ export const FilePicker: FC<{
 	const [showInput, setShowInput] = useState(true);
 	const [warning, setWarning] = useState('');
 	const selected = useRef<string[]>([]);
-	const allFiles = useMemo(() => {
-		const ignore = getConfig().exclude;
-		return globbySync(['**/*'], {gitignore: true, ignore});
-	}, []);
+  const {data: allFiles, isFetching} = useListFIles()
 
 	const refreshInput = useCallback(() => {
 		setShowInput(false);
@@ -32,8 +28,8 @@ export const FilePicker: FC<{
 	});
 
 	const options = useMemo(() => {
-		let filtered = allFiles;
-		if (searchTerm) {
+		let filtered = allFiles ?? [];
+		if (searchTerm && allFiles) {
 			const regex = new RegExp(searchTerm, 'ig');
 			filtered = selected.current.concat(
 				allFiles.filter(f => regex.test(f) && !selected.current.includes(f)),
@@ -41,6 +37,10 @@ export const FilePicker: FC<{
 		}
 		return filtered.map(f => ({label: f, value: f}));
 	}, [allFiles, searchTerm]);
+
+    if (isFetching) {
+      return <Spinner label="Listing files..." />;
+    }
 
 	return (
 		<Box

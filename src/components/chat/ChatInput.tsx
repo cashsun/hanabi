@@ -194,7 +194,7 @@ export const ChatInput: FC<{
 									} else {
 										if (
 											defaultModel?.provider === 'OpenAI' ||
-											defaultModel?.provider === 'Azure'
+											defaultModel?.provider === 'Azure' || (defaultModel?.provider === 'Anthropic' && !mimeType.endsWith('/pdf'))
 										) {
 											// OpenAI models does not support raw files yet via completion API
 											// so we include the file content

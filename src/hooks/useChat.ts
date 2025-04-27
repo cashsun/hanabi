@@ -1,8 +1,9 @@
-import {useQuery} from '@tanstack/react-query';
-import {CoreMessage, generateText, LanguageModelV1} from 'ai';
-import {getMcpTools, useMcpTools} from './useMcpTools.js';
+import { useQuery } from '@tanstack/react-query';
+import { CoreMessage, generateText, LanguageModelV1 } from 'ai';
+import { getMcpTools } from './useMcpTools.js';
+import { getConfig } from '../components/config/util.js';
 
-const maxSteps = 90;
+const maxSteps = getConfig().maxSteps ?? 1;
 
 export const useChat = (
 	model: LanguageModelV1 | undefined,

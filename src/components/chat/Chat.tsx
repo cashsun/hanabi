@@ -2,6 +2,7 @@ import { createAzure } from '@ai-sdk/azure';
 import { deepseek } from '@ai-sdk/deepseek';
 import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import Markdown from '@inkkit/ink-markdown';
 import { CoreMessage, UserContent } from 'ai';
@@ -12,7 +13,7 @@ import { ollama } from 'ollama-ai-provider';
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import { useChat } from '../../hooks/useChat.js';
 import { DefaultModelPicker } from '../config/DefaultModelPicker.js';
-import { DEFAULT_API_VERSION, getConfig } from '../config/util.js';
+import { DEFAULT_AZURE_API_VERSION, getConfig } from '../config/util.js';
 import { ChatInput } from './ChatInput.js';
 
 const formatUserMessage = (content: UserContent) => {
@@ -42,12 +43,14 @@ const getModel = (
 			return google(modelName);
 		case 'Azure': {
 			const azure = createAzure({
-				apiVersion: llm.apiVersion ?? DEFAULT_API_VERSION,
+				apiVersion: llm.apiVersion ?? DEFAULT_AZURE_API_VERSION,
 			});
 			return azure(modelName);
 		}
 		case 'Deepseek':
 			return deepseek(modelName);
+		case 'Anthropic':
+			return anthropic(modelName);
 		case 'OpenAI':
 			return openai(modelName);
 		case 'Ollama':
@@ -78,7 +81,6 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
 	useEffect(() => {
 		if (data && !error) {
-			console.log('messages :>> ', data);
 			setMessages(prev => [
 				...prev,
 				...data,

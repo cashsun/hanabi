@@ -6,8 +6,9 @@ import {setAppReady} from '../../store/appState.js';
 import {DefaultModelPicker} from './DefaultModelPicker.js';
 import {ProviderPicker} from './ProviderPicker.js';
 import {
-	DEFAULT_API_VERSION,
+	DEFAULT_AZURE_API_VERSION,
 	getConfig,
+	getDefaultApiVersion,
 	loadConfigToEnv,
 	writeConfig,
 } from './util.js';
@@ -20,8 +21,9 @@ export const AddLLM: FC<{
 	const [provider, setProvider] = useState<LLM['provider']>();
 	const [apiKey, setApiKey] = useState<LLM['apiKey']>();
 	const [apiUrl, setApiUrl] = useState<LLM['apiUrl']>();
-	const [apiVersion, setApiVersion] =
-		useState<LLM['apiVersion']>(DEFAULT_API_VERSION);
+	const [apiVersion, setApiVersion] = useState<LLM['apiVersion']>(
+		DEFAULT_AZURE_API_VERSION,
+	);
 	const llm = useRef<LLM>();
 	llm.current = {
 		id,
@@ -60,8 +62,10 @@ export const AddLLM: FC<{
 			loadConfigToEnv();
 			// Signal that the app is ready
 			setAppReady(true);
+
+			onSelect?.(config.defaultModel);
 		}
-	}, [step]);
+	}, [step, onSelect]);
 
 	return (
 		<Box flexDirection="column">
@@ -83,6 +87,8 @@ export const AddLLM: FC<{
 							setApiKey(v);
 							if (provider == 'OpenAI-Compatible' || provider === 'Azure') {
 								setStep(3);
+							} else if (provider === 'Anthropic') {
+								setStep(4);
 							} else {
 								// finish
 								setStep(onSelect ? 6 : 5);
@@ -108,9 +114,9 @@ export const AddLLM: FC<{
 				<>
 					<Text color="green">⟡ Specify {provider} API Version:</Text>
 					<TextInput
-						placeholder={`${DEFAULT_API_VERSION} (default)`}
+						placeholder={`${getDefaultApiVersion(provider)} (default)`}
 						onSubmit={v => {
-							setApiVersion(v || DEFAULT_API_VERSION);
+							setApiVersion(v || getDefaultApiVersion(provider));
 							// finish
 							setStep(onSelect ? 6 : 5);
 						}}
@@ -135,7 +141,6 @@ export const AddLLM: FC<{
 					llm={llm.current}
 					onSelect={model => {
 						setStep(-1);
-						onSelect?.(model);
 					}}
 				/>
 			)}

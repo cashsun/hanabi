@@ -1,6 +1,6 @@
 interface CommonLLM {
 	id: string;
-	provider: 'OpenAI' | 'Google' | 'Deepseek';
+	provider: 'OpenAI' | 'Google' | 'Deepseek'| 'Anthropic';
 	apiKey: string;
 	apiUrl?: string;
 	apiVersion?: string;
@@ -37,6 +37,7 @@ interface StdioMCPConfig {
     command: string,
 	args: string[],
     version?: string;
+    env?: Record<string, string>
 	/** in milliseconds */
 	timeout?: number;
 }
@@ -47,8 +48,6 @@ interface RemoteMCPConfig {
     url: string;
 	headers?: Record<string, string>;
     version?: string;
-	/** in milliseconds */
-	timeout?: number;
 }
 
 type MCPServerConfig = StdioMCPConfig | RemoteMCPConfig;
@@ -57,7 +56,7 @@ type LLM = CommonLLM | AzureLLM | OllamaLLM | OpenAICompatibleLLM;
 
 type HanabiConfig = {
     llms: LLM[];
-    
+    maxSteps?: number;
     defaultModel?: {
         model: string;
         provider: LLM['provider'];

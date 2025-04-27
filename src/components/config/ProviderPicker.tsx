@@ -22,6 +22,10 @@ export const providers: {label: string; value: LLM['provider']}[] = [
 		value: 'Deepseek',
 	},
 	{
+		label: 'Anthropic',
+		value: 'Anthropic',
+	},
+	{
 		label: 'Ollama',
 		value: 'Ollama',
 	},
@@ -67,6 +71,7 @@ export const ProviderPicker: FC<{
 			<Text color="green">⟡ Select a provider below:</Text>
 			<Select
 				options={providersToUse}
+				visibleOptionCount={10}
 				onChange={p => {
 					if (p === 'new') {
 						setIsNew(true);
