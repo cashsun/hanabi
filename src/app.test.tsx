@@ -21,3 +21,8 @@ test('single question mode works', t => {
 	t.assert(() => lastFrame()?.includes(`/reset`));
 	t.assert(() => lastFrame()?.includes(`Reset current chat`));
 });
+
+test('reset works', t => {
+	const {lastFrame} = render(<App command="reset" />);
+	t.assert(() => lastFrame()?.includes(`Are you sure to reset the config`));
+});
