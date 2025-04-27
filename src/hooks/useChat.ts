@@ -3,8 +3,6 @@ import { CoreMessage, generateText, LanguageModelV1 } from 'ai';
 import { getMcpTools } from './useMcpTools.js';
 import { getConfig } from '../components/config/util.js';
 
-const maxSteps = getConfig().maxSteps ?? 1;
-
 export const useChat = (
 	model: LanguageModelV1 | undefined,
 	messages: CoreMessage[],
@@ -14,6 +12,7 @@ export const useChat = (
 		queryKey: ['use-chat', model, messages, mcpKeys],
 		enabled: !!model && !!messages.length,
 		queryFn: async () => {
+            const maxSteps = getConfig().maxSteps ?? 90;
 			if (messages.at(-1)?.role !== 'user') {
 				return [];
 			}
