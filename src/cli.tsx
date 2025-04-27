@@ -12,7 +12,6 @@ const cli = meow(
 		$ hanabi 		start hanabi cli chat
 		$ hanabi list		list available LLMs and MCP servers 
 		$ hanabi reset		reset hanabi config
-		$ hanabi config		update config, e.g. add an LLM or add mcp
 		$ hanabi ask		single question mode
 
 	Flags:
