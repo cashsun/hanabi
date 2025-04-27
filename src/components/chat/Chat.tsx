@@ -38,8 +38,8 @@ const systemMessage: CoreSystemMessage = {
 	Here are the list of commands and tools you can use
 
 	${Object.entries(descriptions).map(([key, desp])=>{
-		return `**${chatHandles[key as keyof(typeof chatHandles)]}**\t${desp}`
-	}).join('\n\n')}
+		return `${chatHandles[key as keyof(typeof chatHandles)]}\t${desp}`
+	}).join('\n\n')} \n
 	\'\'\'
 	
 	`,

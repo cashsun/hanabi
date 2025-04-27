@@ -51,6 +51,18 @@ export function getDefaultApiVersion(provider: LLM['provider'] | undefined) {
 
 export const defaultConfig: HanabiConfig = {
 	llms: [],
+	mcpServers: {
+		'file-system': {
+			name: 'file system',
+			transport: 'stdio',
+			command: 'npx',
+			args: [
+				'-y',
+				'@modelcontextprotocol/server-filesystem',
+				'.',
+			],
+		},
+	},
 };
 
 export const configPath = resolve(os.homedir(), '.hanabi.json');

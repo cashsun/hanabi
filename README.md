@@ -80,7 +80,7 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 			"args": [
 				"-y",
 				"@modelcontextprotocol/server-filesystem",
-				"/Users/kaishisun/dev/hanabi"
+				"."
 			]
 		},
 		"my-calendar": {
