@@ -162,6 +162,7 @@ export const ChatInput: FC<{
 				borderColor="blueBright"
 				flexWrap="wrap"
 				borderStyle="single"
+				minHeight={1}
 				paddingX={1}
 			>
 				<Box flexBasis="auto" flexShrink={0}>
@@ -234,6 +235,7 @@ export const ChatInput: FC<{
 										if (
 											defaultModel?.provider === 'OpenAI' ||
 											defaultModel?.provider === 'Azure' ||
+											defaultModel?.provider === 'OpenAI-Compatible' ||
 											(defaultModel?.provider === 'Anthropic' &&
 												!mimeType.endsWith('/pdf'))
 										) {

@@ -12,7 +12,6 @@
 - [Local config file override](#local-config-file-override)
 - [TODOs](#todos)
 
-
 ![Chat demo](screenshots/Screenshot.png)
 
 ![Chat demo 2](screenshots/Screenshot2.png)
@@ -55,7 +54,7 @@ $ hanabi ask -q "how's the weather tomorrow?"
 
 In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 
-```json
+```
 {
 	"llms": [
 		// ...
@@ -84,7 +83,23 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 				"authentication": "Bearer api-token"
 			}
 		},
-        // might not work if you are using Windows or nvm, try: https://github.com/modelcontextprotocol/servers/issues/64
+		// npx stdio approach might not work if you are using Windows, try below alternatives. for nvm related issue: https://github.com/modelcontextprotocol/servers/issues/64
+        // "file-system-windows": {
+        // 	"name": "file system",
+        // 	"transport": "stdio",
+        // 	"command": "path/to/your/node.exe",
+        // 	"args": ["path/to/global/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
+        // },
+        // "supabase": {
+        //     "command": "C:\\Windows\\System32\\cmd.exe",
+        //     "args": [
+        //         "/c",
+        //         "npx",
+        //         "-y",
+        //         "@modelcontextprotocol/server-postgres",
+        //         "postgresql://postgres.********:********@aws-0-eu-central-1.pooler.supabase.com:5432/postgres"
+        //     ]
+        // },
 		"tavily": {
 			"name": "Tavily Search",
 			"transport": "stdio",
@@ -98,11 +113,7 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 			"name": "file system",
 			"transport": "stdio",
 			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-filesystem",
-				"."
-			]
+			"args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
 		},
 		"my-calendar": {
 			"name": "My Calendar",
@@ -122,15 +133,10 @@ To prevent files from being accessed, add [globby](https://github.com/sindresorh
 
 All files included in the .gitignore will also be auto excluded.
 
-```json
+```
 // <user home folder>/.hanabi.json
 {
-	"exclude": [
-        "certificates", 
-        "screenshots/**/*", 
-        "passwords/*", 
-        "*.pid"
-    ],
+	"exclude": ["certificates", "screenshots/**/*", "passwords/*", "*.pid"],
 	"llms": [
 		// ...
 	],
@@ -144,7 +150,7 @@ All files included in the .gitignore will also be auto excluded.
 
 Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in the config.
 
-```json
+```
 // <user home folder>/.hanabi.json
 {
 	"systemPrompt": "When generating unit tests, always use vitest.",
@@ -153,12 +159,13 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 	],
 	"defaultModel": {
 		// ...
-	},
-    // ...
+	}
+	// ...
 }
 ```
 
 ## Local config file override
+
 You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name.
 
 ## TODOs

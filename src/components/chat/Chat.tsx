@@ -6,7 +6,7 @@ import {Box, Text} from 'ink';
 
 import React, {type FC, useEffect, useMemo, useState} from 'react';
 import {useChat} from '../../hooks/useChat.js';
-import {getModel} from '../../hooks/useListModels.js';
+import {useModel} from '../../hooks/useListModels.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {getConfig} from '../config/util.js';
 import {chatHandles, descriptions} from './ChatHandles.js';
@@ -70,7 +70,7 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 	const systemMessages = useMemo(() => getSystemMessages(config), [config]);
 
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
-	const model = getModel(config.llms, defaultModel);
+	const model = useModel(defaultModel);
 	const [messages, setMessages] = React.useState<CoreMessage[]>(
 		singleRunQuery && singleRunQuery !== '1'
 			? [...systemMessages, {role: 'user', content: singleRunQuery}]

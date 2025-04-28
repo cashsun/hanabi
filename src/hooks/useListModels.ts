@@ -7,7 +7,7 @@ import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
 import {ollama} from 'ollama-ai-provider';
 
 import {useQuery} from '@tanstack/react-query';
-import {getDefaultApiVersion} from '../components/config/util.js';
+import {getConfig, getDefaultApiVersion} from '../components/config/util.js';
 import {
 	ANTHROPIC_API_URL,
 	DEEPSEEK_API_URL,
@@ -15,6 +15,7 @@ import {
 	OLLAMA_API_URL,
 	OPENAI_API_URL,
 } from './endpoints.js';
+import {useMemo} from 'react';
 
 export const useModelList = (
 	provider: LLM['provider'] | undefined,
@@ -63,43 +64,43 @@ export const useModelList = (
 	});
 };
 
-export const getModel = (
-	llms: HanabiConfig['llms'],
-	defaultModel: HanabiConfig['defaultModel'],
-) => {
-	const llm = llms.find(l => l.provider === defaultModel?.provider);
-	if (!llm || !defaultModel) {
-		return undefined;
-	}
+export const useModel = (defaultModel: HanabiConfig['defaultModel']) => {
+	return useMemo(() => {
+		const config = getConfig();
+		const llm = config.llms.find(l => l.provider === defaultModel?.provider);
+		if (!llm || !defaultModel) {
+			return undefined;
+		}
 
-	const modelName = defaultModel.model; // Extract model name for clarity
+		const modelName = defaultModel.model; // Extract model name for clarity
 
-	switch (llm.provider) {
-		case 'Google': {
-			return google(modelName);
+		switch (llm.provider) {
+			case 'Google': {
+				return google(modelName);
+			}
+			case 'Azure': {
+				const azure = createAzure({
+					apiVersion: llm.apiVersion ?? getDefaultApiVersion(llm.provider),
+				});
+				return azure(modelName);
+			}
+			case 'Deepseek':
+				return deepseek(modelName);
+			case 'Anthropic':
+				return anthropic(modelName);
+			case 'OpenAI':
+				return openai(modelName);
+			case 'Ollama':
+				return ollama(modelName);
+			default: {
+				// OpenAI Compatible
+				const compatible = createOpenAICompatible({
+					name: llm.provider,
+					apiKey: llm.apiKey,
+					baseURL: llm.apiUrl ?? '',
+				});
+				return compatible(modelName);
+			}
 		}
-		case 'Azure': {
-			const azure = createAzure({
-				apiVersion: llm.apiVersion ?? getDefaultApiVersion(llm.provider),
-			});
-			return azure(modelName);
-		}
-		case 'Deepseek':
-			return deepseek(modelName);
-		case 'Anthropic':
-			return anthropic(modelName);
-		case 'OpenAI':
-			return openai(modelName);
-		case 'Ollama':
-			return ollama(modelName);
-		default: {
-			// OpenAI Compatible
-			const compatible = createOpenAICompatible({
-				name: llm.provider,
-				apiKey: llm.apiKey,
-				baseURL: llm.apiUrl ?? '',
-			});
-			return compatible(modelName);
-		}
-	}
+	}, [defaultModel]);
 };
