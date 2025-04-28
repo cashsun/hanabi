@@ -79,7 +79,7 @@ export const ChatInput: FC<{
 				refreshInput();
 			}
 		}
-		if (key.backspace || (key.delete && os.type() === 'Darwin' && !value)) {
+		if ((key.backspace || (key.delete && os.type() === 'Darwin')) && !value) {
 			if (activeParamHandles.at(-1)) {
 				switch (activeParamHandles.at(-1)?.type as keyof typeof chatHandles) {
 					case chatHandles.FILE: {
