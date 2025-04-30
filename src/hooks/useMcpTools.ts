@@ -26,9 +26,13 @@ async function closeAllMcpConnections() {
 	}
 }
 
-process.on('exit', async function () {
+process.once('exit', async function () {
 	await closeAllMcpConnections();
-	process.exit();
+	process.exit(0);
+});
+process.once('SIGINT', async function () {
+	await closeAllMcpConnections();
+	process.exit(0);
 });
 
 export async function getMcpTools(serverKeys: string[]) {

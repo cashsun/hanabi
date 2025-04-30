@@ -94,20 +94,17 @@ function showModelAndContext(context: Record<string, any>) {
 	}
 }
 
-class Stdin extends ReadStream {
+class InkStdin extends ReadStream {
 	override isTTY = true;
-
-	override write = (data: string) => {
-		process.stdout.write(data);
-		return true;
-	};
 }
 
 async function renderAndComplete(cb: (onComplete: () => void) => ReactNode) {
-	const stdin = new Stdin(0) as unknown as ReadStream;
+	process.stdin.pause();
+	const stdin = new InkStdin(0) as unknown as ReadStream;
 	const instance = render(
 		<QueryClientProvider client={queryClient}>
 			{cb(() => {
+				process.stdin.resume();
 				stdin.destroy();
 				instance.unmount();
 			})}
@@ -157,6 +154,7 @@ function startChat() {
 		cb: (err: any, result: any) => void,
 	) {
 		if (context['mode']) {
+			cb(null, undefined);
 			return;
 		}
 
@@ -224,7 +222,6 @@ function startChat() {
 								context['mode'] = undefined;
 								resetMessages();
 								onComplete();
-								cb(null, undefined);
 							}}
 						/>
 					));
@@ -327,12 +324,3 @@ if (!hasConfig()) {
 		}
 	}
 }
-
-// Create a client
-// const queryClient = new QueryClient();
-
-// render(
-// 	<QueryClientProvider client={queryClient}>
-// 		<App command={cli.input.at(0)} query={cli.flags.q} />
-// 	</QueryClientProvider>,
-// );

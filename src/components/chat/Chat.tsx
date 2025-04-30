@@ -4,13 +4,7 @@ import dedent from 'dedent';
 import {Box, Newline, Text} from 'ink';
 
 import {Spinner} from '@inkjs/ui';
-import React, {
-	type FC,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {type FC, useEffect, useMemo, useState} from 'react';
 import {useChat} from '../../hooks/useChat.js';
 import {useModel} from '../../hooks/useListModels.js';
 import {addMessages, useAppStore} from '../../store/appState.js';
@@ -70,6 +64,7 @@ export const Chat: FC<Props> = ({
 			addMessages([userMessage]);
 		}
 	}, [userMessage]);
+
 	const {data, chunks, isFetching, error} = useChat(
 		model,
 		messages,
@@ -77,7 +72,7 @@ export const Chat: FC<Props> = ({
 		config.streaming,
 	);
 	const userMessageDisplay = useMemo(() => {
-		return userMessage && !isSingleRunQuery ? (
+		return userMessage ? (
 			<Box marginTop={1} flexDirection="column">
 				<Text color="gray">
 					User {'>'} {formatUserMessage(userMessage.content)}
@@ -87,10 +82,9 @@ export const Chat: FC<Props> = ({
 				))}
 			</Box>
 		) : null;
-	}, [userMessage, mcpKeys, isSingleRunQuery]);
-	// console.log('data :>> ', data);
-	// console.log('chunks :>> ', chunks);
-	useLayoutEffect(() => {
+	}, [userMessage, mcpKeys]);
+
+	useEffect(() => {
 		if (data) {
 			addMessages(data);
 		}
@@ -139,7 +133,7 @@ export const Chat: FC<Props> = ({
 		return (
 			<Box flexDirection="column">
 				<Spinner label="Thinking..." />
-				{chunks && <Markdown>{dedent`${chunks}`}</Markdown>}
+				<Markdown>{dedent`${chunks}`}</Markdown>
 			</Box>
 		);
 	}

@@ -16,7 +16,7 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
 	show the following help documenation
 	
-	'''
+	
 	Here are the list of commands and tools you can use
 
 	${Object.entries(descriptions)
@@ -25,7 +25,7 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 		})
 		.join('\n\n')} 
 
-	'''
+	
 	
 	`,
 });
