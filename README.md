@@ -44,7 +44,8 @@ $ hanabi reset
 Ask single question and print result. (Yes Hanabi auto injects today's date and timezone for you as context)
 
 ```
-$ hanabi ask -q "how's the weather tomorrow?"
+$ hanabi ask "how's the weather tomorrow?"
+$ hanabi ask "generate a react todo app" > ./todo-app-instructions.md
 ```
 
 ## MCP Servers
@@ -80,7 +81,7 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 				"authentication": "Bearer api-token"
 			}
 		},
-		// npx stdio approach might not work if you are using Windows, try below alternatives. for nvm related issue: https://github.com/modelcontextprotocol/servers/issues/64
+		// npx stdio approach might not work if you are using Windows or nvm, try below alternatives. for nvm related issue: https://github.com/modelcontextprotocol/servers/issues/64
         // "file-system-windows": {
         // 	"name": "file system",
         // 	"transport": "stdio",
