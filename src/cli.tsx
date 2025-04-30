@@ -164,6 +164,7 @@ function startChat() {
 			switch (prompt) {
 				case chatHandles.EXIT: {
 					replServer.close();
+					process.exit(0);
 					return;
 				}
 				case chatHandles.RESET: {
