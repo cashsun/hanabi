@@ -10,6 +10,7 @@
 - [Exclude files](#exclude-files)
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
+- [Streaming Mode](#streaming-mode)
 - [TODOs](#todos)
 
 ![Chat demo](screenshots/Screenshot1.png)
@@ -164,6 +165,11 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 
 You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name.
 
+
+## Streaming mode
+
+Add `"streaming":true` to `<user home folder>/.hanabi.json` or the one at working directory.
+
 ## TODOs
 
 - [x] include local files in chat
@@ -171,6 +177,7 @@ You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. pr
 - [x] add config to exclude custom files pattern
 - [x] support for custom system prompts (via cli and config)
 - [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
+- [x] streaming mode
 - [ ] add web server host mode (ie api and web interface)
 - [ ] Flowise agent support
 - [ ] Dify agent support
