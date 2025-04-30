@@ -70,8 +70,12 @@ export const Chat: FC<Props> = ({
 			addMessages([userMessage]);
 		}
 	}, [userMessage]);
-	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
-
+	const {data, chunks, isFetching, error} = useChat(
+		model,
+		messages,
+		mcpKeys,
+		config.streaming,
+	);
 	const userMessageDisplay = useMemo(() => {
 		return userMessage && !isSingleRunQuery ? (
 			<Box marginTop={1} flexDirection="column">
@@ -84,7 +88,8 @@ export const Chat: FC<Props> = ({
 			</Box>
 		) : null;
 	}, [userMessage, mcpKeys, isSingleRunQuery]);
-
+	// console.log('data :>> ', data);
+	// console.log('chunks :>> ', chunks);
 	useLayoutEffect(() => {
 		if (data) {
 			addMessages(data);
@@ -109,7 +114,7 @@ export const Chat: FC<Props> = ({
 		if (error) {
 			return <Text color="red">Error: {error.message}</Text>;
 		}
-		if (data.at(-1)?.role === 'assistant') {
+		if (data?.at(-1)?.role === 'assistant') {
 			let message = '';
 			const lastMessage = data.at(-1);
 			if (Array.isArray(lastMessage?.content)) {
@@ -134,6 +139,7 @@ export const Chat: FC<Props> = ({
 		return (
 			<Box flexDirection="column">
 				<Spinner label="Thinking..." />
+				{chunks && <Markdown>{dedent`${chunks}`}</Markdown>}
 			</Box>
 		);
 	}

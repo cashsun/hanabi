@@ -65,4 +65,6 @@ type HanabiConfig = {
 	mcpServers?: Record<string, MCPServerConfig>;
 	/** glob file/folder patterns */
 	exclude?: string[];
+	/** weather or not to use streaming mode */
+	streaming?: boolean;
 };
