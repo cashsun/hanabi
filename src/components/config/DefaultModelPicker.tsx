@@ -1,5 +1,5 @@
 import {Box, Text} from 'ink';
-import React, {type FC, useMemo, useState} from 'react';
+import React, {type FC, useState} from 'react';
 import {ModelSelector} from './ModelSelector.js';
 import {ProviderPicker} from './ProviderPicker.js';
 import {getConfig, loadConfigToEnv, writeConfig} from './util.js';
@@ -11,15 +11,13 @@ interface Props {
 }
 
 export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
-	const config = useMemo(() => getConfig(), []);
 	const [llmToUse, setLLMToUse] = useState(llm);
-
 	if (!llmToUse) {
 		return (
 			<ProviderPicker
 				useExisting
 				onSelect={(p, d) => {
-					setLLMToUse(config.llms.find(llm => llm.provider === p));
+					setLLMToUse(getConfig().llms.find(llm => llm.provider === p));
 					if (d) {
 						onSelect?.(d);
 					}

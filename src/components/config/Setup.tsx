@@ -1,4 +1,4 @@
-import {Spinner} from '@inkjs/ui';
+import {ConfirmInput, Spinner} from '@inkjs/ui';
 import {Box, Text} from 'ink';
 import React, {type FC, useEffect, useState} from 'react';
 import {AddLLM} from './AddLLM.js';
@@ -6,13 +6,14 @@ import {configPath, defaultConfig, removeConfig, writeConfig} from './util.js';
 
 export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
 	const [step, setStep] = useState(0);
+	const [confirmReset, setConfirmReset] = useState(!isReset);
 
 	useEffect(() => {
-		if (isReset) {
+		if (isReset && confirmReset) {
 			removeConfig();
 		}
 		setStep(1);
-	}, [isReset]);
+	}, [isReset, confirmReset]);
 
 	useEffect(() => {
 		if (step === 1) {
@@ -23,6 +24,23 @@ export const Setup: FC<{isReset: boolean}> = ({isReset}) => {
 			}, 500);
 		}
 	}, [step]);
+
+	if (!confirmReset && isReset) {
+		return (
+			<>
+				<Text color="yellowBright">⟡ Are you sure to reset the config? </Text>
+				<Text color="gray">({configPath})</Text>
+				<ConfirmInput
+					onConfirm={() => {
+						setConfirmReset(true);
+					}}
+					onCancel={() => {
+						process.exit(0);
+					}}
+				/>
+			</>
+		);
+	}
 
 	return (
 		<Box flexDirection="column">

@@ -4,10 +4,11 @@ import React, {type FC, useMemo, useState} from 'react';
 import {getConfig} from './config/util.js';
 
 type Props = {
+	readonly mcpKeys?: string[];
 	readonly onSelect: (mcpServerKeys: string[]) => void;
 };
 
-export const McpPicker: FC<Props> = ({onSelect}) => {
+export const McpPicker: FC<Props> = ({onSelect, mcpKeys}) => {
 	const [warning, setWarning] = useState('');
 	const options = useMemo(() => {
 		const config = getConfig();
@@ -41,6 +42,7 @@ export const McpPicker: FC<Props> = ({onSelect}) => {
 			{!!options.length && (
 				<MultiSelect
 					options={options}
+					defaultValue={mcpKeys}
 					visibleOptionCount={10}
 					onChange={() => {}}
 					onSubmit={keys => {

@@ -1,16 +1,22 @@
 import Markdown from '@inkkit/ink-markdown';
-import type {CoreMessage, CoreSystemMessage, TextPart, UserContent} from 'ai';
-import clipboardy from 'clipboardy';
+import type {CoreUserMessage, TextPart, UserContent} from 'ai';
 import dedent from 'dedent';
-import {Box, Text} from 'ink';
+import {Box, Newline, Text} from 'ink';
 
-import React, {type FC, useEffect, useMemo, useState} from 'react';
+import {Spinner} from '@inkjs/ui';
+import React, {
+	type FC,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {useChat} from '../../hooks/useChat.js';
 import {useModel} from '../../hooks/useListModels.js';
+import {addMessages, useAppStore} from '../../store/appState.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {getConfig} from '../config/util.js';
-import {chatHandles, descriptions} from './ChatHandles.js';
-import {ChatInput} from './ChatInput.js';
+import {getFinalMsg} from './ChatInput.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -24,82 +30,69 @@ const formatUserMessage = (content: UserContent) => {
 	return content.toString();
 };
 
-const getDefaultSystemMessage = (): CoreSystemMessage => ({
-	role: 'system',
-	content: `
-	Act as an AI assistant with access to various tools (if provided). 
-	User might be using a terminal interface to interact with you.
-	
-	## Context
-	- Today is ${new Date().toISOString()}
-	- Timezone is ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
+interface Props {
+	prompt: string;
+	mcpKeys?: string[];
+	files?: string[];
+	isWithClip?: boolean;
+	/** signal repl to unmount this component and proceed to next step */
+	onComplete: () => void;
+	isSingleRunQuery?: boolean;
+}
 
-	## Help Documentation
-	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
-	show the following help documenation
-	
-	'''markdown
-	Here are the list of commands and tools you can use
-
-	${Object.entries(descriptions)
-		.map(([key, desp]) => {
-			return `${chatHandles[key as keyof typeof chatHandles]}\t${desp}`;
-		})
-		.join('\n\n')} 
-
-	'''
-	
-	`,
-});
-
-const getSystemMessages = (config: HanabiConfig): CoreSystemMessage[] => {
-	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
-
-	if (config.systemPrompt) {
-		messages.push({
-			role: 'system',
-			content: config.systemPrompt,
-		});
-	}
-
-	return messages;
-};
-
-export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
+export const Chat: FC<Props> = ({
+	prompt,
+	mcpKeys = [],
+	files,
+	isWithClip,
+	onComplete,
+	isSingleRunQuery,
+}) => {
 	const config = useMemo(() => getConfig(), []);
-	const systemMessages = useMemo(() => getSystemMessages(config), [config]);
 
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
 	const model = useModel(defaultModel);
-	const [messages, setMessages] = React.useState<CoreMessage[]>(
-		singleRunQuery && singleRunQuery !== '1'
-			? [...systemMessages, {role: 'user', content: singleRunQuery}]
-			: systemMessages,
+	const messages = useAppStore(state => state.messages);
+	const userMessage: CoreUserMessage = useMemo(
+		() => ({
+			role: 'user',
+			content: getFinalMsg(
+				defaultModel,
+				prompt,
+				files ?? [],
+				isWithClip ?? false,
+			),
+		}),
+		[defaultModel, prompt, files, isWithClip],
 	);
-	const [mcpKeys, setMcpKeys] = useState<string[]>([]);
-	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
 	useEffect(() => {
-		if (data && !error) {
-			setMessages(prev => [...prev, ...data]);
+		if (userMessage) {
+			addMessages([userMessage]);
 		}
-	}, [data, error]);
+	}, [userMessage]);
+	const {data, isFetching, error} = useChat(model, messages, mcpKeys);
 
-	if (messages.at(-1)?.role === 'assistant' && singleRunQuery) {
-		let message = '';
-		const lastMessage = messages.at(-1);
-		if (Array.isArray(lastMessage?.content)) {
-			message =
-				(lastMessage.content as TextPart[]).find(c => c.type === 'text')
-					?.text ?? '';
-		} else {
-			message = lastMessage?.content.toString() ?? '';
+	const userMessageDisplay = useMemo(() => {
+		return userMessage && !isSingleRunQuery ? (
+			<Box marginTop={1} flexDirection="column">
+				<Text color="gray">
+					User {'>'} {formatUserMessage(userMessage.content)}
+				</Text>
+				{mcpKeys.map(mcp => (
+					<Text key={mcp} color="gray">{`@mcp: ${mcp}`}</Text>
+				))}
+			</Box>
+		) : null;
+	}, [userMessage, mcpKeys, isSingleRunQuery]);
+
+	useLayoutEffect(() => {
+		if (data) {
+			addMessages(data);
 		}
-		return (
-			<Text>
-				<Markdown>{dedent`${message}`}</Markdown>
-			</Text>
-		);
-	}
+		if (!isFetching && (data || error)) {
+			onComplete();
+		}
+	}, [isFetching, data, error, onComplete]);
 
 	if (!defaultModel) {
 		return (
@@ -112,27 +105,44 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 		);
 	}
 
-	return (
-		<Box
-			flexDirection="column"
-			justifyContent="flex-end"
-			minHeight={process.stdout.rows - 1}
-		>
-			{!!messages.length &&
-				messages.map((message, index) => {
-					if (message.role === 'user') {
-						return (
-							<Box marginTop={1} key={index} flexDirection="column">
-								<Text color="gray">
-									[User] {formatUserMessage(message.content)}
-								</Text>
-								{mcpKeys.map(mcp => (
-									<Text key={mcp} color="gray">{`@mcp: ${mcp}`}</Text>
-								))}
-							</Box>
-						);
-					}
+	if (isSingleRunQuery && (data || error)) {
+		if (error) {
+			return <Text color="red">Error: {error.message}</Text>;
+		}
+		if (data.at(-1)?.role === 'assistant') {
+			let message = '';
+			const lastMessage = data.at(-1);
+			if (Array.isArray(lastMessage?.content)) {
+				message =
+					(lastMessage.content as TextPart[]).find(c => c.type === 'text')
+						?.text ?? '';
+			} else {
+				message = lastMessage?.content ?? '';
+			}
+			return (
+				<>
+					<Newline />
+					<Markdown>{dedent`${message}`}</Markdown>
+					<Newline />
+				</>
+			);
+		}
+		return null;
+	}
 
+	if (isFetching && !isSingleRunQuery) {
+		return (
+			<Box flexDirection="column">
+				<Spinner label="Thinking..." />
+			</Box>
+		);
+	}
+
+	return (
+		<Box flexDirection="column" justifyContent="flex-end">
+			{userMessageDisplay}
+			{!!data?.length &&
+				data.map((message, index) => {
 					if (message.role === 'assistant') {
 						if (Array.isArray(message.content)) {
 							return message.content.map((part, idx) => {
@@ -144,7 +154,6 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 											borderLeft={false}
 											borderRight={false}
 											borderBottom={false}
-											paddingX={1}
 											key={`${index}-${idx}`}
 										>
 											<Text color="magentaBright">⟡ tool: {part.toolName}</Text>
@@ -158,14 +167,15 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 											borderColor="magenta"
 											flexDirection="column"
 											gap={1}
-											paddingX={1}
 											borderStyle="doubleSingle"
 											borderLeft={false}
 											borderRight={false}
 											key={`${index}-${idx}`}
 										>
 											<Text color="magentaBright">⟡ {defaultModel.model}</Text>
-											<Markdown>{dedent`${part.text}`}</Markdown>
+											<Box paddingX={1}>
+												<Markdown>{dedent`${part.text}`}</Markdown>
+											</Box>
 										</Box>
 									);
 								}
@@ -189,38 +199,6 @@ export const Chat: FC<{singleRunQuery?: string}> = ({singleRunQuery}) => {
 					return null;
 				})}
 			{error && <Text color="red">{error.message}</Text>}
-			<ChatInput
-				defaultModel={defaultModel}
-				isFetching={isFetching}
-				onReset={() => {
-					setMessages(systemMessages);
-				}}
-				onCopy={() => {
-					const lastMessage = messages.at(-1);
-					if (lastMessage) {
-						if (Array.isArray(lastMessage.content)) {
-							clipboardy.writeSync(
-								lastMessage.content.find(c => c.type === 'text')?.text ?? '',
-							);
-						} else {
-							clipboardy.writeSync(lastMessage.content);
-						}
-						setMessages(prev => [
-							...prev,
-							{role: 'assistant', content: '⟡ Copied to clipboard!'},
-						]);
-					}
-				}}
-				onLLM={() => {
-					const newConfig = getConfig();
-					setDefaultModel(newConfig.defaultModel);
-					setMessages(getSystemMessages(newConfig));
-				}}
-				onSubmit={(msg, keys) => {
-					setMcpKeys(keys);
-					setMessages(prev => [...prev, {role: 'user', content: msg}]);
-				}}
-			/>
 		</Box>
 	);
 };

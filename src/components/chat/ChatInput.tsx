@@ -21,6 +21,52 @@ const isLLM = (msg?: string) => msg && chatHandles.LLM === msg.trim();
 const isExit = (msg?: string) =>
 	msg && new RegExp(`${chatHandles.EXIT}`, 'gi').test(msg.trim());
 
+export function getFinalMsg(
+	defaultModel: HanabiConfig['defaultModel'],
+	msg: string,
+	files: string[],
+	isWithClip: boolean,
+) {
+	const clip = isWithClip ? clipboardy.readSync() : undefined;
+	const clipText = clip ? `\n\n\`\`\`\n${clip}\n\`\`\`` : '';
+	const finalMsg: UserContent = [{type: 'text', text: `${msg}${clipText}`}];
+	if (files.length) {
+		for (const f of files) {
+			(finalMsg[0] as TextPart).text += `\n@file: ${f}`;
+			const mimeType = mime.lookup(f) || 'text/plain';
+			if (mimeType.startsWith('image')) {
+				finalMsg.push({
+					type: 'image',
+					mimeType,
+					image: fs.readFileSync(resolve(wkdir, f)),
+				});
+			} else {
+				if (
+					defaultModel?.provider === 'OpenAI' ||
+					defaultModel?.provider === 'Azure' ||
+					defaultModel?.provider === 'OpenAI-Compatible' ||
+					(defaultModel?.provider === 'Anthropic' && !mimeType.endsWith('/pdf'))
+				) {
+					// OpenAI models does not support raw files yet via completion API
+					// so we include the file content
+					(finalMsg[0] as TextPart).text += dedent`\n
+					\`\`\`
+					\n${fs.readFileSync(f, {encoding: 'utf8'})}\n
+					\`\`\`
+					`;
+				} else {
+					finalMsg.push({
+						type: 'file',
+						mimeType: mimeType === 'application/json' ? 'text/plain' : mimeType,
+						data: fs.readFileSync(resolve(wkdir, f)),
+					});
+				}
+			}
+		}
+	}
+	return finalMsg;
+}
+
 export const ChatInput: FC<{
 	defaultModel: HanabiConfig['defaultModel'];
 	isFetching?: boolean;
@@ -117,6 +163,7 @@ export const ChatInput: FC<{
 		return (
 			<FilePicker
 				multi
+				files={files}
 				onConfirm={files => {
 					setFiles(files);
 					setValue(prev =>
@@ -130,6 +177,7 @@ export const ChatInput: FC<{
 	if (pickingMCP) {
 		return (
 			<McpPicker
+				mcpKeys={mcpKeys}
 				onSelect={mcps => {
 					setMcpKeys(mcps);
 					setValue(prev => prev.replace(new RegExp(`${chatHandles.MCP}$`), ``));
@@ -216,49 +264,7 @@ export const ChatInput: FC<{
 							}
 
 							setValue('');
-							const clip = clipboard ? clipboardy.readSync() : undefined;
-							const clipText = clip ? `\n\n\`\`\`\n${clip}\n\`\`\`` : '';
-							const finalMsg: UserContent = [
-								{type: 'text', text: `${msg}${clipText}`},
-							];
-							if (files.length) {
-								for (const f of files) {
-									(finalMsg[0] as TextPart).text += `\n@file: ${f}`;
-									const mimeType = mime.lookup(f) || 'text/plain';
-									if (mimeType.startsWith('image')) {
-										finalMsg.push({
-											type: 'image',
-											mimeType,
-											image: fs.readFileSync(resolve(wkdir, f)),
-										});
-									} else {
-										if (
-											defaultModel?.provider === 'OpenAI' ||
-											defaultModel?.provider === 'Azure' ||
-											defaultModel?.provider === 'OpenAI-Compatible' ||
-											(defaultModel?.provider === 'Anthropic' &&
-												!mimeType.endsWith('/pdf'))
-										) {
-											// OpenAI models does not support raw files yet via completion API
-											// so we include the file content
-											(finalMsg[0] as TextPart).text += dedent`\n
-											\`\`\`
-											\n${fs.readFileSync(f, {encoding: 'utf8'})}\n
-											\`\`\`
-											`;
-										} else {
-											finalMsg.push({
-												type: 'file',
-												mimeType:
-													mimeType === 'application/json'
-														? 'text/plain'
-														: mimeType,
-												data: fs.readFileSync(resolve(wkdir, f)),
-											});
-										}
-									}
-								}
-							}
+							const finalMsg = getFinalMsg(defaultModel, msg, files, clipboard);
 							setFiles([]);
 							onSubmit?.(finalMsg, mcpKeys);
 						}}

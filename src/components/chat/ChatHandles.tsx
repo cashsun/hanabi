@@ -7,6 +7,7 @@ export const chatHandles = {
 	HELP: '/help',
 	EXIT: '/exit',
 	RESET: '/reset',
+	CLEAR: '/clear',
 	COPY: '/copy',
 	LLM: '/llm',
 
@@ -22,6 +23,7 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	HELP: 'Quick help',
 	EXIT: 'Exit Hanabi CLI',
 	RESET: 'Reset current chat',
+	CLEAR: 'Clear MCP and file selection',
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',
 

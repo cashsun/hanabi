@@ -5,12 +5,13 @@ import {useListFIles} from '../hooks/useListFiles.js';
 
 export const FilePicker: FC<{
 	multi?: boolean;
+	files?: string[];
 	readonly onConfirm: (files: string[]) => void;
-}> = ({multi, onConfirm}) => {
+}> = ({multi, onConfirm, files}) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [showInput, setShowInput] = useState(true);
 	const [warning, setWarning] = useState('');
-	const selected = useRef<string[]>([]);
+	const selected = useRef<string[]>(files ?? []);
 	const {data: allFiles, isFetching} = useListFIles();
 
 	const refreshInput = useCallback(() => {

@@ -14,17 +14,21 @@ const clientRegistry: Record<
 > = {};
 
 async function closeAllMcpConnections() {
-	for (const client of Object.values(clientRegistry)) {
-		await client.close();
+	for (const [key, client] of Object.entries(clientRegistry)) {
+		await client
+			.close()
+			.then(() => {
+				console.log(`${key} client closed.`);
+			})
+			.catch(error => {
+				console.error(`Error closing ${key} client:`, error);
+			});
 	}
 }
 
-process.on('SIGINT', async function () {
-	console.log('Caught interrupt signal... Closing MCP clients.');
+process.on('exit', async function () {
 	await closeAllMcpConnections();
-});
-process.on('beforeExit', async function () {
-	await closeAllMcpConnections();
+	process.exit();
 });
 
 export async function getMcpTools(serverKeys: string[]) {

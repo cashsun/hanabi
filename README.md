@@ -12,11 +12,7 @@
 - [Local config file override](#local-config-file-override)
 - [TODOs](#todos)
 
-![Chat demo](screenshots/Screenshot.png)
-
-![Chat demo 2](screenshots/Screenshot2.png)
-
-![Coding demo 3](screenshots/Screenshot3.png)
+![Chat demo](screenshots/Screenshot1.png)
 
 ## Install
 
