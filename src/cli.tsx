@@ -233,7 +233,10 @@ function startChat() {
 					await renderAndComplete(onComplete => (
 						<Chat
 							prompt={prompt}
-							onComplete={onComplete}
+							onComplete={() => {
+								context['isWithClip'] = false;
+								onComplete();
+							}}
 							files={context['files']}
 							isWithClip={context['isWithClip']}
 							mcpKeys={context['mcpKeys']}

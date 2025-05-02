@@ -2,20 +2,15 @@ import {anthropic} from '@ai-sdk/anthropic';
 import {createAzure} from '@ai-sdk/azure';
 import {deepseek} from '@ai-sdk/deepseek';
 import {google} from '@ai-sdk/google';
+import {groq} from '@ai-sdk/groq';
 import {openai} from '@ai-sdk/openai';
 import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
 import {ollama} from 'ollama-ai-provider';
 
 import {useQuery} from '@tanstack/react-query';
-import {getConfig, getDefaultApiVersion} from '../components/config/util.js';
-import {
-	ANTHROPIC_API_URL,
-	DEEPSEEK_API_URL,
-	GOOGLE_AI_API_URL,
-	OLLAMA_API_URL,
-	OPENAI_API_URL,
-} from './endpoints.js';
 import {useMemo} from 'react';
+import {getConfig, getDefaultApiVersion} from '../components/config/util.js';
+import {officialApiUrls} from './endpoints.js';
 
 export const useModelList = (
 	provider: LLM['provider'] | undefined,
@@ -29,27 +24,32 @@ export const useModelList = (
 			if (!provider) {
 				return [];
 			}
-
 			let apiUrlToUse = `${apiUrl}/models`;
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${apiKey}`,
 			};
 
-			if (provider === 'OpenAI') {
-				apiUrlToUse = `${OPENAI_API_URL}/models`;
-			} else if (provider === 'Google') {
-				apiUrlToUse = `${GOOGLE_AI_API_URL}/models`;
-			} else if (provider === 'Azure') {
-				apiUrlToUse = `${apiUrl}/models?api-version=${apiVersion}`;
-			} else if (provider === 'Deepseek') {
-				apiUrlToUse = `${DEEPSEEK_API_URL}/models`;
-			} else if (provider === 'Ollama') {
-				apiUrlToUse = `${OLLAMA_API_URL}/tags`;
-			} else if (provider === 'Anthropic') {
-				apiUrlToUse = `${ANTHROPIC_API_URL}/models`;
-				headers['x-api-key'] = apiKey ?? '';
-				headers['anthropic-version'] =
-					apiVersion || getDefaultApiVersion(provider);
+			apiUrlToUse = `${officialApiUrls[provider]}/models`;
+
+			switch (provider) {
+				case 'Anthropic': {
+					headers['x-api-key'] = apiKey ?? '';
+					headers['anthropic-version'] =
+						apiVersion ?? getDefaultApiVersion(provider);
+					break;
+				}
+				case 'Azure': {
+					apiUrlToUse = `${apiUrl}/models?api-version=${
+						apiVersion ?? getDefaultApiVersion(provider)
+					}`;
+					break;
+				}
+				case 'Ollama': {
+					apiUrlToUse = `${officialApiUrls[provider]}/tags`;
+					break;
+				}
+				default:
+					break;
 			}
 
 			const response = await fetch(`${apiUrlToUse}`, {
@@ -90,6 +90,8 @@ export const useModel = (defaultModel: HanabiConfig['defaultModel']) => {
 				return anthropic(modelName);
 			case 'OpenAI':
 				return openai(modelName);
+			case 'Groq':
+				return groq(modelName);
 			case 'Ollama':
 				return ollama(modelName);
 			default: {

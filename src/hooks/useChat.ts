@@ -6,9 +6,10 @@ import {getConfig} from '../components/config/util.js';
 import {getMcpTools} from './useMcpTools.js';
 import {useStdout} from 'ink';
 import Chalk from 'chalk';
+import {EOL} from 'node:os';
 
 const clearLines = (n: number) => {
-	for (let i = 0; i < n + 3; i++) {
+	for (let i = 0; i < n + 1; i++) {
 		// first clear the current line, then clear the previous line
 
 		// Clear the current lineodes.
@@ -25,7 +26,7 @@ const clearLines = (n: number) => {
 export const useChat = (
 	model: LanguageModelV1 | undefined,
 	messages: CoreMessage[],
-	mcpKeys: string[],
+	mcpKeys: string[] | undefined,
 	streamingMode?: boolean,
 ) => {
 	const {stdout} = useStdout();
@@ -34,42 +35,44 @@ export const useChat = (
 	const {isFetching, data, ...rest} = useQuery({
 		queryKey: ['use-chat', model, messages, mcpKeys, streamingMode],
 		async queryFn() {
-			if (messages.at(-1)?.role !== 'user' || !model) {
+			if (messages.at(-1)?.role !== 'user' || !model || isStreaming) {
 				return [];
 			}
 			const maxSteps = getConfig().maxSteps ?? 90;
 			const tools = await getMcpTools(mcpKeys);
-
 			if (streamingMode) {
-				const {textStream, response} = streamText({
+				const {fullStream: textStream, response} = streamText({
 					model,
 					messages,
 					tools,
 					maxSteps,
 				});
-				const reader = textStream.getReader();
-				let chunks = '';
-				reader.read().then(function processText({done, value}) {
-					const next = value ? Chalk.dim.gray(value) : '';
-					if (done) {
-						chunks += next;
-						stdout.write(next);
-						clearLines((chunks.match(/\n/g) ?? []).length);
-						setIsStreaming(false);
-						return;
-					}
 
+				let chunks = '';
+				for await (const value of textStream) {
 					setIsStreaming(true);
-					stdout.write(next);
-					chunks += next;
-					reader.read().then(processText);
-				});
+					if (value.type === 'reasoning' || value.type === 'text-delta') {
+						const next = Chalk.dim.gray(value.textDelta);
+						stdout.write('');
+						stdout.write(next);
+
+						if (value.type === 'text-delta') {
+							chunks += next;
+						}
+					}
+				}
 				const res = await response;
-				// streaming mode might return multiple agent messages
-				setAgentMessages(prev => [...prev, ...res.messages]);
-				return res.messages;
+				if (res.messages.length) {
+					setAgentMessages(prev => [...prev, ...res.messages]);
+				}
+				setIsStreaming(false);
+				clearLines(chunks.split(EOL).length);
+
+				// in stream mode we will use agent messages
+				return [];
 			}
 
+			// non-streaming mode
 			const {response} = await generateText({
 				model,
 				messages,

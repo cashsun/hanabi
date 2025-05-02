@@ -1,6 +1,6 @@
 # hanabi-cli
 
-> A command line AI chat interface for any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
+> A terminal AI chat interface for any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ $ hanabi ask "generate a react todo app" > ./todo-app-instructions.md
 
 In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 
-```
+```json
 {
 	"llms": [
 		// ...
@@ -81,22 +81,12 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 				"authentication": "Bearer api-token"
 			}
 		},
-		// npx stdio approach might not work if you are using Windows or nvm, try below alternatives. for nvm related issue: https://github.com/modelcontextprotocol/servers/issues/64
+		// npx stdio approach is flaky & slow. highly recommend to npm install -g <mcp-server> and use the following. see https://github.com/modelcontextprotocol/servers/issues/64
         // "file-system-windows": {
         // 	"name": "file system",
         // 	"transport": "stdio",
         // 	"command": "path/to/your/node.exe",
         // 	"args": ["path/to/global/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
-        // },
-        // "supabase": {
-        //     "command": "C:\\Windows\\System32\\cmd.exe",
-        //     "args": [
-        //         "/c",
-        //         "npx",
-        //         "-y",
-        //         "@modelcontextprotocol/server-postgres",
-        //         "postgresql://postgres.********:********@aws-0-eu-central-1.pooler.supabase.com:5432/postgres"
-        //     ]
         // },
 		"tavily": {
 			"name": "Tavily Search",
@@ -107,6 +97,7 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 			},
 			"args": ["-y", "tavily-mcp@0.1.4"]
 		},
+		// npx is slow! use above recommendation
 		"file-system": {
 			"name": "file system",
 			"transport": "stdio",
@@ -131,7 +122,7 @@ To prevent files from being accessed, add [globby](https://github.com/sindresorh
 
 All files included in the .gitignore will also be auto excluded.
 
-```
+```json
 // <user home folder>/.hanabi.json
 {
 	"exclude": ["certificates", "screenshots/**/*", "passwords/*", "*.pid"],
@@ -148,7 +139,7 @@ All files included in the .gitignore will also be auto excluded.
 
 Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in the config.
 
-```
+```json
 // <user home folder>/.hanabi.json
 {
 	"systemPrompt": "When generating unit tests, always use vitest.",

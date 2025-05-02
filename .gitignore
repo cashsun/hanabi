@@ -141,3 +141,5 @@ temp.json
 .hanabi.json
 *hanabi-backup.json
 .tsimp
+
+hanabi.system.prompt.md

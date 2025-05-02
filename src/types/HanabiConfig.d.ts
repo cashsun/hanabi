@@ -1,6 +1,6 @@
 type CommonLLM = {
 	id: string;
-	provider: 'OpenAI' | 'Google' | 'Deepseek' | 'Anthropic';
+	provider: 'OpenAI' | 'Google' | 'Deepseek' | 'Anthropic' | 'Groq';
 	apiKey: string;
 	apiUrl?: string;
 	apiVersion?: string;

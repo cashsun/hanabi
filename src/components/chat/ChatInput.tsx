@@ -44,10 +44,11 @@ export function getFinalMsg(
 				if (
 					defaultModel?.provider === 'OpenAI' ||
 					defaultModel?.provider === 'Azure' ||
+					defaultModel?.provider === 'Groq' ||
 					defaultModel?.provider === 'OpenAI-Compatible' ||
 					(defaultModel?.provider === 'Anthropic' && !mimeType.endsWith('/pdf'))
 				) {
-					// OpenAI models does not support raw files yet via completion API
+					// These models does not support raw files yet via completion API
 					// so we include the file content
 					(finalMsg[0] as TextPart).text += dedent`\n
 					\`\`\`

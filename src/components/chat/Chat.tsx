@@ -3,7 +3,6 @@ import type {CoreUserMessage, TextPart, UserContent} from 'ai';
 import dedent from 'dedent';
 import {Box, Newline, Static, Text} from 'ink';
 
-import {Spinner} from '@inkjs/ui';
 import React, {type FC, useEffect, useMemo, useState} from 'react';
 import {useChat} from '../../hooks/useChat.js';
 import {useModel} from '../../hooks/useListModels.js';
@@ -11,6 +10,7 @@ import {addMessages, useAppStore} from '../../store/appState.js';
 import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {getConfig} from '../config/util.js';
 import {getFinalMsg} from './ChatInput.js';
+import Spinner from 'ink-spinner';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -86,13 +86,13 @@ export const Chat: FC<Props> = ({
 	}, [userMessage, mcpKeys]);
 
 	useEffect(() => {
-		if (!isFetching && (data?.length || error)) {
+		if (!isFetching && !isStreaming && (data?.length || error)) {
 			if (data?.length) {
 				addMessages(data);
 			}
 			onComplete();
 		}
-	}, [isFetching, data, error, onComplete]);
+	}, [isFetching, data, error, onComplete, isStreaming]);
 
 	if (!defaultModel) {
 		return (
@@ -137,16 +137,19 @@ export const Chat: FC<Props> = ({
 	if (isStreaming) {
 		return (
 			<Text>
-				<Text color="blue">⠏</Text> Thinking...
+				<Text color="green">⠏</Text> Thinking...
 			</Text>
 		);
 	}
 
 	if (isFetching) {
 		return (
-			<Box flexDirection="column">
-				<Spinner label="Thinking..." />
-			</Box>
+			<Text>
+				<Text color="green">
+					<Spinner type="dots" />
+				</Text>
+				{' Thinking...'}
+			</Text>
 		);
 	}
 

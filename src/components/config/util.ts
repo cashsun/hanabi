@@ -134,6 +134,9 @@ export const loadConfigToEnv = () => {
 			case 'Deepseek':
 				envs.DEEPSEEK_API_KEY = llm.apiKey;
 				break;
+			case 'Groq':
+				envs.GROQ_API_KEY = llm.apiKey;
+				break;
 			default:
 				break;
 		}
