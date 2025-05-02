@@ -50,6 +50,7 @@ export function getDefaultApiVersion(provider: LLM['provider'] | undefined) {
 
 export const defaultConfig: HanabiConfig = {
 	llms: [],
+	streaming: true,
 	mcpServers: {
 		'file-system': {
 			name: 'file system',

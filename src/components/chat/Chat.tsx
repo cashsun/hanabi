@@ -1,7 +1,7 @@
 import Markdown from '@inkkit/ink-markdown';
 import type {CoreUserMessage, TextPart, UserContent} from 'ai';
 import dedent from 'dedent';
-import {Box, Newline, Text} from 'ink';
+import {Box, Newline, Static, Text} from 'ink';
 
 import {Spinner} from '@inkjs/ui';
 import React, {type FC, useEffect, useMemo, useState} from 'react';
@@ -36,7 +36,7 @@ interface Props {
 
 export const Chat: FC<Props> = ({
 	prompt,
-	mcpKeys = [],
+	mcpKeys,
 	files,
 	isWithClip,
 	onComplete,
@@ -46,7 +46,7 @@ export const Chat: FC<Props> = ({
 
 	const [defaultModel, setDefaultModel] = useState(config.defaultModel);
 	const model = useModel(defaultModel);
-	const messages = useAppStore(state => state.messages);
+	const msgHistory = useAppStore(state => state.messages);
 	const userMessage: CoreUserMessage = useMemo(
 		() => ({
 			role: 'user',
@@ -65,19 +65,20 @@ export const Chat: FC<Props> = ({
 		}
 	}, [userMessage]);
 
-	const {data, chunks, isFetching, error} = useChat(
+	const {data, isFetching, isStreaming, error} = useChat(
 		model,
-		messages,
-		mcpKeys,
-		config.streaming,
+		msgHistory,
+		mcpKeys ?? [],
+		config.streaming && !isSingleRunQuery,
 	);
+
 	const userMessageDisplay = useMemo(() => {
 		return userMessage ? (
 			<Box marginTop={1} flexDirection="column">
 				<Text color="gray">
 					User {'>'} {formatUserMessage(userMessage.content)}
 				</Text>
-				{mcpKeys.map(mcp => (
+				{mcpKeys?.map(mcp => (
 					<Text key={mcp} color="gray">{`@mcp: ${mcp}`}</Text>
 				))}
 			</Box>
@@ -85,10 +86,10 @@ export const Chat: FC<Props> = ({
 	}, [userMessage, mcpKeys]);
 
 	useEffect(() => {
-		if (data) {
-			addMessages(data);
-		}
-		if (!isFetching && (data || error)) {
+		if (!isFetching && (data?.length || error)) {
+			if (data?.length) {
+				addMessages(data);
+			}
 			onComplete();
 		}
 	}, [isFetching, data, error, onComplete]);
@@ -104,7 +105,7 @@ export const Chat: FC<Props> = ({
 		);
 	}
 
-	if (isSingleRunQuery && (data || error)) {
+	if (isSingleRunQuery) {
 		if (error) {
 			return <Text color="red">Error: {error.message}</Text>;
 		}
@@ -119,21 +120,32 @@ export const Chat: FC<Props> = ({
 				message = lastMessage?.content ?? '';
 			}
 			return (
-				<>
-					<Newline />
-					<Markdown>{dedent`${message}`}</Markdown>
-					<Newline />
-				</>
+				<Static items={[message]}>
+					{item => (
+						<Box key={item}>
+							<Newline />
+							<Markdown>{dedent`${item}`}</Markdown>
+							<Newline />
+						</Box>
+					)}
+				</Static>
 			);
 		}
 		return null;
 	}
 
-	if (isFetching && !isSingleRunQuery) {
+	if (isStreaming) {
+		return (
+			<Text>
+				<Text color="blue">⠏</Text> Thinking...
+			</Text>
+		);
+	}
+
+	if (isFetching) {
 		return (
 			<Box flexDirection="column">
 				<Spinner label="Thinking..." />
-				<Markdown>{dedent`${chunks}`}</Markdown>
 			</Box>
 		);
 	}

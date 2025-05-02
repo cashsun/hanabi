@@ -169,7 +169,7 @@ You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. pr
 
 ## Streaming mode
 
-Add `"streaming":true` to `<user home folder>/.hanabi.json` or the one at working directory.
+Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at working directory.
 
 ## TODOs
 
@@ -179,7 +179,8 @@ Add `"streaming":true` to `<user home folder>/.hanabi.json` or the one at workin
 - [x] support for custom system prompts (via cli and config)
 - [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
 - [x] streaming mode
-- [ ] add web server host mode (ie api and web interface)
+- [ ] add web server chat bot mode (ie api and web interface)
+- [ ] local function calling ?
 - [ ] Flowise agent support
 - [ ] Dify agent support
 - [ ] n8n agent support ?

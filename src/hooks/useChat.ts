@@ -4,54 +4,74 @@ import {generateText, streamText} from 'ai';
 import {useState} from 'react';
 import {getConfig} from '../components/config/util.js';
 import {getMcpTools} from './useMcpTools.js';
+import {useStdout} from 'ink';
+import Chalk from 'chalk';
+
+const clearLines = (n: number) => {
+	for (let i = 0; i < n + 3; i++) {
+		// first clear the current line, then clear the previous line
+
+		// Clear the current lineodes.
+		// eslint-disable-next-line unicorn/no-hex-escape
+		process.stdout.write('\x1B[2K');
+		// Move	cursor up one line
+		// eslint-disable-next-line unicorn/no-hex-escape
+		process.stdout.write('\x1B[F');
+		// eslint-disable-next-line unicorn/no-hex-escape
+		process.stdout.write('\x1B[2K');
+	}
+};
 
 export const useChat = (
 	model: LanguageModelV1 | undefined,
 	messages: CoreMessage[],
 	mcpKeys: string[],
-	streaming?: boolean,
+	streamingMode?: boolean,
 ) => {
-	const [chunks, setChunks] = useState('');
+	const {stdout} = useStdout();
 	const [isStreaming, setIsStreaming] = useState(false);
 	const [agentMessages, setAgentMessages] = useState<CoreMessage[]>([]);
 	const {isFetching, data, ...rest} = useQuery({
-		queryKey: ['use-chat', model, messages, mcpKeys],
+		queryKey: ['use-chat', model, messages, mcpKeys, streamingMode],
 		async queryFn() {
-			const maxSteps = getConfig().maxSteps ?? 90;
-			if (messages.at(-1)?.role !== 'user') {
+			if (messages.at(-1)?.role !== 'user' || !model) {
 				return [];
 			}
+			const maxSteps = getConfig().maxSteps ?? 90;
+			const tools = await getMcpTools(mcpKeys);
 
-			if (streaming) {
-				setChunks('');
-				setIsStreaming(false);
-
-				const tools = await getMcpTools(mcpKeys);
-				setIsStreaming(true);
+			if (streamingMode) {
 				const {textStream, response} = streamText({
-					model: model!,
+					model,
 					messages,
 					tools,
 					maxSteps,
 				});
 				const reader = textStream.getReader();
-				reader.read().then(async function processText({done, value}) {
+				let chunks = '';
+				reader.read().then(function processText({done, value}) {
+					const next = value ? Chalk.dim.gray(value) : '';
 					if (done) {
-						setChunks('');
+						chunks += next;
+						stdout.write(next);
+						clearLines((chunks.match(/\n/g) ?? []).length);
 						setIsStreaming(false);
 						return;
 					}
-					setChunks(prev => `${prev}${value}`);
+
+					setIsStreaming(true);
+					stdout.write(next);
+					chunks += next;
 					reader.read().then(processText);
 				});
 				const res = await response;
+				// streaming mode might return multiple agent messages
 				setAgentMessages(prev => [...prev, ...res.messages]);
 				return res.messages;
 			}
 
-			const tools = await getMcpTools(mcpKeys);
 			const {response} = await generateText({
-				model: model!,
+				model,
 				messages,
 				tools,
 				maxSteps,
@@ -60,9 +80,9 @@ export const useChat = (
 		},
 	});
 	return {
-		data: streaming ? agentMessages : data,
-		chunks,
-		isFetching: isStreaming || isFetching,
+		data: streamingMode ? agentMessages : data,
+		isFetching,
+		isStreaming,
 		...rest,
 	};
 };

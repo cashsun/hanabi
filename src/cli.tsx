@@ -104,9 +104,9 @@ async function renderAndComplete(cb: (onComplete: () => void) => ReactNode) {
 	const instance = render(
 		<QueryClientProvider client={queryClient}>
 			{cb(() => {
-				process.stdin.resume();
 				stdin.destroy();
 				instance.unmount();
+				process.stdin.resume();
 			})}
 		</QueryClientProvider>,
 		// prevent ink from exiting process when input is used
@@ -114,6 +114,7 @@ async function renderAndComplete(cb: (onComplete: () => void) => ReactNode) {
 	);
 
 	await instance.waitUntilExit();
+	process.stdin.resume();
 }
 
 function copyLastMessageToClipboard() {
@@ -251,6 +252,7 @@ function startChat() {
 		<Text>
 			<Text color="gray">⟡ Hint: ask AI how to use this tool.</Text>
 		</Text>,
+		// unmount to free the cursor
 	).unmount();
 	showModelAndContext({});
 
@@ -285,13 +287,15 @@ if (!hasConfig()) {
 					</Text>,
 				);
 			} else {
-				await renderAndComplete(onComplete => (
-					<Chat
-						isSingleRunQuery
-						prompt={cli.input.at(1) ?? ''}
-						onComplete={onComplete}
-					/>
-				));
+				render(
+					<QueryClientProvider client={queryClient}>
+						<Chat
+							isSingleRunQuery
+							prompt={cli.input.at(1) ?? ''}
+							onComplete={() => {}}
+						/>
+					</QueryClientProvider>,
+				);
 			}
 
 			break;
