@@ -41,7 +41,7 @@ export const useChat = (
 			const maxSteps = getConfig().maxSteps ?? 90;
 			const tools = await getMcpTools(mcpKeys);
 			if (streamingMode) {
-				const {fullStream: textStream, response} = streamText({
+				const {fullStream, response} = streamText({
 					model,
 					messages,
 					tools,
@@ -49,16 +49,29 @@ export const useChat = (
 				});
 
 				let chunks = '';
-				for await (const value of textStream) {
+				let awaitingFirstChunk = true;
+				for await (const value of fullStream) {
 					setIsStreaming(true);
+					// wait for the spinner redraw
+					if (awaitingFirstChunk) {
+						await new Promise(resolve => {
+							setTimeout(resolve, 2);
+						});
+						// only wait for the first time
+						awaitingFirstChunk = false;
+					}
+
 					if (value.type === 'reasoning' || value.type === 'text-delta') {
 						const next = Chalk.dim.gray(value.textDelta);
-						stdout.write('');
 						stdout.write(next);
 
 						if (value.type === 'text-delta') {
 							chunks += next;
 						}
+					}
+					if (value.type === 'tool-call') {
+						const next = Chalk.gray(value.toolName);
+						stdout.write(`\n ⟡ tool call: ${next}\n`);
 					}
 				}
 				const res = await response;

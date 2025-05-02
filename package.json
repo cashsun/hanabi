@@ -1,7 +1,7 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "0.9.4",
+	"version": "0.9.5",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -43,6 +43,7 @@
 		"@ai-sdk/groq": "1.2.8",
 		"@ai-sdk/openai": "1.3.17",
 		"@ai-sdk/openai-compatible": "0.2.13",
+		"@ai-sdk/xai": "1.2.15",
 		"@inkjs/ui": "2.0.0",
 		"@inkkit/ink-markdown": "1.0.0",
 		"@modelcontextprotocol/sdk": "1.10.2",
@@ -99,8 +100,7 @@
 		"extends": "xo-react",
 		"prettier": true,
 		"ignores": [
-			"src/lib/streamableHttpTransport.ts",
-			"node_modules/**/*"
+			"src/lib/streamableHttpTransport.ts"
 		],
 		"rules": {
 			"react/prop-types": "off",

@@ -30,6 +30,10 @@ export const providers: {label: string; value: LLM['provider']}[] = [
 		value: 'Groq',
 	},
 	{
+		label: 'xAI',
+		value: 'xAI',
+	},
+	{
 		label: 'Ollama',
 		value: 'Ollama',
 	},

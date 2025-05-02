@@ -5,6 +5,7 @@ import {google} from '@ai-sdk/google';
 import {groq} from '@ai-sdk/groq';
 import {openai} from '@ai-sdk/openai';
 import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
+import {xai} from '@ai-sdk/xai';
 import {ollama} from 'ollama-ai-provider';
 
 import {useQuery} from '@tanstack/react-query';
@@ -92,6 +93,8 @@ export const useModel = (defaultModel: HanabiConfig['defaultModel']) => {
 				return openai(modelName);
 			case 'Groq':
 				return groq(modelName);
+			case 'xAI':
+				return xai(modelName);
 			case 'Ollama':
 				return ollama(modelName);
 			default: {
