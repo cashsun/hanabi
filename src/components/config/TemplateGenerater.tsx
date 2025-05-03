@@ -28,7 +28,7 @@ export const templates: {label: string; value: TemplateName}[] = [
 	},
 ];
 
-export const TemplatePicker: FC<{
+export const TemplateGenerater: FC<{
 	onComplete?: (f?: string) => void;
 }> = ({onComplete}) => {
 	const [filePath, setFilePath] = useState('');
@@ -44,6 +44,9 @@ export const TemplatePicker: FC<{
 	useEffect(() => {
 		if (filePath) {
 			stdout.write(`\n${Chalk.green('✓')} created ${Chalk.gray(filePath)}\n`);
+			if (filePath.endsWith('.hanabi.json')) {
+				stdout.write(`${Chalk.yellow('! Do not share this file.')}\n`);
+			}
 			onComplete?.(filePath);
 		}
 	}, [filePath, onComplete, stdout]);

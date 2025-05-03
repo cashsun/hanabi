@@ -8,6 +8,7 @@
 - [CLI](#cli)
 - [MCP Servers](#mcp-servers)
 - [Exclude files](#exclude-files)
+- [Local envs](#local-envs)
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
@@ -138,13 +139,37 @@ All files included in the .gitignore will also be auto excluded.
 }
 ```
 
+## Local Envs
+
+Hanabi supports local dot env files (`.env`). 
+You can also add `envs` field to `.hanabi.json` 
+
+
+```json
+// .hanabi.json
+{
+	"envs": { "FOO": "bar" },
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
 ## Custom System Prompt
 
-Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in `hanabi.system.prompt.md` at working directory. You can use `/gen` handle to generate one for you.
+Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in `hanabi.system.prompt.md` at working directory. Use `/gen` handle or `hanabi gen` to generate one for you.
+
+Variables are supported via `${VAR_NAME}` syntax, they are read from process.env. see [Local envs](#local-envs).
 
 example `hanabi.system.prompt.md`
 ```markdown
 # act as a polite chat bot collecting user feedback via conversational loop. 
+
+## context
+Product name is ${PRODUCT_NAME}
 
 ## ask user the follwing questions one by one and prints a well formatted report
 - What is your name
@@ -154,7 +179,7 @@ example `hanabi.system.prompt.md`
 
 ## Local config file override
 
-You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name. Use `/gen` handle to generate one for you.
+You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name. Use `/gen` or `hanabi gen` handle to generate one for you.
 
 
 ## Streaming mode
@@ -166,11 +191,8 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 - [x] include local files in chat
 - [x] mcp support
 - [x] add config to exclude custom files pattern
-- [x] support for custom system prompts (via cli and config)
+- [x] support for custom system prompt (via local .md file)
 - [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
 - [x] streaming mode
 - [ ] add web server chat bot mode (ie api and web interface)
-- [ ] local function calling ?
-- [ ] Flowise agent support
-- [ ] Dify agent support
-- [ ] n8n agent support ?
+- ~~[ ] local function calling ?~~ Use [FaskMCP](https://github.com/punkpeye/fastmcp) instead.

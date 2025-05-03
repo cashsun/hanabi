@@ -66,4 +66,5 @@ type HanabiConfig = {
 	exclude?: string[];
 	/** weather or not to use streaming mode */
 	streaming?: boolean;
+	envs?: Record<string, string | number>;
 };

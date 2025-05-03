@@ -21,7 +21,7 @@ import {resetMessages, useAppStore} from './store/appState.js';
 import {ReadStream} from 'node:tty';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
-import {TemplatePicker} from './components/config/TemplatePicker.js';
+import {TemplateGenerater} from './components/config/TemplateGenerater.js';
 import {getMcpTools} from './hooks/useMcpTools.js';
 
 const queryClient = new QueryClient();
@@ -188,7 +188,7 @@ function startChat() {
 				}
 				case chatHandles.GEN: {
 					await renderAndComplete(onComplete => (
-						<TemplatePicker onComplete={onComplete} />
+						<TemplateGenerater onComplete={onComplete} />
 					));
 					break;
 				}
@@ -265,7 +265,6 @@ function startChat() {
 		cb(null, undefined);
 	}
 
-	console.clear();
 	render(
 		<Text>
 			<Text color="gray">⟡ Hint: ask AI how to use this tool.</Text>
@@ -297,7 +296,7 @@ if (!hasConfig()) {
 		}
 		case 'gen': {
 			await renderAndComplete(complete => (
-				<TemplatePicker onComplete={complete} />
+				<TemplateGenerater onComplete={complete} />
 			));
 			process.exit(0);
 			break;

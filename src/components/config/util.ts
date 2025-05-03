@@ -1,8 +1,10 @@
-import {populate} from 'dotenv';
+import {populate, config} from 'dotenv';
 import fs from 'fs';
 import {merge, unionBy} from 'lodash-es';
 import os from 'os';
 import {resolve} from 'path';
+// load .env files on start
+config();
 
 function getResourceNameFromUrl(urlString: string) {
 	try {
@@ -59,6 +61,9 @@ export const defaultConfig: HanabiConfig = {
 			args: ['-y', '@modelcontextprotocol/server-filesystem', '.'],
 		},
 	},
+	envs: {
+		HANABI_PRODUCT_NAME: 'My Dummy Product',
+	},
 };
 
 const localConfigPath = resolve(process.cwd(), '.hanabi.json');
@@ -114,7 +119,7 @@ export const loadConfigToEnv = () => {
 		return;
 	}
 	const config = getConfig();
-	const envs: any = {};
+	const envs: any = config.envs ?? {};
 	for (const llm of config.llms) {
 		switch (llm.provider) {
 			case 'OpenAI':
