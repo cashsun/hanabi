@@ -81,12 +81,15 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 				"authentication": "Bearer api-token"
 			}
 		},
-		// npx stdio approach is flaky & slow. highly recommend to npm install -g <mcp-server> and use the following. see https://github.com/modelcontextprotocol/servers/issues/64
-        // "file-system-windows": {
+		// npx stdio approach is flaky & slow. highly recommend 
+		// to npm install -g <mcp-server> and use the following. 
+		// see https://github.com/modelcontextprotocol/servers/issues/64
+        // "file-system": {
         // 	"name": "file system",
         // 	"transport": "stdio",
         // 	"command": "path/to/your/node.exe",
-        // 	"args": ["path/to/global/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
+        // 	"args": [
+		// "path/to/global/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
         // },
 		"tavily": {
 			"name": "Tavily Search",

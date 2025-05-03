@@ -134,6 +134,10 @@ export const Chat: FC<Props> = ({
 		return null;
 	}
 
+	if (error) {
+		return <Text color="red">{error.message}</Text>;
+	}
+
 	if (isStreaming) {
 		return (
 			<Text>
@@ -213,7 +217,6 @@ export const Chat: FC<Props> = ({
 					}
 					return null;
 				})}
-			{error && <Text color="red">{error.message}</Text>}
 		</Box>
 	);
 };

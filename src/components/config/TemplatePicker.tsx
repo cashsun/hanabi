@@ -9,7 +9,7 @@ import {defaultConfig} from './util.js';
 type TemplateName = '.hanabi.json' | 'hanabi.system.prompt.md';
 
 const samplePrompt = `\n
-# act as a polite chat bot collecting user feedback via conversational loop. 
+# Now, act as a polite chat bot collecting user feedback via conversational loop. 
 
 ## ask user the follwing questions one by one and prints a well formatted report
 - What is your name

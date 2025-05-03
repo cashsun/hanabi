@@ -22,6 +22,7 @@ import {ReadStream} from 'node:tty';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplatePicker} from './components/config/TemplatePicker.js';
+import {getMcpTools} from './hooks/useMcpTools.js';
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,7 @@ const cli = meow(
 		$ hanabi ask "<question>"	single question mode
 	
 	Examples
-	
+
 		$ hanabi
 		
 		⟡ Hanabi will now start the initial setup.
@@ -57,7 +58,7 @@ const cli = meow(
 	},
 );
 
-function showModelAndContext(context: Record<string, any>) {
+async function showModelAndContext(context: Record<string, any>) {
 	const defaultModel = getConfig().defaultModel?.model;
 	if (defaultModel) {
 		render(
@@ -76,6 +77,7 @@ function showModelAndContext(context: Record<string, any>) {
 		).unmount();
 	}
 	if (context['mcpKeys']?.length) {
+		await getMcpTools(context['mcpKeys']);
 		render(
 			<>
 				{context['mcpKeys'].map((mcpKey: string) => (
@@ -259,7 +261,7 @@ function startChat() {
 				}
 			}
 		}
-		showModelAndContext(context);
+		await showModelAndContext(context);
 		cb(null, undefined);
 	}
 

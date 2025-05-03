@@ -46,6 +46,10 @@ export const useChat = (
 					messages,
 					tools,
 					maxSteps,
+					onError({error}) {
+						process.stdin.resume();
+						throw error;
+					},
 				});
 
 				let chunks = '';
@@ -55,7 +59,7 @@ export const useChat = (
 					// wait for the spinner redraw
 					if (awaitingFirstChunk) {
 						await new Promise(resolve => {
-							setTimeout(resolve, 2);
+							setTimeout(resolve, 1);
 						});
 						// only wait for the first time
 						awaitingFirstChunk = false;
@@ -98,7 +102,7 @@ export const useChat = (
 	return {
 		data: streamingMode ? agentMessages : data,
 		isFetching,
-		isStreaming,
+		isStreaming: isStreaming && !rest.error,
 		...rest,
 	};
 };
