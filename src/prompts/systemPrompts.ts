@@ -1,5 +1,7 @@
 import type {CoreSystemMessage} from 'ai';
 import {chatHandles, descriptions} from '../components/chat/ChatHandles.js';
+import {resolve} from 'node:path';
+import fs from 'node:fs';
 
 const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	role: 'system',
@@ -13,32 +15,28 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	- Timezone is ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
 
 	## Help Documentation
-	when user ask for help on how to use the terminal interface (e.g. when user says "/help")
-	show the following help documenation
-	
-	
-	Here are the list of commands and tools you can use
+	- when user ask for help on how to use the terminal interface (e.g. when user says "/help"), present the help documenation below in a simple format. 
+	- Make sure to differentiate the action handlers (Commands starting with '/') and context handlers (Commands starting with '@')
+	- 'mcp' refers Model Context Provider, mcp servers provide all sorts of amazing skills
+
+	Here are the list of commands and tools user can use
 
 	${Object.entries(descriptions)
 		.map(([key, desp]) => {
 			return `${chatHandles[key as keyof typeof chatHandles]}\t${desp}`;
 		})
 		.join('\n\n')} 
-
-	
 	
 	`,
 });
 
-export const getSystemMessages = (
-	config: HanabiConfig,
-): CoreSystemMessage[] => {
+export const getSystemMessages = (): CoreSystemMessage[] => {
 	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
-
-	if (config.systemPrompt) {
+	const systemPromptPath = resolve(process.cwd(), 'hanabi.system.prompt.md');
+	if (fs.existsSync(systemPromptPath)) {
 		messages.push({
 			role: 'system',
-			content: config.systemPrompt,
+			content: fs.readFileSync(systemPromptPath, 'utf8'),
 		});
 	}
 

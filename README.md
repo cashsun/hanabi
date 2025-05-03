@@ -1,6 +1,6 @@
 # hanabi-cli
 
-> A terminal AI chat interface for any LLM model, with files & MCP support. Use it as your claude/copilot alternative or any other use cases.
+> ⟡ A terminal AI chat interface for any LLM model, with files & MCP support - Build your agent from command line.
 
 ## Table of Contents
 
@@ -137,25 +137,21 @@ All files included in the .gitignore will also be auto excluded.
 
 ## Custom System Prompt
 
-Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in the config.
+Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in `hanabi.system.prompt.md` at working directory. You can use `/gen` handle to generate one for you.
 
-```json
-// <user home folder>/.hanabi.json
-{
-	"systemPrompt": "When generating unit tests, always use vitest.",
-	"llms": [
-		// ...
-	],
-	"defaultModel": {
-		// ...
-	}
-	// ...
-}
+example `hanabi.system.prompt.md`
+```markdown
+# act as a polite chat bot collecting user feedback via conversational loop. 
+
+## ask user the follwing questions one by one and prints a well formatted report
+- What is your name
+- How do you feel about our product? (classify answer as "Bad" | "OK" | "great")
+- What is your company
 ```
 
 ## Local config file override
 
-You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name.
+You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name. Use `/gen` handle to generate one for you.
 
 
 ## Streaming mode

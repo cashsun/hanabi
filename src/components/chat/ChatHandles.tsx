@@ -10,6 +10,7 @@ export const chatHandles = {
 	CLEAR: '/clear',
 	COPY: '/copy',
 	LLM: '/llm',
+	GEN: '/gen',
 
 	// params
 	FILE: '@file',
@@ -26,9 +27,10 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	CLEAR: 'Clear MCP and file selection',
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',
+	GEN: 'generate hanabi templates',
 
 	FILE: 'Add files',
-	MCP: 'Use MCP',
+	MCP: 'Use MCP server tools',
 	CLIP: 'Use clipboard text',
 };
 

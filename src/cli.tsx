@@ -6,7 +6,6 @@ import {Newline, render, Text} from 'ink';
 import meow from 'meow';
 import repl from 'node:repl';
 import React, {type ReactNode} from 'react';
-import App from './app.js';
 import {Chat} from './components/chat/Chat.js';
 import {chatHandles, suggestions} from './components/chat/ChatHandles.js';
 import {DefaultModelPicker} from './components/config/DefaultModelPicker.js';
@@ -22,6 +21,7 @@ import {resetMessages, useAppStore} from './store/appState.js';
 import {ReadStream} from 'node:tty';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
+import {TemplatePicker} from './components/config/TemplatePicker.js';
 
 const queryClient = new QueryClient();
 
@@ -30,12 +30,19 @@ const cli = meow(
 	Usage:
 	
 		$ hanabi 			start hanabi cli chat
+
 		$ hanabi llm			update provider and model
+
+		$ hanabi gen			generate Hanabi templates
+
 		$ hanabi list			list available LLMs and MCP servers 
+
 		$ hanabi reset			reset hanabi config
+
 		$ hanabi ask "<question>"	single question mode
 	
 	Examples
+	
 		$ hanabi
 		
 		⟡ Hanabi will now start the initial setup.
@@ -177,6 +184,12 @@ function startChat() {
 					copyLastMessageToClipboard();
 					break;
 				}
+				case chatHandles.GEN: {
+					await renderAndComplete(onComplete => (
+						<TemplatePicker onComplete={onComplete} />
+					));
+					break;
+				}
 				case chatHandles.CLEAR: {
 					context['mcpKeys'] = [];
 					context['files'] = [];
@@ -280,6 +293,13 @@ if (!hasConfig()) {
 			render(<ListLLMAndMcpServers />);
 			break;
 		}
+		case 'gen': {
+			await renderAndComplete(complete => (
+				<TemplatePicker onComplete={complete} />
+			));
+			process.exit(0);
+			break;
+		}
 		case 'ask': {
 			if (!cli.input.at(1)) {
 				render(
@@ -300,15 +320,6 @@ if (!hasConfig()) {
 					</QueryClientProvider>,
 				);
 			}
-
-			break;
-		}
-		case 'ui': {
-			render(
-				<QueryClientProvider client={queryClient}>
-					<App />
-				</QueryClientProvider>,
-			);
 
 			break;
 		}

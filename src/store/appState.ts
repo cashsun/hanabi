@@ -1,6 +1,6 @@
 import type {CoreMessage} from 'ai';
 import {create} from 'zustand';
-import {getConfig, hasConfig} from '../components/config/util.js';
+import {hasConfig} from '../components/config/util.js';
 import {getSystemMessages} from '../prompts/systemPrompts.js';
 
 interface AppState {
@@ -10,7 +10,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>(set => ({
 	ready: hasConfig(),
-	messages: getSystemMessages(getConfig()),
+	messages: getSystemMessages(),
 }));
 
 export const setAppReady = (ready: boolean) => {
@@ -22,5 +22,5 @@ export const addMessages = (messages: CoreMessage[]) => {
 };
 
 export const resetMessages = () => {
-	useAppStore.setState({messages: getSystemMessages(getConfig())});
+	useAppStore.setState({messages: getSystemMessages()});
 };
