@@ -1,7 +1,20 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "0.9.8",
+	"version": "0.9.9",
+	"scripts": {
+		"build:main": "tsc",
+		"build:ui": "cd ui && next build",
+		"postbuild:ui": "cross-env cp -R ./ui/public ./dist/public",
+		"prebuild": "rimraf dist",
+		"build": "pnpm build:main && pnpm build:ui",
+		"prepublishOnly": "pnpm build",
+		"start": "tsx src/cli.tsx",
+		"start:ui": "cd dist && next start",
+		"add:ui": "cd ui && pnpm dlx shadcn@latest add",
+		"lint": "xo",
+		"test": "ava"
+	},
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -16,21 +29,12 @@
 		"llm"
 	],
 	"bin": {
-		"hanabi": "dist/cli.js"
+		"hanabi": "dist/cli.js --prod"
 	},
 	"type": "module",
 	"engines": {
 		"node": ">=20.10.0 || >=22",
 		"pnpm": ">=9.0.0"
-	},
-	"scripts": {
-		"build": "tsc",
-		"prebuild": "rimraf dist",
-		"prepublishOnly": "pnpm build",
-		"dev": "tsc --watch",
-		"start": "tsx src/cli.tsx",
-		"lint": "xo",
-		"test": "ava"
 	},
 	"files": [
 		"dist"
@@ -43,35 +47,50 @@
 		"@ai-sdk/groq": "1.2.8",
 		"@ai-sdk/openai": "1.3.17",
 		"@ai-sdk/openai-compatible": "0.2.13",
+		"@ai-sdk/react": "1.2.11",
 		"@ai-sdk/xai": "1.2.15",
 		"@inkjs/ui": "2.0.0",
 		"@inkkit/ink-markdown": "1.0.0",
 		"@modelcontextprotocol/sdk": "1.10.2",
+		"@radix-ui/react-slot": "1.2.0",
 		"@tanstack/react-query": "5.74.4",
 		"ai": "4.3.13",
+		"class-variance-authority": "^0.7.1",
 		"clipboardy": "4.0.0",
+		"clsx": "^2.1.1",
 		"dedent": "1.5.3",
 		"dotenv": "16.5.0",
 		"globby": "14.1.0",
 		"ink": "^5.2.0",
 		"ink-spinner": "5.0.0",
 		"lodash-es": "4.17.21",
+		"lucide-react": "^0.507.0",
 		"meow": "^11.0.0",
 		"mime-types": "3.0.1",
+		"next": "15.3.1",
 		"ollama-ai-provider": "1.2.0",
-		"react": "^18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"react-markdown": "10.1.0",
+		"react-syntax-highlighter": "15.6.1",
+		"tailwind-merge": "^3.2.0",
 		"uuid": "11.1.0",
 		"zustand": "5.0.3"
 	},
 	"devDependencies": {
 		"@ava/typescript": "5.0.0",
 		"@sindresorhus/tsconfig": "^3.0.1",
+		"@tailwindcss/postcss": "^4",
 		"@types/lodash-es": "4.17.12",
 		"@types/mime-types": "2.1.4",
+		"@types/node": "^20",
 		"@types/react": "^18.0.32",
+		"@types/react-dom": "^18",
+		"@types/react-syntax-highlighter": "15.5.13",
 		"@vdemedes/prettier-config": "^2.0.1",
 		"ava": "^6.2.0",
 		"chalk": "^5.2.0",
+		"cross-env": "7.0.3",
 		"eslint": "8.39.0",
 		"eslint-config-xo-react": "^0.27.0",
 		"eslint-plugin-react": "^7.32.2",
@@ -80,7 +99,9 @@
 		"ink-testing-library": "^3.0.0",
 		"prettier": "^2.8.7",
 		"rimraf": "6.0.1",
+		"tailwindcss": "^4",
 		"tsx": "4.19.3",
+		"tw-animate-css": "^1.2.9",
 		"typescript": "^5.0.3",
 		"xo": "^0.53.1"
 	},
@@ -100,7 +121,8 @@
 		"extends": "xo-react",
 		"prettier": true,
 		"ignores": [
-			"src/lib/streamableHttpTransport.ts"
+			"src/lib/streamableHttpTransport.ts",
+			"ui"
 		],
 		"rules": {
 			"react/prop-types": "off",

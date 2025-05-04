@@ -11,6 +11,7 @@ export const chatHandles = {
 	COPY: '/copy',
 	LLM: '/llm',
 	GEN: '/gen',
+	SERVE: '/serve',
 
 	// params
 	FILE: '@file',
@@ -28,6 +29,7 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',
 	GEN: 'generate hanabi templates',
+	SERVE: 'start Hanabi UI server with current context',
 
 	FILE: 'Add files',
 	MCP: 'Use MCP server tools',

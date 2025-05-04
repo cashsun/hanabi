@@ -53,6 +53,12 @@ type MCPServerConfig = StdioMCPConfig | RemoteMCPConfig;
 
 type LLM = CommonLLM | AzureLLM | OllamaLLM | OpenAICompatibleLLM;
 
+type ServerConfig = {
+	/** default 3041 */
+	port?: number;
+	mcpKeys?: string[];
+};
+
 type HanabiConfig = {
 	llms: LLM[];
 	maxSteps?: number;
@@ -67,4 +73,5 @@ type HanabiConfig = {
 	/** weather or not to use streaming mode */
 	streaming?: boolean;
 	envs?: Record<string, string | number>;
+	serve?: ServerConfig;
 };

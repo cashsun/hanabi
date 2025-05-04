@@ -3,7 +3,6 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import Chalk from 'chalk';
 import clipboardy from 'clipboardy';
 import {Newline, render, Text} from 'ink';
-import meow from 'meow';
 import repl from 'node:repl';
 import React, {type ReactNode} from 'react';
 import {Chat} from './components/chat/Chat.js';
@@ -15,48 +14,20 @@ import {
 	getConfig,
 	hasConfig,
 	loadConfigToEnv,
+	writeConfig,
 } from './components/config/util.js';
 import {resetMessages, useAppStore} from './store/appState.js';
 
+import {spawn} from 'node:child_process';
+import {dirname, resolve} from 'node:path';
 import {ReadStream} from 'node:tty';
+import {cli} from './cli-help.js';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplateGenerater} from './components/config/TemplateGenerater.js';
 import {getMcpTools} from './hooks/useMcpTools.js';
 
 const queryClient = new QueryClient();
-
-const cli = meow(
-	`
-	Usage:
-	
-		$ hanabi 			start hanabi cli chat
-
-		$ hanabi llm			update provider and model
-
-		$ hanabi gen			generate Hanabi templates
-
-		$ hanabi list			list available LLMs and MCP servers 
-
-		$ hanabi reset			reset hanabi config
-
-		$ hanabi ask "<question>"	single question mode
-	
-	Examples
-
-		$ hanabi
-		
-		⟡ Hanabi will now start the initial setup.
-	`,
-	{
-		importMeta: import.meta,
-		flags: {
-			q: {
-				type: 'string',
-			},
-		},
-	},
-);
 
 async function showModelAndContext(context: Record<string, any>) {
 	const defaultModel = getConfig().defaultModel?.model;
@@ -148,6 +119,22 @@ function copyLastMessageToClipboard() {
 	).unmount();
 }
 
+function startServer() {
+	const prod = cli.flags.prod;
+	const config = getConfig();
+	const ls = spawn(
+		'next',
+		[prod ? 'start' : 'dev', '-p', `${config.serve?.port ?? 3041}`],
+		{
+			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
+		},
+	);
+	ls.stderr.on('data', d => console.error(`${d}`));
+	ls.stdout.on('data', d => console.info(`${d}`));
+	ls.on('error', d => console.error('Exception:', `${d}`));
+	ls.on('exit', d => console.log(`Server closed. ${d}`));
+}
+
 function startChat() {
 	// const context: Record<string, any> = {};
 
@@ -191,6 +178,19 @@ function startChat() {
 						<TemplateGenerater onComplete={onComplete} />
 					));
 					break;
+				}
+				case chatHandles.SERVE: {
+					writeConfig(
+						{
+							serve: {
+								port: getConfig().serve?.port,
+								mcpKeys: context['mcpKeys'] ?? [],
+							},
+						},
+						true,
+					);
+					startServer();
+					return;
 				}
 				case chatHandles.CLEAR: {
 					context['mcpKeys'] = [];
@@ -301,6 +301,10 @@ if (!hasConfig()) {
 			process.exit(0);
 			break;
 		}
+		case 'serve': {
+			startServer();
+			break;
+		}
 		case 'ask': {
 			if (!cli.input.at(1)) {
 				render(
@@ -328,7 +332,7 @@ if (!hasConfig()) {
 			await renderAndComplete(onComplete => (
 				<DefaultModelPicker onSelect={onComplete} />
 			));
-
+			process.exit(0);
 			break;
 		}
 		case 'reset': {

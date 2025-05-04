@@ -3,8 +3,18 @@ import fs from 'fs';
 import {merge, unionBy} from 'lodash-es';
 import os from 'os';
 import {resolve} from 'path';
+import {anthropic} from '@ai-sdk/anthropic';
+import {createAzure} from '@ai-sdk/azure';
+import {deepseek} from '@ai-sdk/deepseek';
+import {google} from '@ai-sdk/google';
+import {groq} from '@ai-sdk/groq';
+import {openai} from '@ai-sdk/openai';
+import {createOpenAICompatible} from '@ai-sdk/openai-compatible';
+import {xai} from '@ai-sdk/xai';
+import {ollama} from 'ollama-ai-provider';
+
 // load .env files on start
-config();
+config({path: process.env['HANABI_PWD']});
 
 function getResourceNameFromUrl(urlString: string) {
 	try {
@@ -69,7 +79,10 @@ export const defaultConfig: HanabiConfig = {
 	},
 };
 
-const localConfigPath = resolve(process.cwd(), '.hanabi.json');
+const localConfigPath = resolve(
+	process.env['HANABI_PWD'] ?? 'do/not/exist/',
+	'.hanabi.json',
+);
 const userConfigPath = resolve(os.homedir(), '.hanabi.json');
 export const configPath = fs.existsSync(localConfigPath)
 	? localConfigPath
@@ -78,19 +91,12 @@ export const configPath = fs.existsSync(localConfigPath)
 /**
  * merge the existing config with the provided config and write it to the config file.
  * @param config The config to merge write. If not provided, the default config will be used.
- * @param shallow shallow merge by root key
  */
-export const writeConfig = (
-	config: Partial<HanabiConfig>,
-	shallow?: boolean,
-) => {
-	const updated = shallow
-		? {
-				...getConfig(),
-				...config,
-		  }
-		: merge({}, getConfig(), config);
-	fs.writeFileSync(configPath, JSON.stringify(updated, null, 2));
+export const writeConfig = (config: Partial<HanabiConfig>) => {
+	fs.writeFileSync(
+		configPath,
+		JSON.stringify(merge({}, getConfig(), config), null, 2),
+	);
 };
 
 export const hasConfig = () => fs.existsSync(configPath);
@@ -129,11 +135,7 @@ export const loadConfigToEnv = () => {
 		return;
 	}
 	const config = getConfig();
-	const envs: any = {
-		...config.envs,
-		// do not add this to next js config.ts!
-		HANABI_PWD: process.cwd(),
-	};
+	const envs: any = config.envs ?? {};
 	for (const llm of config.llms) {
 		switch (llm.provider) {
 			case 'OpenAI':
@@ -164,4 +166,47 @@ export const loadConfigToEnv = () => {
 		}
 	}
 	populate(process.env as any, envs);
+};
+
+export const getModel = (defaultModel: HanabiConfig['defaultModel']) => {
+	const config = getConfig();
+	const llm = config.llms.find(l => l.provider === defaultModel?.provider);
+	if (!llm || !defaultModel) {
+		return undefined;
+	}
+
+	const modelName = defaultModel.model; // Extract model name for clarity
+
+	switch (llm.provider) {
+		case 'Google': {
+			return google(modelName);
+		}
+		case 'Azure': {
+			const azure = createAzure({
+				apiVersion: llm.apiVersion ?? getDefaultApiVersion(llm.provider),
+			});
+			return azure(modelName);
+		}
+		case 'Deepseek':
+			return deepseek(modelName);
+		case 'Anthropic':
+			return anthropic(modelName);
+		case 'OpenAI':
+			return openai(modelName);
+		case 'Groq':
+			return groq(modelName);
+		case 'xAI':
+			return xai(modelName);
+		case 'Ollama':
+			return ollama(modelName);
+		default: {
+			// OpenAI Compatible
+			const compatible = createOpenAICompatible({
+				name: llm.provider,
+				apiKey: llm.apiKey,
+				baseURL: llm.apiUrl ?? '',
+			});
+			return compatible(modelName);
+		}
+	}
 };
