@@ -19,8 +19,9 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 export const getSystemMessages = (): CoreSystemMessage[] => {
 	loadConfigToEnv();
 	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
+	const pwd = process.env['HANABI_PWD'] ?? 'do/not/exist/';
 	const systemPromptPath = resolve(
-		process.env['HANABI_PWD'] ?? 'do/not/exist/',
+		pwd,
 		'hanabi.system.prompt.md',
 	);
 	if (fs.existsSync(systemPromptPath)) {
@@ -31,15 +32,26 @@ export const getSystemMessages = (): CoreSystemMessage[] => {
 		let content = source;
 
 		for (const lookUp of lookupKeys) {
-			if (!process.env[lookUp]) {
+			const envVal = process.env[lookUp];
+			if (!envVal) {
 				console.log(
-					Chalk.yellow(`System prompt file: missing env "${lookUp}"`),
+					Chalk.yellow(`!!! System prompt file: missing env "${lookUp}"`),
 				);
 			} else {
-				content = content.replace(`\${${lookUp}}`, process.env[lookUp]);
+				if (envVal.startsWith('file://')) {
+					const fileContent = fs.readFileSync(
+						resolve(pwd, envVal.replace('file://', '')),
+						'utf8',
+					);
+					content = content.replace(
+						`\${${lookUp}}`,
+						`\`\`\`\n${fileContent}\n\`\`\``,
+					);
+				} else {
+					content = content.replace(`\${${lookUp}}`, envVal);
+				}
 			}
 		}
-
 		messages.push({
 			role: 'system',
 			content,

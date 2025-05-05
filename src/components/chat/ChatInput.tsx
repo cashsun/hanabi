@@ -1,4 +1,4 @@
-import {Spinner, TextInput, type TextInputProps} from '@inkjs/ui';
+import {Spinner, TextInput} from '@inkjs/ui';
 import type {TextPart, UserContent} from 'ai';
 import clipboardy from 'clipboardy';
 import dedent from 'dedent';
@@ -42,11 +42,14 @@ export function getFinalMsg(
 				});
 			} else {
 				if (
-					defaultModel?.provider === 'OpenAI' ||
-					defaultModel?.provider === 'Azure' ||
 					defaultModel?.provider === 'Groq' ||
+					defaultModel?.provider === 'xAI' ||
 					defaultModel?.provider === 'OpenAI-Compatible' ||
-					(defaultModel?.provider === 'Anthropic' && !mimeType.endsWith('/pdf'))
+					// some models from following provider supports PDF
+					((defaultModel?.provider === 'OpenAI' ||
+						defaultModel?.provider === 'Azure' ||
+						defaultModel?.provider === 'Anthropic') &&
+						!mimeType.endsWith('/pdf'))
 				) {
 					// These models does not support raw files yet via completion API
 					// so we include the file content

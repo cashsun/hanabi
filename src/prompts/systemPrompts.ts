@@ -44,12 +44,24 @@ export const getSystemMessages = (): CoreSystemMessage[] => {
 		let content = source;
 
 		for (const lookUp of lookupKeys) {
-			if (!process.env[lookUp]) {
+			const envVal = process.env[lookUp];
+			if (!envVal) {
 				console.log(
 					Chalk.yellow(`System prompt file: missing env "${lookUp}"`),
 				);
 			} else {
-				content = content.replace(`\${${lookUp}}`, process.env[lookUp]);
+				if (envVal.startsWith('file://')) {
+					const fileContent = fs.readFileSync(
+						resolve(process.cwd(), envVal.replace('file://', '')),
+						'utf8',
+					);
+					content = content.replace(
+						`\${${lookUp}}`,
+						`\`\`\`\n${fileContent}\n\`\`\``,
+					);
+				} else {
+					content = content.replace(`\${${lookUp}}`, envVal);
+				}
 			}
 		}
 

@@ -4,16 +4,24 @@ import {MessageSkeleton} from '@/components/chat/MessageSkeleton';
 import {UserMessage} from '@/components/chat/UserMessage';
 import {Button} from '@/components/ui/button';
 import {Textarea} from '@/components/ui/textarea';
-import {useModel} from '@/hooks/useModel';
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
+import {useChatConfig} from '@/hooks/useChatConfig';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
-import {ArrowUp, LoaderCircle, Sparkles} from 'lucide-react';
+import {ArrowUp, LoaderCircle, Sparkles, Square, TriangleAlert} from 'lucide-react';
 import {Fragment, useEffect, useRef} from 'react';
 
 export default function ChatUI() {
-	const {messages, input, status, handleInputChange, handleSubmit, error} =
-		useChat();
-	const {data: defaultModel, isLoading: isLoadingModel} = useModel();
+	const {
+		messages,
+		input,
+		status,
+		handleInputChange,
+		handleSubmit,
+		error,
+		stop,
+	} = useChat();
+	const {data: config, isLoading: isLoadingConfig} = useChatConfig();
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
@@ -61,8 +69,34 @@ export default function ChatUI() {
 						onChange={handleInputChange}
 					/>
 					{/* controls */}
-					<div className="flex flex-none justify-between items-center p-2">
-						<div className='text-primary/50 ml-1'>{defaultModel?.model}</div>
+					<div className="flex flex-none justify-between items-center p-2 gap-3">
+						<div className="grow text-primary/50 ml-1">
+							{isLoadingConfig && (
+								<div className="h-5 bg-primary/10 w-full max-w-32 rounded-lg animate-pulse" />
+							)}
+							{!isLoadingConfig && (
+								<div className="inline-flex gap-3">
+									{config?.defaultModel?.model}
+									{!!config?.mcpKeys.length && (
+										<Tooltip delayDuration={100}>
+											<TooltipTrigger asChild>
+												<div className="cursor-default">
+													<div className="inline-block size-1.5 rounded-full bg-emerald-500 mb-px" />{' '}
+													tools
+												</div>
+											</TooltipTrigger>
+											<TooltipContent>
+												<ul>
+													{config.mcpKeys.map(k => (
+														<li key={k}>{k}</li>
+													))}
+												</ul>
+											</TooltipContent>
+										</Tooltip>
+									)}
+								</div>
+							)}
+						</div>
 						<Button
 							type="submit"
 							variant="secondary"
@@ -71,7 +105,9 @@ export default function ChatUI() {
 							disabled={isLoading}
 						>
 							{isLoading ? (
-								<LoaderCircle className="animate-spin" />
+								<>
+									<LoaderCircle className="animate-spin" /> Thinking
+								</>
 							) : (
 								<>
 									<ArrowUp />
@@ -82,7 +118,6 @@ export default function ChatUI() {
 					</div>
 				</div>
 			</form>
-			{error && <div className="text-red-800">{error.message}</div>}
 			{/* messages */}
 			<div
 				className={cn(
@@ -98,7 +133,19 @@ export default function ChatUI() {
 						{message.role !== 'user' && <AgentMessage message={message} />}
 					</Fragment>
 				))}
+				{error && (
+					<div
+					title={error.message}
+					className="text-white px-3 py-2 rounded-xl bg-red-600/30 self-start max-w-full truncate"
+					>
+						<div className="flex font-bold items-center gap-2">
+							<TriangleAlert className="w-4 flex-none" /> Error
+						</div>
+						{error.message}
+					</div>
+				)}
 				{status === 'submitted' && <MessageSkeleton />}
+				{isLoading && <Button size="sm" variant="outline" className='self-center' onClick={stop}><Square className='w-3'/>Stop</Button>}
 			</div>
 			{!messages.length && (
 				<div className="flex h-36 text-primary/30 text-xl justify-center items-center w-full">

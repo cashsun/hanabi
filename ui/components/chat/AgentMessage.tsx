@@ -13,7 +13,7 @@ export function AgentMessage({message}: Props) {
 	return (
 		<div className="rounded-lg flex -mt-4 leading-9 gap-4">
 			<Sparkles className="w-5 flex-none" />
-			<div className="flex-auto flex flex-col gap-1 min-h-16 text-foreground/50 [&>*]:text-foreground">
+			<div className="grow flex flex-col gap-1 min-h-16 text-foreground/50 [&>*]:text-foreground">
 				{message.parts.map((part, idx) => {
 					if (part.type === 'reasoning') {
 						return (

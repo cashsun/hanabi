@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 	loadConfigToEnv();
 	const config = getConfig();
 	const systemMessages = getSystemMessages();
-	console.log('using mcpKeys :>> ', config.serve?.mcpKeys);
+	console.log('using mcpKeys : ', config.serve?.mcpKeys);
 	const tools = await getMcpTools(config.serve?.mcpKeys);
 
 	const {messages} = await req.json();

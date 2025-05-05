@@ -1,6 +1,18 @@
 # hanabi-cli
 
-> ⟡ A terminal AI chat interface for any LLM model, with files & MCP support - Build your agent from command line.
+> ⟡ A terminal AI chat interface for any LLM model, with file context, MCP and deployment support.
+
+- Local multi skilled agent with files, clipboard & MCP support
+- Project folder scoped - different agent per project
+- Host your agent web chat UI (Next.js) from command line in seconds and ready for deployment
+
+## Command line interface
+
+![Chat demo](screenshots/Screenshot1.png)
+
+## Web Chat UI
+![Web Chat UI](screenshots/WebUI.png)
+
 
 ## Table of Contents
 
@@ -12,9 +24,9 @@
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
+- [Web Chat UI](#web-chat-ui)
 - [TODOs](#todos)
 
-![Chat demo](screenshots/Screenshot1.png)
 
 ## Install
 
@@ -53,7 +65,7 @@ $ hanabi ask "generate a react todo app" > ./todo-app-instructions.md
 
 In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 
-```json
+```
 {
 	"llms": [
 		// ...
@@ -126,7 +138,7 @@ To prevent files from being accessed, add [globby](https://github.com/sindresorh
 
 All files included in the .gitignore will also be auto excluded.
 
-```json
+```
 // <user home folder>/.hanabi.json
 {
 	"exclude": ["certificates", "screenshots/**/*", "passwords/*", "*.pid"],
@@ -142,13 +154,15 @@ All files included in the .gitignore will also be auto excluded.
 ## Local Envs
 
 Hanabi supports local dot env files (`.env`). 
-You can also add `envs` field to `.hanabi.json` 
+You can also add `envs` field to `.hanabi.json`.
+use `file://` prefix URL to inject file content as env variable
+Supports only plain text files e.g. `*.json`,`*.txt`, `*.html` etc.
+To inject PDF file content into process.env, convert them to text files by using something like `pdf2json`.
 
-
-```json
+```
 // .hanabi.json
 {
-	"envs": { "FOO": "bar" },
+	"envs": { "FOO": "bar", "MY_DOC: "file://./README.md" },
 	"llms": [
 		// ...
 	],
@@ -185,6 +199,31 @@ You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. pr
 ## Streaming mode
 
 Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at working directory.
+
+## Web Chat UI
+
+**It's recommended to create a local `.hanabi.json` for independent chat server**
+
+In Hanabi cli, use `/serve` to start the web server with current context (MCPs & system prompt). This will save `serve` config to your `.hanabi.json`.
+
+Use `hanabi serve` to start the web UI server directly - useful for deployments.
+
+```
+// .hanabi.json
+{
+	"serve": {
+ 		"mcpKeys": ["home-ai"],
+    	"port": 3041
+	},
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
 
 ## TODOs
 

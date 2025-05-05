@@ -5,6 +5,7 @@ import {Geist, Geist_Mono} from 'next/font/google';
 import {useMemo} from 'react';
 import './globals.css';
 import 'github-markdown-css';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -32,7 +33,9 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
 			>
-				<ReactQueryProvider>{children}</ReactQueryProvider>
+				<ReactQueryProvider>
+					<TooltipProvider>{children}</TooltipProvider>
+				</ReactQueryProvider>
 			</body>
 		</html>
 	);
