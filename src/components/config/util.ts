@@ -131,7 +131,6 @@ export const loadConfigToEnv = () => {
 	const config = getConfig();
 	const envs: any = {
 		...config.envs,
-		// do not add this to next js config.ts!
 		HANABI_PWD: process.cwd(),
 	};
 	for (const llm of config.llms) {

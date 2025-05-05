@@ -28,7 +28,7 @@ export const cli = meow(
 	{
 		importMeta: import.meta,
 		flags: {
-			prod: {
+			dev: {
 				type: 'boolean',
 			},
 		},

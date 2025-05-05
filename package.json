@@ -9,8 +9,7 @@
 		"prebuild": "rimraf dist",
 		"build": "pnpm build:main && pnpm build:ui",
 		"prepublishOnly": "pnpm build",
-		"start": "tsx src/cli.tsx",
-		"start:ui": "cd dist && next start",
+		"start": "tsx src/cli.tsx --dev",
 		"add:ui": "cd ui && pnpm dlx shadcn@latest add",
 		"lint": "xo",
 		"test": "ava"
@@ -29,7 +28,7 @@
 		"llm"
 	],
 	"bin": {
-		"hanabi": "dist/cli.js --prod"
+		"hanabi": "dist/cli.js"
 	},
 	"type": "module",
 	"engines": {
@@ -60,6 +59,7 @@
 		"clsx": "^2.1.1",
 		"dedent": "1.5.3",
 		"dotenv": "16.5.0",
+		"github-markdown-css": "5.8.1",
 		"globby": "14.1.0",
 		"ink": "^5.2.0",
 		"ink-spinner": "5.0.0",

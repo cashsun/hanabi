@@ -194,5 +194,6 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 - [x] support for custom system prompt (via local .md file)
 - [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
 - [x] streaming mode
-- [ ] add web server chat bot mode (ie api and web interface)
+- [x] add web server chat bot mode (ie api and web interface)
+- [ ] improve web server mode (API keys, UX improvements, Update UI mode readme)
 - ~~[ ] local function calling ?~~ Use [FaskMCP](https://github.com/punkpeye/fastmcp) instead.

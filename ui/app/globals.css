@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.3rem;
-  --background: oklch(0.97 0 0);
+  --background: #f5f4ed;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -115,6 +115,15 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  .markdown-body, .markdown-body pre  {
+    @apply !bg-transparent;
+  }
+  .markdown-body pre {
+    @apply !p-0;
+  }
+  .markdown-body pre > div  {
+    @apply !m-0;
   }
   body {
     font-size: 14px;

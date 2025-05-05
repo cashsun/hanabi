@@ -1,16 +1,19 @@
 'use client';
 import {AgentMessage} from '@/components/chat/AgentMessage';
+import {MessageSkeleton} from '@/components/chat/MessageSkeleton';
 import {UserMessage} from '@/components/chat/UserMessage';
 import {Button} from '@/components/ui/button';
 import {Textarea} from '@/components/ui/textarea';
+import {useModel} from '@/hooks/useModel';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
-import {ArrowUp, LoaderCircle, Sparkle, Sparkles} from 'lucide-react';
+import {ArrowUp, LoaderCircle, Sparkles} from 'lucide-react';
 import {Fragment, useEffect, useRef} from 'react';
 
 export default function ChatUI() {
 	const {messages, input, status, handleInputChange, handleSubmit, error} =
 		useChat();
+	const {data: defaultModel, isLoading: isLoadingModel} = useModel();
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
@@ -24,7 +27,7 @@ export default function ChatUI() {
 	return (
 		<main
 			className={cn(
-				'h-screen w-full items-center flex overflow-auto flex-col-reverse [&>*]:translate-z-0 pt-6',
+				'h-screen w-full items-center flex overflow-auto flex-col-reverse [&>*]:translate-z-0 pt-6 px-3',
 				{'justify-center': !messages.length},
 			)}
 			style={{overflowAnchor: 'auto !important' as any}}
@@ -58,7 +61,8 @@ export default function ChatUI() {
 						onChange={handleInputChange}
 					/>
 					{/* controls */}
-					<div className="flex flex-none justify-end p-2">
+					<div className="flex flex-none justify-between items-center p-2">
+						<div className='text-primary/50 ml-1'>{defaultModel?.model}</div>
 						<Button
 							type="submit"
 							variant="secondary"
@@ -78,10 +82,11 @@ export default function ChatUI() {
 					</div>
 				</div>
 			</form>
+			{error && <div className="text-red-800">{error.message}</div>}
 			{/* messages */}
 			<div
 				className={cn(
-					'flex flex-col gap-6 pb-8 container mx-auto max-w-[800px]',
+					'flex flex-col gap-6 pb-8 container mx-auto max-w-[800px] justify-end',
 					{
 						grow: messages.length,
 					},
@@ -93,10 +98,11 @@ export default function ChatUI() {
 						{message.role !== 'user' && <AgentMessage message={message} />}
 					</Fragment>
 				))}
+				{status === 'submitted' && <MessageSkeleton />}
 			</div>
 			{!messages.length && (
 				<div className="flex h-36 text-primary/30 text-xl justify-center items-center w-full">
-					<Sparkle className='-ml-1 mr-2 w-4' /> Hi, I'm Hanabi.
+					<Sparkles className="-ml-1 mr-2 w-5" /> Hi, I'm Hanabi.
 				</div>
 			)}
 		</main>

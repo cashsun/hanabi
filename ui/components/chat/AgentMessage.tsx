@@ -1,17 +1,19 @@
-import { useChat } from '@ai-sdk/react';
-import { Plug, Sparkle } from 'lucide-react';
+'use client';
+import {useChat} from '@ai-sdk/react';
+import {Plug, Sparkles} from 'lucide-react';
+import { memo } from 'react';
 import Markdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
+import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
 interface Props {
 	message: ReturnType<typeof useChat>['messages'][0];
 }
 
 export function AgentMessage({message}: Props) {
 	return (
-		<div className="rounded-lg flex -mt-4 leading-9 gap-3">
-			<Sparkle className="w-5 flex-none mt-1.5" />
-			<div className="flex-auto flex flex-col gap-1">
+		<div className="rounded-lg flex -mt-4 leading-9 gap-4">
+			<Sparkles className="w-5 flex-none" />
+			<div className="flex-auto flex flex-col gap-1 min-h-16 text-foreground/50 [&>*]:text-foreground">
 				{message.parts.map((part, idx) => {
 					if (part.type === 'reasoning') {
 						return (
@@ -27,32 +29,41 @@ export function AgentMessage({message}: Props) {
 						);
 					}
 					if (part.type === 'tool-invocation') {
-						return <div key={idx} className='inline-flex gap-2 mt-1.5 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold'><Plug className='w-4 -mr-1'/>tool: {part.toolInvocation.toolName}</div>;
+						return (
+							<div
+								key={idx}
+								className="inline-flex gap-2 mt-1.5 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold"
+							>
+								<Plug className="w-4 -mr-1" />
+								tool: {part.toolInvocation.toolName}
+							</div>
+						);
 					}
 				})}
+				<div className="markdown-body">
+					<Markdown
+						children={message.content}
+						components={{
+							code: memo(({node, inline, className, children, ...props}: any) => {
+								const match = /language-(\w+)/.exec(className || '');
 
-				<Markdown
-					children={message.content}
-					components={{
-						code(props) {
-							const {children, className, node, ref, ...rest} = props;
-							const match = /language-(\w+)/.exec(className || '');
-							return match ? (
-								<SyntaxHighlighter
-									{...rest}
-									PreTag="div"
-									children={String(children).replace(/\n$/, '')}
-									language={match[1]}
-									style={vscDarkPlus}
-								/>
-							) : (
-								<code {...rest} ref={ref} className={className}>
-									{children}
-								</code>
-							);
-						},
-					}}
-				/>
+								return !inline && match ? (
+									<SyntaxHighlighter
+										style={vscDarkPlus}
+										PreTag="div"
+										language={match[1]}
+									>
+										{children}
+									</SyntaxHighlighter>
+								) : (
+									<code className={className} {...props}>
+										{children}
+									</code>
+								);
+							}),
+						}}
+					/>
+				</div>
 			</div>
 		</div>
 	);

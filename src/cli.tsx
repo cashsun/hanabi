@@ -120,10 +120,10 @@ function copyLastMessageToClipboard() {
 }
 
 function startServer() {
-	const prod = cli.flags.prod;
+	const prod = !cli.flags.dev;
 	const config = getConfig();
 	const ls = spawn(
-		'next',
+		'../node_modules/.bin/next',
 		[prod ? 'start' : 'dev', '-p', `${config.serve?.port ?? 3041}`],
 		{
 			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
@@ -132,7 +132,7 @@ function startServer() {
 	ls.stderr.on('data', d => console.error(`${d}`));
 	ls.stdout.on('data', d => console.info(`${d}`));
 	ls.on('error', d => console.error('Exception:', `${d}`));
-	ls.on('exit', d => console.log(`Server closed. ${d}`));
+	ls.on('exit', d => console.log(`Child process exited: ${d}`));
 }
 
 function startChat() {
