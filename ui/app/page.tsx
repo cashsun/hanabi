@@ -8,6 +8,7 @@ import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 import {useChatConfig} from '@/hooks/useChatConfig';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
+import {motion} from 'motion/react';
 import {
 	ArrowUp,
 	LoaderCircle,
@@ -16,6 +17,34 @@ import {
 	TriangleAlert,
 } from 'lucide-react';
 import {Fragment, useEffect, useRef} from 'react';
+
+const TYPE_DURATION = 0.05;
+
+function TypeWriter({children}: {children: string}) {
+	const chars = children.split('');
+	return (
+		<>
+			{chars.map((c, i) => {
+				return (
+					<motion.span
+						key={i}
+						className="overflow-hidden whitespace-pre"
+						initial={{width: 0}}
+						animate={{width: 'auto'}}
+						transition={{delay: i * TYPE_DURATION, duration: TYPE_DURATION}}
+					>
+						{c}
+					</motion.span>
+				);
+			})}
+			<motion.div
+				className="ml-1 w-1 h-5 bg-primary/60"
+				animate={{opacity: 0}}
+				transition={{delay: chars.length * TYPE_DURATION + 1 }}
+			/>
+		</>
+	);
+}
 
 export default function ChatUI() {
 	const {
@@ -175,8 +204,10 @@ export default function ChatUI() {
 			{!messages.length && (
 				<div className="overflow-hidden flex h-36 text-primary/30 text-2xl justify-center items-center w-full">
 					<Sparkles className="-ml-1 mr-2 w-5" />
-					Hi.{' '}
-					{!isLoadingConfig && <div className="ml-1">I'm {config?.name ?? 'Hanabi'}.</div>}
+					Hi.
+					{!isLoadingConfig && (
+						<TypeWriter>{` I'm ${config?.name ?? 'Hanabi'}.`}</TypeWriter>
+					)}
 				</div>
 			)}
 		</main>

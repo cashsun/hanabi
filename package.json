@@ -1,7 +1,7 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"scripts": {
 		"build:main": "tsc",
 		"build:ui": "cd ui && next build",
@@ -68,6 +68,7 @@
 		"lucide-react": "^0.507.0",
 		"meow": "^11.0.0",
 		"mime-types": "3.0.1",
+		"motion": "12.9.7",
 		"next": "15.3.1",
 		"ollama-ai-provider": "1.2.0",
 		"react": "18.3.1",
