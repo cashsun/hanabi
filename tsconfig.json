@@ -4,7 +4,8 @@
 		"outDir": "dist",
 		"jsx": "react",
 		"noUnusedLocals": false,
-		"noUnusedParameters": false
+		"noUnusedParameters": false,
+		"declaration": false
 	},
 	"include": ["src", "types"]
 }
