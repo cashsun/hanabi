@@ -1,19 +1,75 @@
 'use client';
 import {useChat} from '@ai-sdk/react';
-import {Plug, Sparkles} from 'lucide-react';
-import { memo } from 'react';
+import {Check, Copy, Plug, RefreshCw, Sparkles} from 'lucide-react';
+import {ComponentProps, memo, ReactNode, useEffect, useState} from 'react';
 import Markdown from 'react-markdown';
+import clipboard from 'clipboardy';
+import {Button} from '@/components/ui/button';
+import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 interface Props {
 	message: ReturnType<typeof useChat>['messages'][0];
+	isLoading: boolean | undefined;
+	reload: () => void;
 }
 
-export function AgentMessage({message}: Props) {
+function CopyButton({onClick, ...props}: ComponentProps<typeof Button>) {
+	const [done, setDone] = useState(false);
+
+	useEffect(() => {
+		if (done) {
+			setTimeout(() => {
+				setDone(false);
+			}, 2000);
+		}
+	}, [done]);
+
 	return (
-		<div className="rounded-lg flex -mt-4 leading-9 gap-4">
+		<Button
+			{...props}
+			variant="ghost"
+			size="icon"
+			onClick={e => {
+				onClick?.(e);
+				setDone(true);
+			}}
+		>
+			{done ? <Check /> : <Copy />}
+		</Button>
+	);
+}
+
+function WithCodeControls({
+	text,
+	children,
+}: {
+	text: string;
+	children: ReactNode;
+}) {
+	return (
+		<div className="flex flex-col">
+			<div className="bg-primary-foreground flex justify-end -mb-2">
+				<Tooltip delayDuration={100}>
+					<TooltipTrigger asChild>
+						<CopyButton onClick={() => clipboard.write(text)}>
+							<Copy />
+						</CopyButton>
+					</TooltipTrigger>
+					<TooltipContent>Copy This Code</TooltipContent>
+				</Tooltip>
+			</div>
+			{children}
+		</div>
+	);
+}
+
+export function AgentMessage({message, reload, isLoading}: Props) {
+	return (
+		<div className="flex -mt-4 leading-9 gap-4">
 			<Sparkles className="w-5 flex-none" />
-			<div className="min-w-0 flex flex-col gap-1 min-h-16 text-foreground/50 [&>*]:text-foreground">
+			<div className="grow min-w-0 flex flex-col gap-1 min-h-16 text-foreground/50 [&>*]:text-foreground">
 				{message.parts.map((part, idx) => {
 					if (part.type === 'reasoning') {
 						return (
@@ -44,26 +100,50 @@ export function AgentMessage({message}: Props) {
 					<Markdown
 						children={message.content}
 						components={{
-							code: memo(({node, inline, className, children, ...props}: any) => {
-								const match = /language-(\w+)/.exec(className || '');
+							code: memo(
+								({node, inline, className, children, ...props}: any) => {
+									const match = /language-(\w+)/.exec(className || '');
 
-								return !inline && match ? (
-									<SyntaxHighlighter
-										style={vscDarkPlus}
-										PreTag="div"
-										language={match[1]}
-									>
-										{children}
-									</SyntaxHighlighter>
-								) : (
-									<code className={className} {...props}>
-										{children}
-									</code>
-								);
-							}),
+									return !inline && match ? (
+										<WithCodeControls text={children}>
+											<SyntaxHighlighter
+												style={vscDarkPlus}
+												PreTag="div"
+												language={match[1]}
+											>
+												{children}
+											</SyntaxHighlighter>
+										</WithCodeControls>
+									) : (
+										<code className={className} {...props}>
+											{children}
+										</code>
+									);
+								},
+							),
 						}}
 					/>
 				</div>
+				{!isLoading && (
+					<div className="flex justify-end -mb-2">
+						<Tooltip delayDuration={100}>
+							<TooltipTrigger asChild>
+								<Button variant="ghost" size="icon" onClick={reload}>
+									<RefreshCw />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Retry</TooltipContent>
+						</Tooltip>
+						<Tooltip delayDuration={100}>
+							<TooltipTrigger asChild>
+								<CopyButton onClick={() => clipboard.write(message.content)}>
+									<Copy />
+								</CopyButton>
+							</TooltipTrigger>
+							<TooltipContent>Copy This Answer</TooltipContent>
+						</Tooltip>
+					</div>
+				)}
 			</div>
 		</div>
 	);

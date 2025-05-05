@@ -65,6 +65,7 @@ export default function ChatUI({config}: Props) {
 		handleSubmit,
 		error,
 		stop,
+		reload,
 	} = useChat();
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -178,7 +179,9 @@ export default function ChatUI({config}: Props) {
 				{messages.map(message => (
 					<Fragment key={message.id}>
 						{message.role === 'user' && <UserMessage message={message} />}
-						{message.role !== 'user' && <AgentMessage message={message} />}
+						{message.role !== 'user' && (
+							<AgentMessage message={message} reload={reload} isLoading={isLoading} />
+						)}
 					</Fragment>
 				))}
 				{error && (
