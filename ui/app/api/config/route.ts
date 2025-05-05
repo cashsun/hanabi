@@ -1,10 +1,9 @@
-import {getConfig} from '@/lib/config';
-import {NextApiResponse} from 'next';
+import { getConfig } from '@/lib/config';
 
 export async function GET() {
 	const config = getConfig();
 	return Response.json({
 		defaultModel: config.defaultModel,
-		mcpKeys: config.serve?.mcpKeys ?? [],
+		serve: config.serve
 	});
 }

@@ -213,7 +213,9 @@ Use `hanabi serve` to start the web UI server directly - useful for deployments.
 {
 	"serve": {
  		"mcpKeys": ["home-ai"],
-    	"port": 3041
+    	"port": 3041,
+		/** name of the chat bot */
+		name?: string;
 	},
 	"llms": [
 		// ...

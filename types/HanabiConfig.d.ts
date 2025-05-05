@@ -57,6 +57,8 @@ type ServerConfig = {
 	/** default 3041 */
 	port?: number;
 	mcpKeys?: string[];
+	/** name of the chat bot */
+	name?: string;
 };
 
 type HanabiConfig = {

@@ -8,7 +8,13 @@ import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 import {useChatConfig} from '@/hooks/useChatConfig';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
-import {ArrowUp, LoaderCircle, Sparkles, Square, TriangleAlert} from 'lucide-react';
+import {
+	ArrowUp,
+	LoaderCircle,
+	Sparkles,
+	Square,
+	TriangleAlert,
+} from 'lucide-react';
 import {Fragment, useEffect, useRef} from 'react';
 
 export default function ChatUI() {
@@ -25,7 +31,6 @@ export default function ChatUI() {
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
-
 	useEffect(() => {
 		if (!isLoading) {
 			inputRef.current?.focus();
@@ -76,8 +81,18 @@ export default function ChatUI() {
 							)}
 							{!isLoadingConfig && (
 								<div className="inline-flex gap-3">
-									{config?.defaultModel?.model}
-									{!!config?.mcpKeys.length && (
+									<Tooltip delayDuration={100}>
+										<TooltipTrigger asChild>
+											<span className="cursor-default">
+												{config?.defaultModel?.model}
+											</span>
+										</TooltipTrigger>
+										<TooltipContent>
+											{config?.defaultModel?.provider}
+										</TooltipContent>
+									</Tooltip>
+
+									{!!config?.mcpKeys?.length && (
 										<Tooltip delayDuration={100}>
 											<TooltipTrigger asChild>
 												<div className="cursor-default">
@@ -135,8 +150,8 @@ export default function ChatUI() {
 				))}
 				{error && (
 					<div
-					title={error.message}
-					className="text-white px-3 py-2 rounded-xl bg-red-600/30 self-start max-w-full truncate"
+						title={error.message}
+						className="text-white px-3 py-2 rounded-xl bg-red-600/30 self-start max-w-full truncate"
 					>
 						<div className="flex font-bold items-center gap-2">
 							<TriangleAlert className="w-4 flex-none" /> Error
@@ -145,11 +160,23 @@ export default function ChatUI() {
 					</div>
 				)}
 				{status === 'submitted' && <MessageSkeleton />}
-				{isLoading && <Button size="sm" variant="outline" className='self-center' onClick={stop}><Square className='w-3'/>Stop</Button>}
+				{isLoading && (
+					<Button
+						size="sm"
+						variant="outline"
+						className="self-center"
+						onClick={stop}
+					>
+						<Square className="w-3" />
+						Stop
+					</Button>
+				)}
 			</div>
 			{!messages.length && (
-				<div className="flex h-36 text-primary/30 text-xl justify-center items-center w-full">
-					<Sparkles className="-ml-1 mr-2 w-5" /> Hi, I'm Hanabi.
+				<div className="overflow-hidden flex h-36 text-primary/30 text-2xl justify-center items-center w-full">
+					<Sparkles className="-ml-1 mr-2 w-5" />
+					Hi.{' '}
+					{!isLoadingConfig && <div className="ml-1">I'm {config?.name ?? 'Hanabi'}.</div>}
 				</div>
 			)}
 		</main>
