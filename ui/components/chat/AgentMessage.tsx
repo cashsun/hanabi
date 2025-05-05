@@ -32,7 +32,7 @@ export function AgentMessage({message}: Props) {
 						return (
 							<div
 								key={idx}
-								className="inline-flex gap-2 mt-1.5 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold"
+								className="inline-flex gap-2 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold"
 							>
 								<Plug className="w-4 -mr-1" />
 								tool: {part.toolInvocation.toolName}
