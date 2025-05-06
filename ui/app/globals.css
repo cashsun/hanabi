@@ -116,6 +116,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  .markdown-body  {
+    @apply !text-primary;
+  }
   .markdown-body, .markdown-body pre  {
     @apply !bg-transparent;
   }

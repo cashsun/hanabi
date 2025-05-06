@@ -50,7 +50,7 @@ function WithCodeControls({
 }) {
 	return (
 		<div className="flex flex-col">
-			<div className="bg-primary-foreground flex justify-end -mb-2">
+			<div className="bg-stone-700 flex justify-end -mb-2 [&_button]:text-white">
 				<Tooltip delayDuration={100}>
 					<TooltipTrigger asChild>
 						<CopyButton onClick={() => clipboard.write(text)}>
