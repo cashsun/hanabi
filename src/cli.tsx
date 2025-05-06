@@ -124,14 +124,10 @@ function startServer() {
 	const config = getConfig();
 	const ls = spawn(
 		'npx',
-		[
-			'next@15.3.1',
-			prod ? 'start' : 'dev',
-			'-p',
-			`${config.serve?.port ?? 3041}`,
-		],
+		['next@15', prod ? 'start' : 'dev', '-p', `${config.serve?.port ?? 3041}`],
 		{
 			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
+			shell: true,
 		},
 	);
 	ls.stderr.on('data', d => console.error(`${d}`));
