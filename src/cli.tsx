@@ -123,8 +123,13 @@ function startServer() {
 	const prod = !cli.flags.dev;
 	const config = getConfig();
 	const ls = spawn(
-		'npx',
-		['next@15', prod ? 'start' : 'dev', '-p', `${config.serve?.port ?? 3041}`],
+		'node',
+		[
+			'../node_modules/next/dist/bin/next',
+			prod ? 'start' : 'dev',
+			'-p',
+			`${config.serve?.port ?? 3041}`,
+		],
 		{
 			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
 			shell: true,
