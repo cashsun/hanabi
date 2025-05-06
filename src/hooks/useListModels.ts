@@ -48,9 +48,10 @@ export const useModelList = (
 					apiUrlToUse = `${officialApiUrls[provider]}/tags`;
 					break;
 				}
-				case 'OpenAI-Compatible':
+				case 'OpenAI-Compatible': {
 					apiUrlToUse = `${apiUrl}/models`;
 					break;
+				}
 				default:
 					break;
 			}

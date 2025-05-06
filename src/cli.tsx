@@ -342,11 +342,8 @@ if (!hasConfig()) {
 			break;
 		}
 		case 'reset': {
-			render(
-				<QueryClientProvider client={queryClient}>
-					<Setup isReset />
-				</QueryClientProvider>,
-			);
+			await renderAndComplete(() => <Setup isReset />);
+			process.exit(0);
 			break;
 		}
 		default: {
