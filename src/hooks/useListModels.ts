@@ -25,12 +25,11 @@ export const useModelList = (
 			if (!provider) {
 				return [];
 			}
-			let apiUrlToUse = `${apiUrl}/models`;
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${apiKey}`,
 			};
 
-			apiUrlToUse = `${officialApiUrls[provider]}/models`;
+			let apiUrlToUse = `${officialApiUrls[provider]}/models`;
 
 			switch (provider) {
 				case 'Anthropic': {
@@ -49,6 +48,9 @@ export const useModelList = (
 					apiUrlToUse = `${officialApiUrls[provider]}/tags`;
 					break;
 				}
+				case 'OpenAI-Compatible':
+					apiUrlToUse = `${apiUrl}/models`;
+					break;
 				default:
 					break;
 			}
