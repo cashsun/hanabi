@@ -95,7 +95,7 @@ export default function ChatUI() {
 					<Textarea
 						name="prompt"
 						value={input}
-						placeholder="Chat to Hanabi..."
+						placeholder="Message agent..."
 						ref={inputRef}
 						disabled={isLoading}
 						rows={2}
