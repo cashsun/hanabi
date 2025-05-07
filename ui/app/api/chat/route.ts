@@ -2,14 +2,14 @@ import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
 import { getSystemMessages } from '@/lib/systemPrompts';
 import { getMcpTools } from '@/lib/useMcpTools';
 import {streamText} from 'ai';
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+// Allow streaming responses up to 120 seconds
+export const maxDuration = 120;
 
 export async function POST(req: Request) {
 	loadConfigToEnv();
 	const config = getConfig();
 	const systemMessages = getSystemMessages();
-	console.log('using mcpKeys : ', config.serve?.mcpKeys);
+	console.log('using mcps: >>', config.serve?.mcpKeys);
 	const tools = await getMcpTools(config.serve?.mcpKeys);
 
 	const {messages} = await req.json();

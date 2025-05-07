@@ -1,11 +1,9 @@
 import ReactQueryProvider from '@/components/ReactQueryProvider';
-import {QueryClient} from '@tanstack/react-query';
+import {TooltipProvider} from '@/components/ui/tooltip';
+import 'github-markdown-css';
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
-import {useMemo} from 'react';
 import './globals.css';
-import 'github-markdown-css';
-import { TooltipProvider } from '@/components/ui/tooltip';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -18,8 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: 'Hanabi Agent',
-	description: 'Hanabi Agent',
+	description: 'Hanabi Custom Agent',
 };
 
 export default function RootLayout({
@@ -27,7 +24,6 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const queryClient = useMemo(() => new QueryClient(), []);
 	return (
 		<html lang="en">
 			<body

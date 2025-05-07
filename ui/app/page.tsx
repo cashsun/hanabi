@@ -67,11 +67,18 @@ export default function ChatUI() {
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
+
 	useEffect(() => {
 		if (!isLoading) {
 			inputRef.current?.focus();
 		}
 	}, [isLoading]);
+
+	useEffect(() => {
+		if (config) {
+			document.title = config.name ?? 'Hanabi Agent';
+		}
+	}, [config]);
 
 	return (
 		<main
@@ -113,7 +120,9 @@ export default function ChatUI() {
 					<div className="flex flex-none justify-between items-center p-2 gap-3">
 						<div className="grow text-primary/50 ml-1">
 							<div className="inline-flex gap-3 items-center">
-								{isLoadingConfig && <div className='w-28 h-6 animate-pulse bg-primary-foreground/20 rounded-xl' />}
+								{isLoadingConfig && (
+									<div className="w-28 h-6 animate-pulse bg-primary-foreground/20 rounded-xl" />
+								)}
 								{!!config?.defaultModel && (
 									<Tooltip delayDuration={100}>
 										<TooltipTrigger asChild>
