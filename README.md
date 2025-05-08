@@ -24,7 +24,7 @@
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
-- [Web Chat UI](#web-chat-ui-sever)
+- [Web Chat UI](#web-chat-ui-server)
 - [TODOs](#todos)
 
 
