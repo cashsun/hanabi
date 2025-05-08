@@ -1,3 +1,4 @@
+'use server'
 import {getConfig} from '@/lib/config';
 
 export async function GET() {

@@ -1,3 +1,4 @@
+'use server'
 import {populate, config} from 'dotenv';
 import fs from 'fs';
 import {merge, unionBy} from 'lodash-es';
