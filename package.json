@@ -1,7 +1,7 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "1.0.17",
+	"version": "1.0.18",
 	"scripts": {
 		"build:main": "tsc",
 		"build:ui": "cd ui && next build",
@@ -76,7 +76,7 @@
 		"react-syntax-highlighter": "15.6.1",
 		"uuid": "11.1.0",
 		"zustand": "5.0.3",
-		"next": "15.3.1"
+		"next": "15.3.2"
 	},
 	"devDependencies": {
 		"@ava/typescript": "5.0.0",
