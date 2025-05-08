@@ -24,7 +24,7 @@
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
-- [Web Chat UI](#web-chat-ui)
+- [Web Chat UI](#web-chat-ui-sever)
 - [TODOs](#todos)
 
 
@@ -200,7 +200,7 @@ You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. pr
 
 Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at working directory.
 
-## Web Chat UI
+## Web Chat UI Server
 
 **It's recommended to create a local `.hanabi.json` for independent chat server**
 
