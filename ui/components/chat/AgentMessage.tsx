@@ -12,7 +12,7 @@ import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
 interface Props {
 	message: ReturnType<typeof useChat>['messages'][0];
 	isLoading: boolean | undefined;
-	reload: () => void;
+	reload?: () => void;
 }
 
 function CopyButton({onClick, ...props}: ComponentProps<typeof Button>) {
@@ -128,9 +128,11 @@ export function AgentMessage({message, reload, isLoading}: Props) {
 					<div className="flex justify-end -mb-2">
 						<Tooltip delayDuration={100}>
 							<TooltipTrigger asChild>
-								<Button variant="ghost" size="icon" onClick={reload}>
-									<RefreshCw />
-								</Button>
+								{!!reload && (
+									<Button variant="ghost" size="icon" onClick={reload}>
+										<RefreshCw />
+									</Button>
+								)}
 							</TooltipTrigger>
 							<TooltipContent>Retry</TooltipContent>
 						</Tooltip>

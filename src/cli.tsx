@@ -19,15 +19,72 @@ import {
 import {resetMessages, useAppStore} from './store/appState.js';
 
 import {spawn} from 'node:child_process';
-import {dirname, resolve} from 'node:path';
+import {dirname, resolve, join, basename} from 'node:path';
 import {ReadStream} from 'node:tty';
 import {cli} from './cli-help.js';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplateGenerater} from './components/config/TemplateGenerater.js';
 import {getMcpTools} from './hooks/useMcpTools.js';
+import fs from 'node:fs';
 
 const queryClient = new QueryClient();
+
+/**
+ * list file paths based on starting pattern.
+ * this is for cli file path auto completer.
+ *
+ * example 1: listFile('./') => ['./ui/', './app/', './README.md']
+ * example 2: listFile('./ui/') => ['./ui/a.json', './ui/b.pdf']
+ * example 3: listFile('./ui/a') => ['./ui/a.json']
+ * example 4: listFile('./ui/a.j') => ['./ui/a.json']
+ * example 4: listFile('./ui/a.json') => []
+ *
+ * @param start starting pattern
+ */
+function listFiles(start: string): string[] {
+	// Handle empty input
+	if (!start) {
+		return [];
+	}
+
+	try {
+		// Split the path into directory and partial filename
+		const dirPath = dirname(start);
+		const partialFile = basename(start);
+
+		// If the start path ends with '/', then we're looking at a directory
+		const isDirectory = start.endsWith('/') || start.endsWith('\\');
+		const searchDir = isDirectory ? start : dirPath;
+
+		// Normalize the search directory path
+		const normalizedSearchDir = searchDir === '.' ? './' : searchDir;
+
+		// Read the directory contents
+		const files = fs.readdirSync(normalizedSearchDir, {withFileTypes: true});
+
+		// Filter and format the results
+		return files
+			.filter(file => {
+				// If we're looking at a directory (ends with /), show all contents
+				if (isDirectory) {
+					return true;
+				}
+
+				// Otherwise, filter by the partial filename
+				return file.name.startsWith(partialFile);
+			})
+			.map(file => {
+				// Format the path correctly
+				const relativePath = join(normalizedSearchDir, file.name);
+
+				// Add trailing slash for directories
+				return file.isDirectory() ? `./${relativePath}/` : `./${relativePath}`;
+			});
+	} catch {
+		return [];
+	}
+}
 
 async function showModelAndContext(context: Record<string, any>) {
 	const defaultModel = getConfig().defaultModel?.model;
@@ -142,12 +199,17 @@ function startServer() {
 }
 
 function startChat() {
-	// const context: Record<string, any> = {};
-
 	function completer(line: string) {
 		const hits = suggestions.filter(c => c.startsWith(line));
-		// Show all completions if none found
-		return [hits.length ? hits : suggestions, line];
+		if (!hits.length) {
+			return [
+				listFiles(line.slice(line.indexOf('./'))).map(
+					f => `${line.slice(0, line.indexOf('./'))}${f}`,
+				),
+				line,
+			];
+		}
+		return [hits, line];
 	}
 
 	async function myEval(

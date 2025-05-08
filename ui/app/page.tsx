@@ -180,13 +180,13 @@ export default function ChatUI() {
 					},
 				)}
 			>
-				{messages.map(message => (
+				{messages.map((message, idx) => (
 					<Fragment key={message.id}>
 						{message.role === 'user' && <UserMessage message={message} />}
 						{message.role !== 'user' && (
 							<AgentMessage
 								message={message}
-								reload={reload}
+								reload={messages.length - 1 === idx ? reload : undefined}
 								isLoading={isLoading}
 							/>
 						)}

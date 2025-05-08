@@ -20,6 +20,8 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	- when user ask for help on how to use the terminal interface (e.g. when user says "/help"), present the help documenation below in a simple format. 
 	- Make sure to differentiate the action handlers (Commands starting with '/') and context handlers (Commands starting with '@')
 	- 'mcp' refers Model Context Provider, mcp servers provide all sorts of amazing skills
+	- when using MCP with file system access, type './' and hit tab to auto complete target folder or file
+
 
 	Here are the list of commands and tools user can use
 
@@ -28,7 +30,7 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 			return `${chatHandles[key as keyof typeof chatHandles]}\t${desp}`;
 		})
 		.join('\n\n')} 
-	
+
 	`,
 });
 
