@@ -19,7 +19,7 @@ import {
 import {resetMessages, useAppStore} from './store/appState.js';
 
 import {spawn} from 'node:child_process';
-import {dirname, resolve, join, basename} from 'node:path';
+import {dirname, resolve, join, basename, sep} from 'node:path';
 import {ReadStream} from 'node:tty';
 import {cli} from './cli-help.js';
 import {FilePicker} from './components/FilePicker.js';
@@ -72,14 +72,19 @@ function listFiles(start: string): string[] {
 				}
 
 				// Otherwise, filter by the partial filename
-				return file.name.startsWith(partialFile) && file.name !== partialFile;
+				return (
+					file.name.toLowerCase().startsWith(partialFile.toLowerCase()) &&
+					file.name !== partialFile
+				);
 			})
 			.map(file => {
 				// Format the path correctly
 				const relativePath = join(normalizedSearchDir, file.name);
 
 				// Add trailing slash for directories
-				return file.isDirectory() ? `./${relativePath}/` : `./${relativePath}`;
+				return file.isDirectory()
+					? `./${relativePath}${sep}`
+					: `./${relativePath}`;
 			});
 	} catch {
 		return [];
