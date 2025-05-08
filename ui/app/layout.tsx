@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: 'Hanabi Agent',
 	description: 'Hanabi Custom Agent',
 };
 

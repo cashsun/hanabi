@@ -74,12 +74,6 @@ export default function ChatUI() {
 		}
 	}, [isLoading]);
 
-	useEffect(() => {
-		if (config) {
-			document.title = config.name ?? 'Hanabi Agent';
-		}
-	}, [config]);
-
 	return (
 		<main
 			className={cn(
@@ -88,6 +82,7 @@ export default function ChatUI() {
 			)}
 			style={{overflowAnchor: 'auto !important' as any}}
 		>
+			<title>{`${config?.name ?? 'Hanabi Agent'}`}</title>
 			<form
 				onSubmit={handleSubmit}
 				ref={ref}
