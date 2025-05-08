@@ -19,7 +19,7 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 export const getSystemMessages = (): CoreSystemMessage[] => {
 	loadConfigToEnv();
 	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
-	const pwd = process.env['HANABI_PWD'] ?? 'do/not/exist/';
+	const pwd = process.env['HANABI_PWD'] ?? '/do/not/exist/';
 	const systemPromptPath = resolve(
 		pwd,
 		'hanabi.system.prompt.md',

@@ -80,7 +80,7 @@ export const defaultConfig: HanabiConfig = {
 };
 
 const localConfigPath = resolve(
-	process.env['HANABI_PWD'] ?? 'do/not/exist/',
+	process.env['HANABI_PWD'] ?? '/do/not/exist/',
 	'.hanabi.json',
 );
 const userConfigPath = resolve(os.homedir(), '.hanabi.json');
