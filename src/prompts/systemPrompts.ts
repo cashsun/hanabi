@@ -19,8 +19,8 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	## Help Documentation
 	- when user ask for help on how to use the terminal interface (e.g. when user says "/help"), present the help documenation below in a simple format. 
 	- Make sure to differentiate the action handlers (Commands starting with '/') and context handlers (Commands starting with '@')
-	- 'mcp' refers Model Context Provider, mcp servers provide all sorts of amazing skills
-	- when using MCP with file system access, type './' and hit tab to auto complete target folder or file
+	- 'mcp' refers to Model Context Protocol, mcp servers provide all sorts of amazing skills
+	- when using MCP with file system access, type './' and hit tab to auto complete target folder or file, like "explain this file ./package.json"
 
 
 	Here are the list of commands and tools user can use

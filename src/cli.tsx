@@ -72,7 +72,7 @@ function listFiles(start: string): string[] {
 				}
 
 				// Otherwise, filter by the partial filename
-				return file.name.startsWith(partialFile);
+				return file.name.startsWith(partialFile) && file.name !== partialFile;
 			})
 			.map(file => {
 				// Format the path correctly
@@ -202,14 +202,11 @@ function startChat() {
 	function completer(line: string) {
 		const hits = suggestions.filter(c => c.startsWith(line));
 		if (!hits.length) {
-			return [
-				listFiles(line.slice(line.indexOf('./'))).map(
-					f => `${line.slice(0, line.indexOf('./'))}${f}`,
-				),
-				line,
-			];
+			const startPath = line.slice(line.indexOf('./'));
+			const filePaths = listFiles(startPath);
+			return [filePaths, filePaths.length ? startPath : line];
 		}
-		return [hits, line];
+		return [hits.length === 1 && hits[0] === line ? [] : hits, line];
 	}
 
 	async function myEval(
