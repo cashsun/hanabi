@@ -21,7 +21,7 @@ import {resetMessages, useAppStore} from './store/appState.js';
 import {spawn} from 'node:child_process';
 import {dirname, resolve, join, basename, sep} from 'node:path';
 import {ReadStream} from 'node:tty';
-import {cli} from './cli-help.js';
+import {cli} from './cli-init.js';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplateGenerater} from './components/config/TemplateGenerater.js';
@@ -389,7 +389,7 @@ if (!hasConfig()) {
 					<QueryClientProvider client={queryClient}>
 						<Chat
 							isSingleRunQuery
-							prompt={cli.input.at(1) ?? ''}
+							prompt={cli.input.slice(1).join(' ')}
 							onComplete={() => {}}
 						/>
 					</QueryClientProvider>,
