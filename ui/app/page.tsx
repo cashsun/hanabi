@@ -8,6 +8,7 @@ import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 import {useChatConfig} from '@/hooks/useChatConfig';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
+import { UIMessage } from 'ai';
 import {
 	ArrowUp,
 	LoaderCircle,
@@ -63,6 +64,7 @@ export default function ChatUI() {
 		error,
 		stop,
 		reload,
+		setMessages,
 	} = useChat();
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -73,6 +75,45 @@ export default function ChatUI() {
 			inputRef.current?.focus();
 		}
 	}, [isLoading]);
+
+	useEffect(() => {
+		const lastMessage = messages.at(-1);
+		const lastPart = lastMessage?.parts.at(-1);
+		if (
+			status === 'ready' &&
+			config?.answerSchema &&
+			lastMessage &&
+			lastPart?.type === 'tool-invocation' &&
+			lastPart.toolInvocation.toolName === 'format-answer'
+		) {
+			
+			// extract the args as the extra message - ie formatted answer.
+			const content = JSON.stringify(lastPart.toolInvocation.args, null, 2);
+			const formatted: UIMessage[] = [
+				...messages.slice(0, -1),
+				{
+					...lastMessage,
+					content: `\`\`\`json\n${content}\n\`\`\``,
+					parts: [
+						...lastMessage.parts.slice(0, -1),
+						{
+							type: 'tool-invocation',
+							toolInvocation: {
+								...lastPart.toolInvocation,
+								state: 'result',
+								result: lastPart.toolInvocation.args,
+							},
+						},
+						{
+							type: 'text',
+							text: content,
+						},
+					],
+				},
+			]
+			setMessages(formatted);
+		}
+	}, [status, messages, config, setMessages]);
 
 	return (
 		<main

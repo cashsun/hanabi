@@ -79,12 +79,13 @@ function listFiles(start: string): string[] {
 			})
 			.map(file => {
 				// Format the path correctly
-				const relativePath = join(normalizedSearchDir, file.name).replace(/\\/g, '/');
+				const relativePath = join(normalizedSearchDir, file.name).replace(
+					/\\/g,
+					'/',
+				);
 
 				// Add trailing slash for directories
-				return file.isDirectory()
-					? `./${relativePath}/`
-					: `./${relativePath}`;
+				return file.isDirectory() ? `./${relativePath}/` : `./${relativePath}`;
 			});
 	} catch {
 		return [];

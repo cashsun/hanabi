@@ -37,7 +37,7 @@ process.once('SIGINT', async function () {
 
 export async function getMcpTools(serverKeys: string[] | undefined) {
 	if (!serverKeys?.length) {
-		return undefined;
+		return {};
 	}
 	let tools: ToolSet = {};
 	const config = getConfig();

@@ -38,6 +38,7 @@ type StdioMCPConfig = {
 	args: string[];
 	version?: string;
 	env?: Record<string, string>;
+	/** default to current working directory */
 	cwd?: string;
 };
 
@@ -56,24 +57,58 @@ type LLM = CommonLLM | AzureLLM | OllamaLLM | OpenAICompatibleLLM;
 type ServerConfig = {
 	/** default 3041 */
 	port?: number;
+	/** this maps to `mcpServers` config */
 	mcpKeys?: string[];
 	/** name of the chat bot */
 	name?: string;
 };
 
 type HanabiConfig = {
+	/**
+	 * list of provider config
+	 * see https://ai-sdk.dev/providers/ai-sdk-providers to learn how to hide api keys from this file via env variable
+	 * */
 	llms: LLM[];
+	/** max LLM call for each prompt. default 10 */
 	maxSteps?: number;
 	defaultModel?: {
 		model: string;
 		provider: LLM['provider'];
 	};
-
+	/** JSON schema to enforce final answer output in a structured format,
+	 * e.g.
+	 * ```json
+	 * 		{
+	 * 			"type": "object",
+	 * 			"properties": {
+	 * 				"reason": {
+	 * 					"type": "string",
+	 * 					"description": "detailed reasoning for the final output."
+	 * 				},
+	 * 				"output": {
+	 * 					"type": "number",
+	 * 					"description": "the final output for the answer."
+	 * 				}
+	 * 			}
+	 * 		}
+	 *```
+	 * for more details:
+	 * - https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema
+	 * - https://v4.zod.dev/json-schema#metadata
+	 */
+	answerSchema?: any;
 	mcpServers?: Record<string, MCPServerConfig>;
-	/** glob file/folder patterns */
+	/** glob file/folder patterns to ignore with \@file handle */
 	exclude?: string[];
-	/** weather or not to use streaming mode */
+	/** weather or not to use streaming mode for cli chat */
 	streaming?: boolean;
+	/**
+	 * global process.env that will also be made available for MCP servers.
+	 * Alternatively, use a `.env` file to hide secrets from your `.hanabi.json`
+	 */
 	envs?: Record<string, string | number>;
+	/**
+	 * Web Chat UI + API server config
+	 */
 	serve?: ServerConfig;
 };

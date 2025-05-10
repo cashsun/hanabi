@@ -1,12 +1,13 @@
 import {useQuery} from '@tanstack/react-query';
-import type {CoreMessage, LanguageModelV1} from 'ai';
-import {generateText, streamText} from 'ai';
+import type {CoreMessage, LanguageModelV1, StreamTextResult} from 'ai';
+import {generateText, streamText, tool, jsonSchema} from 'ai';
 import {useState} from 'react';
 import {getConfig} from '../components/config/util.js';
 import {getMcpTools} from './useMcpTools.js';
 import {useStdout} from 'ink';
 import Chalk from 'chalk';
 import {EOL} from 'node:os';
+import {v4 as uniqueId} from 'uuid';
 
 const clearLines = (n: number) => {
 	for (let i = 0; i < n + 1; i++) {
@@ -23,6 +24,45 @@ const clearLines = (n: number) => {
 	}
 };
 
+function formatAnswer(
+	messages: Awaited<StreamTextResult<any, any>['response']>['messages'],
+	toolCalls: Awaited<StreamTextResult<any, any>['toolCalls']>,
+	answerSchema: HanabiConfig['answerSchema'],
+) {
+	const list = messages;
+	if (answerSchema && toolCalls.at(-1)) {
+		// formated answer mode does not have agent response.
+		// we need to add manually
+		const answerCall = toolCalls.at(-1)!;
+
+		list.push(
+			{
+				id: answerCall.toolCallId,
+				role: 'tool',
+				content: [
+					{
+						type: 'tool-result',
+						toolCallId: answerCall.toolCallId,
+						toolName: answerCall.toolName,
+						result: answerCall.args,
+					},
+				],
+			},
+			{
+				id: uniqueId(),
+				role: 'assistant',
+				content: [
+					{
+						type: 'text',
+						text: JSON.stringify(answerCall.args, null, 2),
+					},
+				],
+			},
+		);
+	}
+	return list;
+}
+
 export const useChat = (
 	model: LanguageModelV1 | undefined,
 	messages: CoreMessage[],
@@ -38,14 +78,27 @@ export const useChat = (
 			if (messages.at(-1)?.role !== 'user' || !model || isStreaming) {
 				return [];
 			}
-			const maxSteps = getConfig().maxSteps ?? 90;
-			const tools = await getMcpTools(mcpKeys);
+
+			const config = getConfig();
+			const maxSteps = config.maxSteps ?? 10;
+			let tools = await getMcpTools(mcpKeys);
+			if (config.answerSchema) {
+				tools = {
+					...tools,
+					'format-answer': tool({
+						description: 'A tool for providing the final answer.',
+						parameters: jsonSchema(config.answerSchema),
+					}),
+				};
+			}
+
 			if (streamingMode) {
-				const {fullStream, response} = streamText({
+				const {fullStream, response, toolCalls} = streamText<typeof tools>({
 					model,
 					messages,
 					tools,
 					maxSteps,
+					toolChoice: config.answerSchema ? 'required' : 'auto',
 					onError({error}) {
 						process.stdin.resume();
 						throw error;
@@ -76,11 +129,23 @@ export const useChat = (
 					if (value.type === 'tool-call') {
 						const next = Chalk.gray(value.toolName);
 						stdout.write(`\n ⟡ tool call: ${next}\n`);
+						if (value.toolName === 'format-anwser') {
+							stdout.write(
+								`\n ⟡ formated Answer: ${Chalk.gray(
+									JSON.stringify(value.args, null, 2),
+								)}\n`,
+							);
+						}
 					}
 				}
 				const res = await response;
 				if (res.messages.length) {
-					setAgentMessages(prev => [...prev, ...res.messages]);
+					const list = formatAnswer(
+						res.messages,
+						await toolCalls,
+						config.answerSchema,
+					);
+					setAgentMessages(prev => [...prev, ...list]);
 				}
 				setIsStreaming(false);
 				clearLines(chunks.split(EOL).length);
@@ -90,13 +155,14 @@ export const useChat = (
 			}
 
 			// non-streaming mode
-			const {response} = await generateText({
+			const {response, toolCalls} = await generateText({
 				model,
 				messages,
 				tools,
 				maxSteps,
+				toolChoice: config.answerSchema ? 'required' : 'auto',
 			});
-			return response.messages;
+			return formatAnswer(response.messages, toolCalls, config.answerSchema);
 		},
 	});
 	return {

@@ -1,8 +1,8 @@
-import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
-import {getSystemMessages} from '@/lib/systemPrompts';
-import {getMcpTools} from '@/lib/useMcpTools';
-import {jsonSchema, streamText, tool, ToolChoice} from 'ai';
-// Allow streaming responses up to 120 seconds
+import { getConfig, getModel, loadConfigToEnv } from '@/lib/config';
+import { getSystemMessages } from '@/lib/systemPrompts';
+import { getMcpTools } from '@/lib/useMcpTools';
+import { generateText, jsonSchema, tool, ToolChoice } from 'ai';
+// Allow responses up to 120 seconds
 export const maxDuration = 120;
 
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 		};
 	}
 
-	const {messages} = await req.json();
+	const {prompt} = await req.json();
 	const model = getModel(config.defaultModel);
 	if (!model) {
 		return new Response(`No default model found.`, {
@@ -32,13 +32,25 @@ export async function POST(req: Request) {
 		});
 	}
 
-	const result = streamText({
+	const {text, response} = await generateText({
 		model,
 		tools,
 		toolChoice,
 		maxSteps: config.maxSteps ?? 10,
-		messages: [...systemMessages, ...messages],
+		messages:[...systemMessages, {role: 'user', content: prompt}],
 	});
 
-	return result.toDataStreamResponse();
+	if (config.answerSchema) {
+		const lastMessage = response.messages.at(-1);
+		const lastPart = lastMessage?.content.at(-1);
+		if (
+			lastMessage?.role === 'assistant' &&
+			typeof lastPart !== 'string' &&
+			lastPart?.type === 'tool-call'
+		) {
+			return Response.json(lastPart.args);
+		}
+	}
+
+	return Response.json({answer: text});
 }

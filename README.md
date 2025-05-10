@@ -5,6 +5,7 @@
 - Local multi skilled agent with files, clipboard & MCP support
 - Project folder scoped - different agent per project
 - Host your agent web chat UI (Next.js) from command line in seconds and ready for deployment
+- Checkout [Hanabi Config File](/types/HanabiConfig.d.ts) for full list of features.
 
 ## Command line interface
 
@@ -24,7 +25,8 @@
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
-- [Web Chat UI](#web-chat-ui-server)
+- [Web Chat UI Server (with APIs)](#web-chat-ui-server)
+- [Answer Schema (Deterministic Answer Format)](#answer-schema)
 - [TODOs](#todos)
 
 
@@ -200,6 +202,47 @@ You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. pr
 
 Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at working directory.
 
+## Answer Schema
+
+It's quite important for workflow agent to output answer in a deterministic schema, e.g when asking agent to generate API call payload. To achieve that, define `answerSchema` that's Zod schema compliant in the config file.
+
+- `answerSchema` will be applied in
+	* cli chat answers
+	* Web UI chat and server APIs e.g.[`/api/generate`](/ui/README.md) 
+
+- for more details:
+	 * https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema
+	 * https://v4.zod.dev/json-schema#metadata
+
+```
+// .hanabi.json
+{
+	"answerSchema": {
+		"type": "object",
+		"required": ["answer"],
+		"properties": {
+			"reason": {
+				"type": "string",
+				"description": "detailed reasoning for the final output."
+			},
+			"answer": {
+				"type": "string",
+				"description": "the final output without reasoning details. For math related question, this is the final output number."
+			}
+		}
+	},
+	"serve": {
+ 		...
+	},
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
 ## Web Chat UI Server
 
 **It's recommended to create a local `.hanabi.json` for independent chat server**
@@ -207,6 +250,8 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 In Hanabi cli, use `/serve` to start the web server with current context (MCPs & system prompt). This will save `serve` config to your `.hanabi.json`.
 
 Use `hanabi serve` to start the web UI server directly - useful for deployments.
+
+See server API details [here](/ui/README.md)
 
 ```
 // .hanabi.json
