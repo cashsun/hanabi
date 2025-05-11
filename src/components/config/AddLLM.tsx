@@ -9,7 +9,7 @@ import {
 	getConfig,
 	getDefaultApiVersion,
 	loadConfigToEnv,
-	writeConfig,
+	updateConfig,
 } from './util.js';
 
 export const AddLLM: FC<{
@@ -57,7 +57,7 @@ export const AddLLM: FC<{
 				newLlms.push(found!);
 			}
 			// Save the updated config to file
-			writeConfig({llms: newLlms});
+			updateConfig({llms: newLlms});
 			loadConfigToEnv();
 			// Signal that the app is ready
 			setAppReady(true);

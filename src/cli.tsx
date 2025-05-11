@@ -14,7 +14,7 @@ import {
 	getConfig,
 	hasConfig,
 	loadConfigToEnv,
-	writeConfig,
+	updateConfig,
 } from './components/config/util.js';
 import {resetMessages, useAppStore} from './store/appState.js';
 
@@ -265,15 +265,12 @@ function startChat() {
 					break;
 				}
 				case chatHandles.SERVE: {
-					writeConfig(
-						{
-							serve: {
-								port: getConfig().serve?.port,
-								mcpKeys: context['mcpKeys'] ?? [],
-							},
+					updateConfig({
+						serve: {
+							port: getConfig().serve?.port,
+							mcpKeys: context['mcpKeys'] ?? [],
 						},
-						true,
-					);
+					});
 					startServer();
 					return;
 				}

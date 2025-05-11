@@ -71,29 +71,37 @@ export const defaultConfig: HanabiConfig = {
 
 const localConfigPath = resolve(process.cwd(), '.hanabi.json');
 const userConfigPath = resolve(os.homedir(), '.hanabi.json');
-export const configPath = fs.existsSync(localConfigPath)
-	? localConfigPath
-	: userConfigPath;
+export const configPath =
+	fs.existsSync(localConfigPath) && fs.existsSync(userConfigPath)
+		? localConfigPath
+		: userConfigPath;
 
 /**
  * merge the existing config with the provided config and write it to the config file.
  * @param config The config to merge write. If not provided, the default config will be used.
- * @param shallow shallow merge by root key
  */
-export const writeConfig = (
-	config: Partial<HanabiConfig>,
-	shallow?: boolean,
-) => {
-	const updated = shallow
-		? {
-				...getConfig(),
-				...config,
-		  }
-		: merge({}, getConfig(), config);
+export const writeConfig = (config: Partial<HanabiConfig>) => {
+	const updated = merge({}, getConfig(), config);
 	fs.writeFileSync(configPath, JSON.stringify(updated, null, 2));
 };
 
-export const hasConfig = () => fs.existsSync(configPath);
+export const updateConfig = (update: Partial<HanabiConfig>) => {
+	if (configPath === localConfigPath && hasConfig()) {
+		const localConfig: Partial<HanabiConfig> = JSON.parse(
+			fs.readFileSync(configPath, 'utf8'),
+		);
+
+		const merged = merge({}, localConfig, update) as HanabiConfig;
+		merged.llms = unionBy(
+			[...(localConfig.llms ?? []), ...(update?.llms ?? [])],
+			'provider',
+		);
+		return fs.writeFileSync(configPath, JSON.stringify(merged, null, 2));
+	}
+	writeConfig(update);
+};
+
+export const hasConfig = () => fs.existsSync(userConfigPath);
 
 export const removeConfig = () => {
 	if (hasConfig()) {

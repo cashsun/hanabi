@@ -2,7 +2,7 @@ import {Box, Text} from 'ink';
 import React, {type FC, useState} from 'react';
 import {ModelSelector} from './ModelSelector.js';
 import {ProviderPicker} from './ProviderPicker.js';
-import {getConfig, loadConfigToEnv, writeConfig} from './util.js';
+import {getConfig, loadConfigToEnv, updateConfig} from './util.js';
 
 interface Props {
 	llm?: LLM;
@@ -38,7 +38,7 @@ export const DefaultModelPicker: FC<Props> = ({llm, onSelect}) => {
 							model,
 							provider: llmToUse.provider,
 						};
-						writeConfig({
+						updateConfig({
 							defaultModel,
 						});
 						loadConfigToEnv();
