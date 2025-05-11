@@ -208,8 +208,9 @@ It's quite important for workflow agent to output answer in a deterministic sche
 
 - `answerSchema` will be applied in
 	* cli chat answers when @schema handle is active
+	* cli single question mode `hanabi ask "list top 10 movies in 2023" > output.json`
 	* Web UI chat with toggle
-	* server APIs e.g.[`/api/generate`](/ui/README.md) 
+	* server APIs e.g. [`/api/generate`](/ui/README.md) 
 
 - for more details:
 	 * https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema

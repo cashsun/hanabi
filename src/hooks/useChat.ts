@@ -60,7 +60,11 @@ function formatAnswer(
 				content: [
 					{
 						type: 'text',
-						text: JSON.stringify(answerCall.args, null, 2),
+						text: `\`\`\`json\n${JSON.stringify(
+							answerCall.args,
+							null,
+							2,
+						)}\n\`\`\``,
 					},
 				],
 			},
