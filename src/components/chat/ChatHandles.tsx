@@ -17,6 +17,7 @@ export const chatHandles = {
 	FILE: '@file',
 	MCP: '@mcp',
 	CLIP: '@clip',
+	SCHEMA: '@schema',
 };
 
 export const suggestions = Object.values(chatHandles);
@@ -34,6 +35,7 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	FILE: 'Add files',
 	MCP: 'Use MCP server tools',
 	CLIP: 'Use clipboard text',
+	SCHEMA: 'use formatted answer schema',
 };
 
 export const ChatHandles: FC = () => {

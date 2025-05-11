@@ -93,7 +93,9 @@ function listFiles(start: string): string[] {
 }
 
 async function showModelAndContext(context: Record<string, any>) {
-	const defaultModel = getConfig().defaultModel?.model;
+	const config = getConfig();
+	const defaultModel = config.defaultModel?.model;
+	const answerSchema = config.answerSchema;
 	if (defaultModel) {
 		render(
 			<Text>
@@ -133,6 +135,18 @@ async function showModelAndContext(context: Record<string, any>) {
 					</Text>
 				))}
 			</>,
+		).unmount();
+	}
+	if (context['schema']) {
+		render(
+			<Text color="gray">
+				@schema
+				{answerSchema ? (
+					<Text color="green"> ✓</Text>
+				) : (
+					<Text color="yellow"> "answerSchema" missing in .hanabi.json</Text>
+				)}
+			</Text>,
 		).unmount();
 	}
 }
@@ -267,6 +281,7 @@ function startChat() {
 					context['mcpKeys'] = [];
 					context['files'] = [];
 					context['isWithClip'] = false;
+					context['schema'] = false;
 					break;
 				}
 				case chatHandles.MCP: {
@@ -285,6 +300,10 @@ function startChat() {
 				}
 				case chatHandles.CLIP: {
 					context['isWithClip'] = true;
+					break;
+				}
+				case chatHandles.SCHEMA: {
+					context['schema'] = true;
 					break;
 				}
 				case chatHandles.FILE: {
@@ -325,6 +344,7 @@ function startChat() {
 							}}
 							files={context['files']}
 							isWithClip={context['isWithClip']}
+							isWithAnswerSchema={context['schema']}
 							mcpKeys={context['mcpKeys']}
 						/>
 					));

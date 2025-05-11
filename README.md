@@ -207,8 +207,9 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 It's quite important for workflow agent to output answer in a deterministic schema, e.g when asking agent to generate API call payload. To achieve that, define `answerSchema` that's Zod schema compliant in the config file.
 
 - `answerSchema` will be applied in
-	* cli chat answers
-	* Web UI chat and server APIs e.g.[`/api/generate`](/ui/README.md) 
+	* cli chat answers when @schema handle is active
+	* Web UI chat with toggle
+	* server APIs e.g.[`/api/generate`](/ui/README.md) 
 
 - for more details:
 	 * https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema

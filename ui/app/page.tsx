@@ -8,8 +8,9 @@ import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 import {useChatConfig} from '@/hooks/useChatConfig';
 import {cn} from '@/lib/utils';
 import {useChat} from '@ai-sdk/react';
-import { UIMessage } from 'ai';
+import {UIMessage} from 'ai';
 import {
+	AlertCircle,
 	ArrowUp,
 	LoaderCircle,
 	Sparkles,
@@ -17,7 +18,7 @@ import {
 	TriangleAlert,
 } from 'lucide-react';
 import {motion} from 'motion/react';
-import {Fragment, useEffect, useRef} from 'react';
+import {Fragment, useEffect, useRef, useState} from 'react';
 
 const TYPE_DURATION = 0.03;
 
@@ -53,8 +54,8 @@ function TypeWriter({children, caret}: {children: string; caret?: boolean}) {
 }
 
 export default function ChatUI() {
+	const [withAnswerSchema, setWithAnswerSchema] = useState(false);
 	const {data: config, isLoading: isLoadingConfig} = useChatConfig();
-
 	const {
 		messages,
 		input,
@@ -65,7 +66,7 @@ export default function ChatUI() {
 		stop,
 		reload,
 		setMessages,
-	} = useChat();
+	} = useChat({body: {withAnswerSchema}});
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
@@ -86,7 +87,6 @@ export default function ChatUI() {
 			lastPart?.type === 'tool-invocation' &&
 			lastPart.toolInvocation.toolName === 'format-answer'
 		) {
-			
 			// extract the args as the extra message - ie formatted answer.
 			const content = JSON.stringify(lastPart.toolInvocation.args, null, 2);
 			const formatted: UIMessage[] = [
@@ -110,7 +110,7 @@ export default function ChatUI() {
 						},
 					],
 				},
-			]
+			];
 			setMessages(formatted);
 		}
 	}, [status, messages, config, setMessages]);
@@ -189,8 +189,44 @@ export default function ChatUI() {
 										</TooltipContent>
 									</Tooltip>
 								)}
+
+								<Tooltip delayDuration={100}>
+									<TooltipTrigger asChild>
+										<div
+											className="cursor-pointer"
+											onClick={() => setWithAnswerSchema(!withAnswerSchema)}
+										>
+											<div
+												className={cn(
+													'inline-block size-1.5 rounded-full mb-px',
+													withAnswerSchema
+														? 'bg-emerald-500'
+														: 'border border-border',
+												)}
+											/>{' '}
+											format answer
+										</div>
+									</TooltipTrigger>
+									<TooltipContent>
+										{!config?.answerSchema && (
+											<div>
+												<AlertCircle className="w-4 inline-block" /> answer
+												schema missing in the config.
+											</div>
+										)}
+										<span>Use </span>
+										<a
+											className="text-blue-600"
+											href="https://github.com/cashsun/hanabi?tab=readme-ov-file#answer-schema"
+											target="_blank"
+										>
+											answer schema
+										</a>
+									</TooltipContent>
+								</Tooltip>
 							</div>
 						</div>
+
 						<Button
 							type="submit"
 							variant="secondary"

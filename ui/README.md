@@ -6,7 +6,6 @@ This is the web chat UI + server (Next.js) when you run `hanabi serve` or `/serv
 
 ### POST /api/chat 
 chat to current agent and stream full messages back.
-**please see `answerSchema` config to learn how to generate structured data**
 ```
 payload:
 {

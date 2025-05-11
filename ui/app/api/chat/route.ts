@@ -13,7 +13,8 @@ export async function POST(req: Request) {
 	let tools = await getMcpTools(config.serve?.mcpKeys);
 	let toolChoice: ToolChoice<any> = 'auto';
 
-	if (config.answerSchema) {
+	const {messages, withAnswerSchema} = await req.json();
+	if (config.answerSchema && withAnswerSchema) {
 		toolChoice = 'required';
 		tools = {
 			...tools,
@@ -23,8 +24,6 @@ export async function POST(req: Request) {
 			}),
 		};
 	}
-
-	const {messages} = await req.json();
 	const model = getModel(config.defaultModel);
 	if (!model) {
 		return new Response(`No default model found.`, {

@@ -29,6 +29,7 @@ interface Props {
 	mcpKeys?: string[];
 	files?: string[];
 	isWithClip?: boolean;
+	isWithAnswerSchema?: boolean;
 	/** signal repl to unmount this component and proceed to next step */
 	onComplete: () => void;
 	isSingleRunQuery?: boolean;
@@ -39,6 +40,7 @@ export const Chat: FC<Props> = ({
 	mcpKeys,
 	files,
 	isWithClip,
+	isWithAnswerSchema: useAnswerSchema,
 	onComplete,
 	isSingleRunQuery,
 }) => {
@@ -65,12 +67,13 @@ export const Chat: FC<Props> = ({
 		}
 	}, [userMessage]);
 
-	const {data, isFetching, isStreaming, error} = useChat(
+	const {data, isFetching, isStreaming, error} = useChat({
 		model,
-		msgHistory,
-		mcpKeys ?? [],
-		config.streaming && !isSingleRunQuery,
-	);
+		messages: msgHistory,
+		mcpKeys,
+		streamingMode: config.streaming && !isSingleRunQuery,
+		useAnswerSchema,
+	});
 
 	const userMessageDisplay = useMemo(() => {
 		return userMessage ? (

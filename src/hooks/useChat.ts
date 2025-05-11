@@ -1,5 +1,10 @@
 import {useQuery} from '@tanstack/react-query';
-import type {CoreMessage, LanguageModelV1, StreamTextResult} from 'ai';
+import type {
+	CoreMessage,
+	LanguageModelV1,
+	StreamTextResult,
+	ToolChoice,
+} from 'ai';
 import {generateText, streamText, tool, jsonSchema} from 'ai';
 import {useState} from 'react';
 import {getConfig} from '../components/config/util.js';
@@ -28,9 +33,10 @@ function formatAnswer(
 	messages: Awaited<StreamTextResult<any, any>['response']>['messages'],
 	toolCalls: Awaited<StreamTextResult<any, any>['toolCalls']>,
 	answerSchema: HanabiConfig['answerSchema'],
+	useAnswerSchema: boolean,
 ) {
 	const list = messages;
-	if (answerSchema && toolCalls.at(-1)) {
+	if (answerSchema && toolCalls.at(-1) && useAnswerSchema) {
 		// formated answer mode does not have agent response.
 		// we need to add manually
 		const answerCall = toolCalls.at(-1)!;
@@ -63,12 +69,19 @@ function formatAnswer(
 	return list;
 }
 
-export const useChat = (
-	model: LanguageModelV1 | undefined,
-	messages: CoreMessage[],
-	mcpKeys: string[] | undefined,
-	streamingMode?: boolean,
-) => {
+export const useChat = ({
+	model,
+	messages,
+	mcpKeys,
+	streamingMode,
+	useAnswerSchema,
+}: {
+	model: LanguageModelV1 | undefined;
+	messages: CoreMessage[];
+	mcpKeys: string[] | undefined;
+	streamingMode?: boolean;
+	useAnswerSchema?: boolean;
+}) => {
 	const {stdout} = useStdout();
 	const [isStreaming, setIsStreaming] = useState(false);
 	const [agentMessages, setAgentMessages] = useState<CoreMessage[]>([]);
@@ -82,7 +95,9 @@ export const useChat = (
 			const config = getConfig();
 			const maxSteps = config.maxSteps ?? 10;
 			let tools = await getMcpTools(mcpKeys);
-			if (config.answerSchema) {
+			let toolChoice: ToolChoice<any> = 'auto';
+			if (config.answerSchema && useAnswerSchema) {
+				toolChoice = 'required';
 				tools = {
 					...tools,
 					'format-answer': tool({
@@ -98,7 +113,7 @@ export const useChat = (
 					messages,
 					tools,
 					maxSteps,
-					toolChoice: config.answerSchema ? 'required' : 'auto',
+					toolChoice,
 					onError({error}) {
 						process.stdin.resume();
 						throw error;
@@ -144,6 +159,7 @@ export const useChat = (
 						res.messages,
 						await toolCalls,
 						config.answerSchema,
+						!!useAnswerSchema,
 					);
 					setAgentMessages(prev => [...prev, ...list]);
 				}
@@ -160,9 +176,14 @@ export const useChat = (
 				messages,
 				tools,
 				maxSteps,
-				toolChoice: config.answerSchema ? 'required' : 'auto',
+				toolChoice,
 			});
-			return formatAnswer(response.messages, toolCalls, config.answerSchema);
+			return formatAnswer(
+				response.messages,
+				toolCalls,
+				config.answerSchema,
+				!!useAnswerSchema,
+			);
 		},
 	});
 	return {
