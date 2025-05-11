@@ -40,7 +40,7 @@ export const Chat: FC<Props> = ({
 	mcpKeys,
 	files,
 	isWithClip,
-	isWithAnswerSchema: useAnswerSchema,
+	isWithAnswerSchema,
 	onComplete,
 	isSingleRunQuery,
 }) => {
@@ -72,7 +72,7 @@ export const Chat: FC<Props> = ({
 		messages: msgHistory,
 		mcpKeys,
 		streamingMode: config.streaming && !isSingleRunQuery,
-		useAnswerSchema,
+		useAnswerSchema: isWithAnswerSchema,
 	});
 
 	const userMessageDisplay = useMemo(() => {

@@ -43,14 +43,17 @@ function CopyButton({onClick, ...props}: ComponentProps<typeof Button>) {
 
 function WithCodeControls({
 	text,
+	language,
 	children,
 }: {
 	text: string;
+	language?: string;
 	children: ReactNode;
 }) {
 	return (
 		<div className="flex flex-col">
-			<div className="bg-stone-700 flex justify-end -mb-2 [&_button]:text-white">
+			<div className="bg-stone-700 flex items-center justify-between -mb-2 [&_button]:text-white">
+				<span className='pl-3 text-white/60'>{language ?? ''}</span>
 				<Tooltip delayDuration={100}>
 					<TooltipTrigger asChild>
 						<CopyButton onClick={() => clipboard.write(text)}>
@@ -105,7 +108,7 @@ export function AgentMessage({message, reload, isLoading}: Props) {
 									const match = /language-(\w+)/.exec(className || '');
 
 									return !inline && match ? (
-										<WithCodeControls text={children}>
+										<WithCodeControls text={children} language={match[1]}>
 											<SyntaxHighlighter
 												style={vscDarkPlus}
 												PreTag="div"

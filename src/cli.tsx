@@ -410,6 +410,7 @@ if (!hasConfig()) {
 					<QueryClientProvider client={queryClient}>
 						<Chat
 							isSingleRunQuery
+							isWithAnswerSchema
 							prompt={cli.input.slice(1).join(' ')}
 							onComplete={() => {}}
 						/>
