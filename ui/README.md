@@ -4,8 +4,10 @@ This is the web chat UI + server (Next.js) when you run `hanabi serve` or `/serv
 
 ## APIs
 
-### POST /api/chat 
+### POST /api/chat
+
 chat to current agent and stream full messages back.
+
 ```
 payload:
 {
@@ -25,15 +27,20 @@ payload:
 }
 ```
 
-### POST /api/generate 
-generate answer as json output with current agent.
+### POST /api/generate
+
+generate answer as json output with current agent. Use either `prompt` or `messages` as input
 **please see `answerSchema` config to learn how to generate structured data**
+
 ```
 payload:
 {
-    "prompt": string
+    "prompt"?: string;
+    // https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat#messages mainly used for agents system.
+    "messages"?: UIMessage[] 
 }
 ```
 
 ### GET /api/config
-get server config - model, MCP servers in use and answer schema etc. 
+
+get server config - model, MCP servers in use and answer schema etc.

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 		};
 	}
 
-	const {prompt} = await req.json();
+	const {prompt, messages} = await req.json();
 	const model = getModel(config.defaultModel);
 	if (!model) {
 		return new Response(`No default model found.`, {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 		tools,
 		toolChoice,
 		maxSteps: config.maxSteps ?? 10,
-		messages:[...systemMessages, {role: 'user', content: prompt}],
+		messages:[...systemMessages, ...(messages ?? [{role: 'user', content: prompt}])],
 	});
 
 	if (config.answerSchema) {
