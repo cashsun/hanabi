@@ -26,7 +26,7 @@
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
 - [Web Chat UI Server (with APIs)](#web-chat-ui-server)
-- [Answer Schema (Deterministic Answer Format)](#answer-schema)
+- [Answer Schema (Deterministic Output Format)](#answer-schema)
 - [TODOs](#todos)
 
 
