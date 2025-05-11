@@ -13,8 +13,8 @@ const nextConfig: NextConfig = {
 				value: process.env.ALLOWED_ORIGIN || "*",
 			  },
 			  {
-				key: "Access-Control-Allow-Credentials",
-				value: "true",
+				key: "Access-Control-Allow-Headers",
+				value: "*",
 			  },
 			  {
 				key: "Access-Control-Allow-Methods",
