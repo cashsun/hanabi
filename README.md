@@ -161,10 +161,16 @@ use `file://` prefix URL to inject file content as env variable
 Supports only plain text files e.g. `*.json`,`*.txt`, `*.html` etc.
 To inject PDF file content into process.env, convert them to text files by using something like `pdf2json`.
 
+add `ALLOWED_ORIGIN` env to add cors protection for the API server.
+
 ```
 // .hanabi.json
 {
-	"envs": { "FOO": "bar", "MY_DOC: "file://./README.md" },
+	"envs": { 
+		"FOO": "bar", 
+		"MY_DOC: "file://./README.md",
+		"ALLOWED_ORIGIN": "http://localhost:3042"
+	},
 	"llms": [
 		// ...
 	],

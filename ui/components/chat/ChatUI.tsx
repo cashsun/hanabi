@@ -66,7 +66,7 @@ export default function ChatUI() {
 		stop,
 		reload,
 		setMessages,
-	} = useChat({body: {withAnswerSchema}, api:'http://localhost:3051/api/chat'});
+	} = useChat({body: {withAnswerSchema}});
 	const ref = useRef<HTMLFormElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const isLoading = status === 'submitted' || status === 'streaming';
