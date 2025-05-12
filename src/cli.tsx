@@ -95,7 +95,6 @@ function listFiles(start: string): string[] {
 async function showModelAndContext(context: Record<string, any>) {
 	const config = getConfig();
 	const defaultModel = config.defaultModel?.model;
-	const answerSchema = config.answerSchema;
 	if (defaultModel) {
 		render(
 			<Text>
@@ -140,11 +139,23 @@ async function showModelAndContext(context: Record<string, any>) {
 	if (context['schema']) {
 		render(
 			<Text color="gray">
-				@schema
-				{answerSchema ? (
+				@answerSchema
+				{config.answerSchema ? (
 					<Text color="green"> ✓</Text>
 				) : (
 					<Text color="yellow"> "answerSchema" missing in .hanabi.json</Text>
+				)}
+			</Text>,
+		).unmount();
+	}
+	if (context['agents']) {
+		render(
+			<Text color="gray">
+				@multiAgents
+				{config.multiAgents ? (
+					<Text color="green"> ✓</Text>
+				) : (
+					<Text color="yellow"> "multiAgents" missing in .hanabi.json</Text>
 				)}
 			</Text>,
 		).unmount();
@@ -279,6 +290,7 @@ function startChat() {
 					context['files'] = [];
 					context['isWithClip'] = false;
 					context['schema'] = false;
+					context['agents'] = false;
 					break;
 				}
 				case chatHandles.MCP: {
@@ -301,6 +313,10 @@ function startChat() {
 				}
 				case chatHandles.SCHEMA: {
 					context['schema'] = true;
+					break;
+				}
+				case chatHandles.AGENTS: {
+					context['agents'] = true;
 					break;
 				}
 				case chatHandles.FILE: {
@@ -342,6 +358,7 @@ function startChat() {
 							files={context['files']}
 							isWithClip={context['isWithClip']}
 							isWithAnswerSchema={context['schema']}
+							isMultiAgentsMode={context['agents']}
 							mcpKeys={context['mcpKeys']}
 						/>
 					));

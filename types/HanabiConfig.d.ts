@@ -63,6 +63,22 @@ type ServerConfig = {
 	name?: string;
 };
 
+type RoutingStrategy = {
+	/** classify user request and route to target worker agent */
+	strategy: 'routing';
+	agents: Record<
+		string,
+		{
+			/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
+			apiUrl: string;
+			/** simple text describing what this agent does, e.g. "math problem" */
+			classification: string;
+		}
+	>;
+};
+
+type MultiAgentsStrategy = RoutingStrategy;
+
 type HanabiConfig = {
 	/**
 	 * list of provider config
@@ -111,4 +127,9 @@ type HanabiConfig = {
 	 * Web Chat UI + API server config
 	 */
 	serve?: ServerConfig;
+	/**
+	 * mutli-agent system config
+	 * - find more at https://ai-sdk.dev/docs/foundations/agents#patterns
+	 */
+	multiAgents?: MultiAgentsStrategy;
 };

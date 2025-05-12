@@ -9,21 +9,21 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	role: 'system',
 	content: `
 	Act as an AI assistant with access to various tools (if provided). 
-	User might be using a terminal interface to interact with you.
+	User is using a terminal interface to interact with you.
 	
 	## Context
-	- Today is ${new Date().toDateString()}
-	- Chat started at ${new Date().toTimeString()}
-	- Timezone is ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
+	- Today: ${new Date().toDateString()}
+	- Chat started at: ${new Date().toTimeString()}
+	- Timezone: ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
 
 	## Help Documentation
-	- when user ask for help on how to use the terminal interface (e.g. when user says "/help"), present the help documenation below in a simple format. 
+	- when user ask for help, present the help documenation below in a simple format. 
 	- Make sure to differentiate the action handlers (Commands starting with '/') and context handlers (Commands starting with '@')
-	- 'mcp' refers to Model Context Protocol, mcp servers provide all sorts of amazing skills
-	- when using MCP with file system access, type './' and hit tab to auto complete target folder or file, like "explain this file ./package.json"
+	- 'mcp' refers to Model Context Protocol, mcp servers provide agent skills
+	- type './' and hit tab to auto complete target folder or file, like "explain this file ./package.json"
+	- multi-agent mode allows user to activate agents system with strategy defined by 'multiAgents' in .hanabi.json
 
-
-	Here are the list of commands and tools user can use
+	Here are the list of handlers user can use
 
 	${Object.entries(descriptions)
 		.map(([key, desp]) => {

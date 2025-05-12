@@ -79,12 +79,14 @@ export const useChat = ({
 	mcpKeys,
 	streamingMode,
 	useAnswerSchema,
+	enabled = true,
 }: {
 	model: LanguageModelV1 | undefined;
 	messages: CoreMessage[];
 	mcpKeys: string[] | undefined;
 	streamingMode?: boolean;
 	useAnswerSchema?: boolean;
+	enabled?: boolean;
 }) => {
 	const {stdout} = useStdout();
 	const [isStreaming, setIsStreaming] = useState(false);
@@ -92,7 +94,12 @@ export const useChat = ({
 	const {isFetching, data, ...rest} = useQuery({
 		queryKey: ['use-chat', model, messages, mcpKeys, streamingMode],
 		async queryFn() {
-			if (messages.at(-1)?.role !== 'user' || !model || isStreaming) {
+			if (
+				messages.at(-1)?.role !== 'user' ||
+				!model ||
+				isStreaming ||
+				!enabled
+			) {
 				return [];
 			}
 

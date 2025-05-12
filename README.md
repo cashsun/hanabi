@@ -289,5 +289,6 @@ See server API details [here](/ui/README.md)
 - [x] support working dir level `.hanabi.json` override, smililar to how .npmrc works
 - [x] streaming mode
 - [x] add web server chat bot mode (ie api and web interface)
-- [ ] improve web server mode (API keys, UX improvements, Update UI mode readme)
+- [x] improve web server mode (API keys, UX improvements, Update UI mode readme)
+- [ ] [Multi Agent System](https://ai-sdk.dev/docs/foundations/agents#multi-agent-systems) (WIP)
 - ~~[ ] local function calling ?~~ Use [FaskMCP](https://github.com/punkpeye/fastmcp) instead.

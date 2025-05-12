@@ -11,6 +11,8 @@ import {DefaultModelPicker} from '../config/DefaultModelPicker.js';
 import {getConfig} from '../config/util.js';
 import {getFinalMsg} from './ChatInput.js';
 import Spinner from 'ink-spinner';
+import {AgentMessage} from './AgentMessage.js';
+import {useMultiAgentsChat} from '../../hooks/useMultiAgentsChat.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -33,6 +35,7 @@ interface Props {
 	/** signal repl to unmount this component and proceed to next step */
 	onComplete: () => void;
 	isSingleRunQuery?: boolean;
+	isMultiAgentsMode?: boolean;
 }
 
 export const Chat: FC<Props> = ({
@@ -43,6 +46,7 @@ export const Chat: FC<Props> = ({
 	isWithAnswerSchema,
 	onComplete,
 	isSingleRunQuery,
+	isMultiAgentsMode,
 }) => {
 	const config = useMemo(() => getConfig(), []);
 
@@ -67,13 +71,23 @@ export const Chat: FC<Props> = ({
 		}
 	}, [userMessage]);
 
-	const {data, isFetching, isStreaming, error} = useChat({
+	const multiAgentResult = useMultiAgentsChat({
+		model,
+		messages: msgHistory,
+		enabled: !!isMultiAgentsMode,
+	});
+
+	const singleAgentResult = useChat({
 		model,
 		messages: msgHistory,
 		mcpKeys,
 		streamingMode: config.streaming && !isSingleRunQuery,
 		useAnswerSchema: isWithAnswerSchema,
+		enabled: !isMultiAgentsMode,
 	});
+
+	const resultToUse = isMultiAgentsMode ? multiAgentResult : singleAgentResult;
+	const {data, isFetching, isStreaming, error} = resultToUse;
 
 	const userMessageDisplay = useMemo(() => {
 		return userMessage ? (
@@ -166,56 +180,12 @@ export const Chat: FC<Props> = ({
 			{!!data?.length &&
 				data.map((message, index) => {
 					if (message.role === 'assistant') {
-						if (Array.isArray(message.content)) {
-							return message.content.map((part, idx) => {
-								if (part.type === 'tool-call') {
-									return (
-										<Box
-											borderColor="magenta"
-											borderStyle="doubleSingle"
-											borderLeft={false}
-											borderRight={false}
-											borderBottom={false}
-											key={`${index}-${idx}`}
-										>
-											<Text color="magentaBright">⟡ tool: {part.toolName}</Text>
-										</Box>
-									);
-								}
-
-								if (part.type === 'text') {
-									return (
-										<Box
-											borderColor="magenta"
-											flexDirection="column"
-											gap={1}
-											borderStyle="doubleSingle"
-											borderLeft={false}
-											borderRight={false}
-											key={`${index}-${idx}`}
-										>
-											<Text color="magentaBright">⟡ {defaultModel.model}</Text>
-											<Box paddingX={1}>
-												<Markdown>{dedent`${part.text}`}</Markdown>
-											</Box>
-										</Box>
-									);
-								}
-
-								return null;
-							});
-						}
 						return (
-							<Box
-								borderColor="magenta"
-								borderStyle="doubleSingle"
-								borderLeft={false}
-								borderRight={false}
-								paddingX={1}
+							<AgentMessage
 								key={index}
-							>
-								<Markdown>{dedent`${message.content}`}</Markdown>
-							</Box>
+								message={message}
+								defaultModel={defaultModel}
+							/>
 						);
 					}
 					return null;

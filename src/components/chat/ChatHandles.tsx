@@ -18,6 +18,7 @@ export const chatHandles = {
 	MCP: '@mcp',
 	CLIP: '@clip',
 	SCHEMA: '@schema',
+	AGENTS: '@agents',
 };
 
 export const suggestions = Object.values(chatHandles);
@@ -29,13 +30,14 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	CLEAR: 'Clear MCP and file selection',
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',
-	GEN: 'generate hanabi templates',
+	GEN: 'generate hanabi local config & prompt templates',
 	SERVE: 'start Hanabi UI server with current context',
 
 	FILE: 'Add files',
 	MCP: 'Use MCP server tools',
 	CLIP: 'Use clipboard text',
 	SCHEMA: 'use formatted answer schema',
+	AGENTS: 'use multi-agent strategy',
 };
 
 export const ChatHandles: FC = () => {
