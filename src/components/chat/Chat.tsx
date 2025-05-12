@@ -73,17 +73,17 @@ export const Chat: FC<Props> = ({
 
 	const multiAgentResult = useMultiAgentsChat({
 		model,
-		messages: msgHistory,
-		enabled: !!isMultiAgentsMode,
+		// turn off this branch by setting messages to empty
+		messages: isMultiAgentsMode ? msgHistory : [],
 	});
 
 	const singleAgentResult = useChat({
 		model,
-		messages: msgHistory,
+		// turn off this branch by setting messages to empty
+		messages: isMultiAgentsMode ? [] : msgHistory,
 		mcpKeys,
 		streamingMode: config.streaming && !isSingleRunQuery,
 		useAnswerSchema: isWithAnswerSchema,
-		enabled: !isMultiAgentsMode,
 	});
 
 	const resultToUse = isMultiAgentsMode ? multiAgentResult : singleAgentResult;

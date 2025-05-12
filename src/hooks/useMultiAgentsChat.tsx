@@ -26,11 +26,9 @@ async function fetchAgentAnswer(
 export function useMultiAgentsChat({
 	model,
 	messages,
-	enabled,
 }: {
 	model: LanguageModelV1 | undefined;
 	messages: CoreMessage[];
-	enabled: boolean;
 }) {
 	const multiAgents = getConfig().multiAgents;
 	const [isStreaming, setIsStreaming] = useState(false);
@@ -38,12 +36,7 @@ export function useMultiAgentsChat({
 	const {data, isFetching, ...rest} = useQuery({
 		queryKey: ['use-mutli-agents-chat', model, messages],
 		async queryFn() {
-			if (
-				messages.at(-1)?.role !== 'user' ||
-				!model ||
-				isStreaming ||
-				!enabled
-			) {
+			if (messages.at(-1)?.role !== 'user' || !model || isStreaming) {
 				return [];
 			}
 
