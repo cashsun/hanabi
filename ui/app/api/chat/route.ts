@@ -1,4 +1,4 @@
-import { NO_CLASSIFICATION } from '../../../../types/constants';
+import {NO_CLASSIFICATION} from '../../../../types/constants';
 import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
 import {getSystemMessages} from '@/lib/systemPrompts';
 import {getMcpTools} from '@/lib/useMcpTools';
@@ -14,11 +14,29 @@ import {
 import {join} from 'path';
 // Allow streaming responses up to 120 seconds
 export const maxDuration = 120;
+async function fetchAgentAnswer(
+	apiUrl: string | undefined,
+	messages: UIMessage[] | string,
+): Promise<string> {
+	if (!apiUrl) {
+		return '';
+	}
+	const result = await fetch(join(apiUrl, '/generate'), {
+		method: 'POST',
+		body: JSON.stringify(
+			typeof messages === 'string' ? {prompt: messages} : {messages},
+		),
+	}).then(res => res.json());
 
+	if (result.answer && typeof result.answer === 'string') {
+		return result.answer;
+	}
+	return `\`\`\`json\n${JSON.stringify(result)}\n\`\`\``;
+}
 async function getMultiAgentsStream(
 	model: LanguageModelV1,
 	config: HanabiConfig,
-	body: {messages: UIMessage[]; withAnswerSchema?: boolean},
+	bodyJson: {messages: UIMessage[]; withAnswerSchema?: boolean},
 ) {
 	const multiAgents = config.multiAgents;
 	switch (multiAgents?.strategy) {
@@ -38,11 +56,11 @@ async function getMultiAgentsStream(
 				model,
 				output: 'enum',
 				enum: topics,
-				messages: body.messages,
+				messages: bodyJson.messages,
 			});
 			if (classification === NO_CLASSIFICATION) {
 				console.log(NO_CLASSIFICATION);
-			
+
 				return NO_CLASSIFICATION;
 			}
 			console.log(`⟡ classification: ${classification}`);
@@ -50,14 +68,42 @@ async function getMultiAgentsStream(
 			console.log(`⟡ worker agent: ${targetAgent?.name}`);
 			return await fetch(join(targetAgent.apiUrl, `/chat`), {
 				method: 'POST',
-				body: JSON.stringify(body),
+				body: JSON.stringify(bodyJson),
+			});
+		}
+		case 'workflow': {
+			const agents = multiAgents.agents;
+			if (!agents.length) {
+				return new Response(`missing work agents config`, {status: 500});
+			}
+			// always start with last message
+			let stepInput: UIMessage[] | string = bodyJson.messages.slice(-1);
+			let step = 1;
+			for (const agent of agents) {
+				console.log(`⟡ Step ${step}: ${agent.name}`);
+				if (step !== agents.length) {
+					const answer = await fetchAgentAnswer(agent.apiUrl, stepInput);
+					console.log(`⟡ output: ${answer}`);
+					step++;
+					stepInput = answer;
+				}
+			}
+			// stream last step
+			return await fetch(join(agents[step - 1].apiUrl, `/chat`), {
+				method: 'POST',
+				body: JSON.stringify({
+					messages:
+						typeof stepInput === 'string'
+							? [{role: 'user', content: stepInput} as UIMessage]
+							: stepInput,
+					withAnswerSchema: bodyJson.withAnswerSchema,
+				}),
 			});
 		}
 		default:
-			return new Response(
-				`agentsStrategy type: ${multiAgents?.strategy} not valid.`,
-				{status: 500},
-			);
+			return new Response(`multiAgents strategy type not valid.`, {
+				status: 500,
+			});
 	}
 }
 
@@ -91,7 +137,7 @@ export async function POST(req: Request) {
 			messages,
 			withAnswerSchema,
 		});
-		if(response !== NO_CLASSIFICATION){
+		if (response !== NO_CLASSIFICATION) {
 			return response;
 		}
 	}

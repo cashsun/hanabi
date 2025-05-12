@@ -3,19 +3,21 @@ import {type CoreMessage, type LanguageModelV1, generateObject} from 'ai';
 import Chalk from 'chalk';
 import {join} from 'path';
 import {useState} from 'react';
-import {getConfig} from '../components/config/util.js';
 import {NO_CLASSIFICATION} from '../../types/constants.js';
+import {getConfig} from '../components/config/util.js';
 
 async function fetchAgentAnswer(
 	apiUrl: string | undefined,
-	messages: CoreMessage[],
+	messages: CoreMessage[] | string,
 ): Promise<string> {
 	if (!apiUrl) {
 		return '';
 	}
 	const result = await fetch(join(apiUrl, '/generate'), {
 		method: 'POST',
-		body: JSON.stringify({messages}),
+		body: JSON.stringify(
+			typeof messages === 'string' ? {prompt: messages} : {messages},
+		),
 	}).then(res => res.json());
 
 	if (result.answer && typeof result.answer === 'string') {
@@ -79,6 +81,27 @@ export function useMultiAgentsChat({
 					console.log(Chalk.magenta(`⟡ worker agent: ${targetAgent?.name}`));
 					const answer = await fetchAgentAnswer(targetAgent?.apiUrl, messages);
 					setAgentMessages([{role: 'assistant', content: answer}]);
+					break;
+				}
+				case 'workflow': {
+					const agents = multiAgents.agents;
+					if (!agents.length) {
+						console.log(Chalk.gray(`⟡ missing worker agents config`));
+						break;
+					}
+					// we start with last message as input
+					let stepInput: CoreMessage[] | string = messages.slice(-1);
+					let step = 1;
+					for (const agent of agents) {
+						console.log(Chalk.magenta(`⟡ Step ${step}: ${agent.name}`));
+						const answer = await fetchAgentAnswer(agent.apiUrl, stepInput);
+						console.log(Chalk.gray(`⟡ output: ${answer}`));
+						step++;
+						stepInput = answer;
+					}
+					setAgentMessages([
+						{role: 'assistant', content: stepInput as unknown as string},
+					]);
 					break;
 				}
 				default:

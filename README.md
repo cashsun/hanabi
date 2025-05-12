@@ -25,8 +25,9 @@
 - [Custom System Prompt](#custom-system-prompt)
 - [Local config file override](#local-config-file-override)
 - [Streaming Mode](#streaming-mode)
-- [Web Chat UI Server (with APIs)](#web-chat-ui-server)
 - [Answer Schema (Deterministic Output Format)](#answer-schema)
+- [Web Chat UI Server (with APIs)](#web-chat-ui-server)
+- [Advanced - Multi Agents System](#multi-agents-system)
 - [TODOs](#todos)
 
 
@@ -279,6 +280,84 @@ See server API details [here](/ui/README.md)
 }
 ```
 
+## Multi Agents System
+You can orchestrade multiple (remote) agents in various [strategies or patterns](https://ai-sdk.dev/docs/foundations/agents#patterns)
+
+Please note:
+- In the cli chat, use `@agents` handle to activate.
+- In web UI chat, multi agents mode is always enabled if set in `.hanabi.json`
+	* Only the final worker agent's response will be streamed to the UI.
+
+Currently hanabi supports the following strategy types
+
+### routing (i.e. query classification)
+see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
+```
+// .hanabi.json
+{
+	"multiAgents": {
+		"strategy": "routing",
+		/** default false - question with no classification 
+		* will be passed through to routing agent */
+		"force": false,
+		"agents": [
+			{
+				"name": "calendars",
+				"apiUrl": "http://localhost:3051/api",
+				"classification": "school calendar events and UK public holiday"
+			},
+			{
+				"name": "math",
+				"apiUrl": "http://localhost:3052/api",
+				"classification": "math problem"
+			},
+			{
+				"name": "api-doc",
+				"apiUrl": "http://localhost:3053/api",
+				"classification": "API document"
+			}
+		]
+	},
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
+### workflow (i.e. run worker agents sequentially)
+see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
+
+- in this mode, chat history is ignored. Each user message triggers a new, independent workflow.
+
+```
+// .hanabi.json
+{
+	"multiAgents": {
+		"strategy": "workflow",
+		"agents": [
+			{
+				"apiUrl": "http://localhost:3051/api",
+				"name": "process user email into trade instruction"
+			},
+			{
+				"apiUrl": "http://localhost:3052/api",
+				"name": "trade booking with payload"
+			}
+		]
+	},
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
+
+
 
 ## TODOs
 
@@ -290,5 +369,5 @@ See server API details [here](/ui/README.md)
 - [x] streaming mode
 - [x] add web server chat bot mode (ie api and web interface)
 - [x] improve web server mode (API keys, UX improvements, Update UI mode readme)
-- [ ] [Multi Agent System](https://ai-sdk.dev/docs/foundations/agents#multi-agent-systems) (WIP)
-- ~~[ ] local function calling ?~~ Use [FaskMCP](https://github.com/punkpeye/fastmcp) instead.
+- [x] [Multi Agent System](https://ai-sdk.dev/docs/foundations/agents#multi-agent-systems) (WIP)
+- [ ] local function calling

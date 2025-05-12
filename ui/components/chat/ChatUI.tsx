@@ -82,7 +82,6 @@ export default function ChatUI() {
 		const lastPart = lastMessage?.parts.at(-1);
 		if (
 			status === 'ready' &&
-			config?.answerSchema &&
 			lastMessage &&
 			lastPart?.type === 'tool-invocation' &&
 			lastPart.toolInvocation.toolName === 'format-answer'

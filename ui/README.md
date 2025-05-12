@@ -11,7 +11,6 @@ chat to current agent and stream full messages back.
 ```
 payload:
 {
-    "id": string, // unique string id
     "messages": [
         {
             "role": "user",
@@ -29,8 +28,8 @@ payload:
 
 ### POST /api/generate
 
-generate answer as json output with current agent. Use either `prompt` or `messages` as input
-**please see `answerSchema` config to learn how to generate structured data**
+generate answer as json output. Use either `prompt` **or** `messages` as input
+**please see `answerSchema` config to learn how to generate structured output**
 
 ```
 payload:
