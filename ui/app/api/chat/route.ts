@@ -1,4 +1,4 @@
-import {NO_CLASSIFICATION} from '../../../../types/constants';
+import {NO_CLASSIFICATION} from '@/lib/constants';
 import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
 import {getSystemMessages} from '@/lib/systemPrompts';
 import {getMcpTools} from '@/lib/useMcpTools';

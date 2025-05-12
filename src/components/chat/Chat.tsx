@@ -13,7 +13,7 @@ import {getFinalMsg} from './ChatInput.js';
 import Spinner from 'ink-spinner';
 import {AgentMessage} from './AgentMessage.js';
 import {useMultiAgentsChat} from '../../hooks/useMultiAgentsChat.js';
-import {NO_CLASSIFICATION} from '../../../types/constants.js';
+import {NO_CLASSIFICATION} from '../../constants.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
