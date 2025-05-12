@@ -337,7 +337,7 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 {
 	"multiAgents": {
 		"strategy": "workflow",
-		"agents": [
+		"steps": [
 			{
 				"apiUrl": "http://localhost:3051/api",
 				"name": "process user email into trade instruction"
