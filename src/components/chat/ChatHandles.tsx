@@ -30,7 +30,7 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	CLEAR: 'Clear MCP and file selection',
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',
-	GEN: 'generate hanabi local config & prompt templates',
+	GEN: 'generate hanabi local config & various templates',
 	SERVE: 'start Hanabi UI server with current context',
 
 	FILE: 'Add files',

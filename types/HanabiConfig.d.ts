@@ -82,7 +82,7 @@ type WorkflowStrategy = {
 	/** generate output from starter worker agent and pass down to subsequant agents */
 	strategy: 'workflow';
 	/** sequence of workflow agent */
-	agents: Array<{
+	steps: Array<{
 		/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
 		apiUrl: string;
 		/** short agent name / key */

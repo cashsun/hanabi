@@ -84,7 +84,7 @@ export function useMultiAgentsChat({
 					break;
 				}
 				case 'workflow': {
-					const agents = multiAgents.agents;
+					const agents = multiAgents.steps;
 					if (!agents.length) {
 						console.log(Chalk.gray(`⟡ missing worker agents config`));
 						break;

@@ -72,7 +72,7 @@ async function getMultiAgentsStream(
 			});
 		}
 		case 'workflow': {
-			const agents = multiAgents.agents;
+			const agents = multiAgents.steps;
 			if (!agents.length) {
 				return new Response(`missing work agents config`, {status: 500});
 			}
