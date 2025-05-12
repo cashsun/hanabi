@@ -4,6 +4,7 @@ import Chalk from 'chalk';
 import {join} from 'path';
 import {useState} from 'react';
 import {getConfig} from '../components/config/util.js';
+import {NO_CLASSIFICATION} from '../../types/constants.js';
 
 async function fetchAgentAnswer(
 	apiUrl: string | undefined,
@@ -20,7 +21,7 @@ async function fetchAgentAnswer(
 	if (result.answer && typeof result.answer === 'string') {
 		return result.answer;
 	}
-	return JSON.stringify(`'''\n$${JSON.stringify(result)}\n'''`);
+	return `\`\`\`json\n${JSON.stringify(result)}\n\`\`\``;
 }
 
 export function useMultiAgentsChat({
@@ -49,22 +50,30 @@ export function useMultiAgentsChat({
 			switch (multiAgents?.strategy) {
 				case 'routing': {
 					const agents = multiAgents.agents;
-					const agentsByTopic = Object.entries(agents).reduce<
+					const agentsByTopic = agents.reduce<
 						Record<
 							string,
 							{apiUrl: string; classification: string; name: string}
 						>
-					>((memo, [name, agent]) => {
-						memo[agent.classification] = {...agent, name};
+					>((memo, agent) => {
+						memo[agent.classification] = agent;
 						return memo;
 					}, {});
 					const topics = Object.keys(agentsByTopic);
+					if (!multiAgents.force) {
+						topics.push(NO_CLASSIFICATION);
+					}
 					const {object: classification} = await generateObject({
 						model,
 						output: 'enum',
 						enum: topics,
 						messages,
 					});
+					if (classification === NO_CLASSIFICATION) {
+						console.log(Chalk.gray(NO_CLASSIFICATION));
+						setAgentMessages([{role: 'assistant', content: NO_CLASSIFICATION}]);
+						break;
+					}
 					console.log(Chalk.gray(`⟡ classification: ${classification}`));
 					const targetAgent = agentsByTopic[classification];
 					console.log(Chalk.magenta(`⟡ worker agent: ${targetAgent?.name}`));

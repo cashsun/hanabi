@@ -66,18 +66,31 @@ type ServerConfig = {
 type RoutingStrategy = {
 	/** classify user request and route to target worker agent */
 	strategy: 'routing';
-	agents: Record<
-		string,
-		{
-			/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
-			apiUrl: string;
-			/** simple text describing what this agent does, e.g. "math problem" */
-			classification: string;
-		}
-	>;
+	/** when not forced, the current agent will try to answer queries with no classification by itself */
+	force: boolean;
+	agents: Array<{
+		/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
+		apiUrl: string;
+		/** simple text describing what this agent does, e.g. "math problem" */
+		classification: string;
+		/** short agent name / key */
+		name: string;
+	}>;
 };
 
-type MultiAgentsStrategy = RoutingStrategy;
+type WorkflowStrategy = {
+	/** generate output from starter worker agent and pass down to subsequant agents */
+	strategy: 'workflow';
+	/** sequence of workflow agent */
+	agents: Array<{
+		/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
+		apiUrl: string;
+		/** short agent name / key */
+		name: string;
+	}>;
+};
+
+type MultiAgentsStrategy = RoutingStrategy | WorkflowStrategy;
 
 type HanabiConfig = {
 	/**

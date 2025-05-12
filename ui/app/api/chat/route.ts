@@ -1,3 +1,4 @@
+import { NO_CLASSIFICATION } from '../../../../types/constants';
 import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
 import {getSystemMessages} from '@/lib/systemPrompts';
 import {getMcpTools} from '@/lib/useMcpTools';
@@ -23,19 +24,27 @@ async function getMultiAgentsStream(
 	switch (multiAgents?.strategy) {
 		case 'routing': {
 			const agents = multiAgents.agents;
-			const agentsByTopic = Object.entries(agents).reduce<
+			const agentsByTopic = agents.reduce<
 				Record<string, {apiUrl: string; classification: string; name: string}>
-			>((memo, [name, agent]) => {
-				memo[agent.classification] = {...agent, name};
+			>((memo, agent) => {
+				memo[agent.classification] = agent;
 				return memo;
 			}, {});
 			const topics = Object.keys(agentsByTopic);
+			if (!multiAgents.force) {
+				topics.push(NO_CLASSIFICATION);
+			}
 			const {object: classification} = await generateObject({
 				model,
 				output: 'enum',
 				enum: topics,
 				messages: body.messages,
 			});
+			if (classification === NO_CLASSIFICATION) {
+				console.log(NO_CLASSIFICATION);
+			
+				return NO_CLASSIFICATION;
+			}
 			console.log(`⟡ classification: ${classification}`);
 			const targetAgent = agentsByTopic[classification];
 			console.log(`⟡ worker agent: ${targetAgent?.name}`);
@@ -78,10 +87,13 @@ export async function POST(req: Request) {
 	}
 	// enforce multi-agents mode if found in config
 	if (config.multiAgents) {
-		return await getMultiAgentsStream(model, config, {
+		const response = await getMultiAgentsStream(model, config, {
 			messages,
 			withAnswerSchema,
 		});
+		if(response !== NO_CLASSIFICATION){
+			return response;
+		}
 	}
 
 	// single agent mode

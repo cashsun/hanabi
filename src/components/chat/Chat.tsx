@@ -13,6 +13,7 @@ import {getFinalMsg} from './ChatInput.js';
 import Spinner from 'ink-spinner';
 import {AgentMessage} from './AgentMessage.js';
 import {useMultiAgentsChat} from '../../hooks/useMultiAgentsChat.js';
+import {NO_CLASSIFICATION} from '../../../types/constants.js';
 
 const formatUserMessage = (content: UserContent) => {
 	if (Array.isArray(content)) {
@@ -76,17 +77,23 @@ export const Chat: FC<Props> = ({
 		// turn off this branch by setting messages to empty
 		messages: isMultiAgentsMode ? msgHistory : [],
 	});
+	const shouldPassThrough =
+		!multiAgentResult.isLoading &&
+		multiAgentResult.data?.at(-1)?.content === NO_CLASSIFICATION;
 
 	const singleAgentResult = useChat({
 		model,
 		// turn off this branch by setting messages to empty
-		messages: isMultiAgentsMode ? [] : msgHistory,
+		messages: isMultiAgentsMode && !shouldPassThrough ? [] : msgHistory,
 		mcpKeys,
 		streamingMode: config.streaming && !isSingleRunQuery,
 		useAnswerSchema: isWithAnswerSchema,
 	});
 
-	const resultToUse = isMultiAgentsMode ? multiAgentResult : singleAgentResult;
+	const resultToUse =
+		isMultiAgentsMode && !shouldPassThrough
+			? multiAgentResult
+			: singleAgentResult;
 	const {data, isFetching, isStreaming, error} = resultToUse;
 
 	const userMessageDisplay = useMemo(() => {
