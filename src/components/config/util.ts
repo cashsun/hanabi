@@ -85,20 +85,27 @@ export const writeConfig = (config: Partial<HanabiConfig>) => {
 	fs.writeFileSync(configPath, JSON.stringify(updated, null, 2));
 };
 
-export const updateConfig = (update: Partial<HanabiConfig>) => {
+export const updateConfig = (
+	update: Partial<HanabiConfig>,
+	shallow?: boolean,
+) => {
 	if (configPath === localConfigPath && hasConfig()) {
 		const localConfig: Partial<HanabiConfig> = JSON.parse(
 			fs.readFileSync(configPath, 'utf8'),
 		);
 
-		const merged = merge({}, localConfig, update) as HanabiConfig;
+		const merged = shallow
+			? {...localConfig, ...update}
+			: (merge({}, localConfig, update) as HanabiConfig);
 		merged.llms = unionBy(
 			[...(localConfig.llms ?? []), ...(update?.llms ?? [])],
 			'provider',
 		);
-		return fs.writeFileSync(configPath, JSON.stringify(merged, null, 2));
+		fs.writeFileSync(configPath, JSON.stringify(merged, null, 2));
+	} else {
+		writeConfig(update);
 	}
-	writeConfig(update);
+	return configPath;
 };
 
 export const hasConfig = () => fs.existsSync(userConfigPath);

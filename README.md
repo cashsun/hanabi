@@ -212,12 +212,12 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 ## Answer Schema
 
 It's quite important for workflow agent to output answer in a deterministic schema, e.g when asking agent to generate API call payload. To achieve that, define `answerSchema` that's Zod schema compliant in the config file.
-
 - `answerSchema` will be applied in
 	* cli chat answers when @schema handle is active
 	* cli single question mode `hanabi ask "list top 10 movies in 2023" > output.json`
 	* Web UI chat with toggle
 	* server APIs e.g. [`/api/generate`](/ui/README.md) 
+- Use `/gen` handle or `hanabi gen` to generate one for you.
 
 - for more details:
 	 * https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema
@@ -268,7 +268,7 @@ See server API details [here](/ui/README.md)
 	"serve": {
  		"mcpKeys": ["home-ai"],
     	"port": 3041,
-		/** name of the chat bot */
+		/** name of the agent */
 		name?: string;
 	},
 	"llms": [
@@ -292,6 +292,7 @@ Currently hanabi supports the following strategy types
 
 ### routing (i.e. query classification)
 see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
+- Use `/gen` handle or `hanabi gen` to generate one for you.
 ```
 // .hanabi.json
 {
@@ -331,6 +332,7 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
 
 - in this mode, chat history is ignored. Each user message triggers a new, independent workflow.
+- Use `/gen` handle or `hanabi gen` to generate one for you.
 
 ```
 // .hanabi.json

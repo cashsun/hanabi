@@ -18,12 +18,12 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 
 	## Help Documentation
 	- when user ask for help, present the help documenation below in a simple format. 
-	- Make sure to differentiate the action handlers (Commands starting with '/') and context handlers (Commands starting with '@')
+	- Make sure to differentiate the action handles (Commands starting with '/') and context handle (Commands starting with '@')
 	- 'mcp' refers to Model Context Protocol, mcp servers provide agent skills
 	- type './' and hit tab to auto complete target folder or file, like "explain this file ./package.json"
 	- multi-agent mode allows user to activate agents system with strategy defined by 'multiAgents' in .hanabi.json
 
-	Here are the list of handlers user can use
+	Here are the list of handles user can use
 
 	${Object.entries(descriptions)
 		.map(([key, desp]) => {

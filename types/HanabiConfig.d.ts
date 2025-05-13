@@ -67,7 +67,7 @@ type RoutingStrategy = {
 	/** classify user request and route to target worker agent */
 	strategy: 'routing';
 	/** when not forced, the current agent will try to answer queries with no classification by itself */
-	force: boolean;
+	force?: boolean;
 	agents: Array<{
 		/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
 		apiUrl: string;
