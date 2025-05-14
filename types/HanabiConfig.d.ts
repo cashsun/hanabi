@@ -90,7 +90,24 @@ type WorkflowStrategy = {
 	}>;
 };
 
-type MultiAgentsStrategy = RoutingStrategy | WorkflowStrategy;
+type ParallelStrategy = {
+	/** generate output from worker agents in parallel and summerise (or action on) the aggregated output */
+	strategy: 'parallel';
+	/** sequence of workflow agent */
+	agents: Array<{
+		/** e.g. chat API endpoint another of remote hanabi agent http://localhost:3052/api */
+		apiUrl: string;
+		/** extra prompt/instruction for the agent */
+		prompt?: string;
+		/** short agent name / key */
+		name: string;
+	}>;
+};
+
+type MultiAgentsStrategy =
+	| RoutingStrategy
+	| WorkflowStrategy
+	| ParallelStrategy;
 
 type HanabiConfig = {
 	/**

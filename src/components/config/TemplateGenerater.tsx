@@ -61,6 +61,10 @@ const strategies: {
 		label: 'Workflow (sequential)',
 		value: 'workflow',
 	},
+	{
+		label: 'Parallel (Multi-tasking)',
+		value: 'parallel',
+	},
 ];
 
 const sampleRoutingStrategy: RoutingStrategy = {
@@ -81,6 +85,29 @@ const sampleRoutingStrategy: RoutingStrategy = {
 			name: 'api-doc',
 			apiUrl: 'http://localhost:3053/api',
 			classification: 'API document',
+		},
+	],
+};
+
+const sampleParallelStrategy: ParallelStrategy = {
+	strategy: 'parallel',
+	agents: [
+		{
+			name: 'code quality agent',
+			apiUrl: 'http://localhost:3051/api',
+			prompt:
+				'Review code structure, readability, and adherence to best practices.',
+		},
+		{
+			name: 'code performance agent',
+			apiUrl: 'http://localhost:3052/api',
+			prompt: 'Identify performance bottlenecks & memory leaks.',
+		},
+		{
+			name: 'code security agent',
+			apiUrl: 'http://localhost:3053/api',
+			prompt:
+				'Identify security vulnerabilities, injection risks, and authentication issues',
 		},
 	],
 };
@@ -150,6 +177,18 @@ export const TemplateGenerater: FC<{
 								const updatePath = updateConfig(
 									{
 										multiAgents: sampleWorkflowStrategy,
+									},
+									true,
+								);
+								stdout.write(
+									`\n${Chalk.green('✓')} updated ${Chalk.gray(updatePath)}\n`,
+								);
+								break;
+							}
+							case 'parallel': {
+								const updatePath = updateConfig(
+									{
+										multiAgents: sampleParallelStrategy,
 									},
 									true,
 								);

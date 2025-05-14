@@ -180,7 +180,7 @@ yarn-error.log*
 next-env.d.ts
 
 
-temp
+temp.*
 .hanabi.json
 *hanabi-backup.json
 

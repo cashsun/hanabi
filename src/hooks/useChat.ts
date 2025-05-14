@@ -5,14 +5,13 @@ import type {
 	StreamTextResult,
 	ToolChoice,
 } from 'ai';
-import {generateText, streamText, tool, jsonSchema} from 'ai';
+import {generateText, streamText, tool, jsonSchema, generateId} from 'ai';
 import {useState} from 'react';
 import {getConfig} from '../components/config/util.js';
 import {getMcpTools} from './useMcpTools.js';
 import {useStdout} from 'ink';
 import Chalk from 'chalk';
 import {EOL} from 'node:os';
-import {v4 as uniqueId} from 'uuid';
 
 const clearLines = (n: number) => {
 	for (let i = 0; i < n + 1; i++) {
@@ -55,7 +54,7 @@ function formatAnswer(
 				],
 			},
 			{
-				id: uniqueId(),
+				id: generateId(),
 				role: 'assistant',
 				content: [
 					{

@@ -12,8 +12,8 @@
 ![Chat demo](screenshots/Screenshot1.png)
 
 ## Web Chat UI
-![Web Chat UI](screenshots/WebUI.png)
 
+![Web Chat UI](screenshots/WebUI.png)
 
 ## Table of Contents
 
@@ -29,7 +29,6 @@
 - [Web Chat UI Server (with APIs)](#web-chat-ui-server)
 - [Advanced - Multi Agents System](#multi-agents-system)
 - [TODOs](#todos)
-
 
 ## Install
 
@@ -97,8 +96,8 @@ In your `<user home folder>/.hanabi.json`, add `mcpServers` config.
 				"authentication": "Bearer api-token"
 			}
 		},
-		// npx stdio approach is flaky & slow. highly recommend 
-		// to npm install -g <mcp-server> and use the following. 
+		// npx stdio approach is flaky & slow. highly recommend
+		// to npm install -g <mcp-server> and use the following.
 		// see https://github.com/modelcontextprotocol/servers/issues/64
         // "file-system": {
         // 	"name": "file system",
@@ -156,7 +155,7 @@ All files included in the .gitignore will also be auto excluded.
 
 ## Local Envs
 
-Hanabi supports local dot env files (`.env`). 
+Hanabi supports local dot env files (`.env`).
 You can also add `envs` field to `.hanabi.json`.
 use `file://` prefix URL to inject file content as env variable
 Supports only plain text files e.g. `*.json`,`*.txt`, `*.html` etc.
@@ -167,8 +166,8 @@ add `ALLOWED_ORIGIN` env to add cors protection for the API server.
 ```
 // .hanabi.json
 {
-	"envs": { 
-		"FOO": "bar", 
+	"envs": {
+		"FOO": "bar",
 		"MY_DOC: "file://./README.md",
 		"ALLOWED_ORIGIN": "http://localhost:3042"
 	},
@@ -188,13 +187,16 @@ Hanabi comes with predefined simple system prompt to show docs on terminal comma
 Variables are supported via `${VAR_NAME}` syntax, they are read from process.env. see [Local envs](#local-envs).
 
 example `hanabi.system.prompt.md`
+
 ```markdown
-# act as a polite chat bot collecting user feedback via conversational loop. 
+# act as a polite chat bot collecting user feedback via conversational loop.
 
 ## context
+
 Product name is ${PRODUCT_NAME}
 
 ## ask user the follwing questions one by one and prints a well formatted report
+
 - What is your name
 - How do you feel about our product? (classify answer as "Bad" | "OK" | "great")
 - What is your company
@@ -204,7 +206,6 @@ Product name is ${PRODUCT_NAME}
 
 You can copy `<user home folder>/.hanabi.json` to your working directly (e.g. project level) to override user level config. LLMs are merged by provider name. Use `/gen` or `hanabi gen` handle to generate one for you.
 
-
 ## Streaming mode
 
 Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at working directory.
@@ -212,16 +213,17 @@ Toggle `"streaming":true` at `<user home folder>/.hanabi.json` or the one at wor
 ## Answer Schema
 
 It's quite important for workflow agent to output answer in a deterministic schema, e.g when asking agent to generate API call payload. To achieve that, define `answerSchema` that's Zod schema compliant in the config file.
+
 - `answerSchema` will be applied in
-	* cli chat answers when @schema handle is active
-	* cli single question mode `hanabi ask "list top 10 movies in 2023" > output.json`
-	* Web UI chat with toggle
-	* server APIs e.g. [`/api/generate`](/ui/README.md) 
+  - cli chat answers when @schema handle is active
+  - cli single question mode `hanabi ask "list top 10 movies in 2023" > output.json`
+  - Web UI chat with toggle
+  - server APIs e.g. [`/api/generate`](/ui/README.md)
 - Use `/gen` handle or `hanabi gen` to generate one for you.
 
 - for more details:
-	 * https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema
-	 * https://v4.zod.dev/json-schema#metadata
+  - https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema
+  - https://v4.zod.dev/json-schema#metadata
 
 ```
 // .hanabi.json
@@ -281,24 +283,29 @@ See server API details [here](/ui/README.md)
 ```
 
 ## Multi Agents System
+
 You can orchestrade multiple (remote) agents in various [strategies or patterns](https://ai-sdk.dev/docs/foundations/agents#patterns)
 
 Please note:
+
 - In the cli chat, use `@agents` handle to activate.
 - In web UI chat, multi agents mode is always enabled if set in `.hanabi.json`
-	* Only the final worker agent's response will be streamed to the UI.
+  - Only the final worker agent's response will be streamed to the UI.
 
 Currently hanabi supports the following strategy types
 
 ### routing (i.e. query classification)
+
 see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
+
 - Use `/gen` handle or `hanabi gen` to generate one for you.
+
 ```
 // .hanabi.json
 {
 	"multiAgents": {
 		"strategy": "routing",
-		/** default false - question with no classification 
+		/** default false - question with no classification
 		* will be passed through to routing agent */
 		"force": false,
 		"agents": [
@@ -329,6 +336,7 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 ```
 
 ### workflow (i.e. run worker agents sequentially)
+
 see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
 
 - in this mode, chat history is ignored. Each user message triggers a new, independent workflow.
@@ -359,7 +367,46 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 }
 ```
 
+### parallel (i.e. multi-tasking)
 
+see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this strategy.
+
+- send user query to multiple agents for different types of tasks in **parallel** and output aggregated summary.
+- Use `/gen` handle or `hanabi gen` to generate one for you.
+
+```
+// .hanabi.json
+{
+	"multiAgents": {
+		strategy: 'parallel',
+		agents: [
+			{
+				name: 'code quality agent',
+				apiUrl: 'http://localhost:3051/api',
+				prompt:
+					'Review code structure, readability, and adherence to best practices.',
+			},
+			{
+				name: 'code performance agent',
+				apiUrl: 'http://localhost:3052/api',
+				prompt: 'Identify performance bottlenecks & memory leaks.',
+			},
+			{
+				name: 'code security agent',
+				apiUrl: 'http://localhost:3053/api',
+				prompt:
+					'Identify security vulnerabilities, injection risks, and authentication issues',
+			},
+		],
+	},
+	"llms": [
+		// ...
+	],
+	"defaultModel": {
+		// ...
+	}
+}
+```
 
 ## TODOs
 
