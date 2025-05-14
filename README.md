@@ -180,6 +180,20 @@ add `ALLOWED_ORIGIN` env to add cors protection for the API server.
 }
 ```
 
+If you do not want to store provider api key or any other tokens in `.hanabi.json`, delete the apiKey fields and save them inside working directly `.env` instead. Key names are as below. see [Providers](https://ai-sdk.dev/providers/ai-sdk-providers) or [.env.example](./env.example) for api key env names.
+
+```
+OPENAI_API_KEY=xxx
+GOOGLE_GENERATIVE_AI_API_KEY=xxx
+DEEPSEEK_API_KEY=xxx
+ANTHROPIC_API_KEY=xxx
+GROQ_API_KEY=xxx
+XAI_API_KEY=xxx
+
+# MCP keys
+TAVILY_API_KEY=xxx
+```
+
 ## Custom System Prompt
 
 Hanabi comes with predefined simple system prompt to show docs on terminal commands and provide date & timezone context. You can provide extra system prompt in `hanabi.system.prompt.md` at working directory. Use `/gen` handle or `hanabi gen` to generate one for you.
