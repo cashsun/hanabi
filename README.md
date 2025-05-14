@@ -5,6 +5,7 @@
 - Local multi skilled agent with files, clipboard & MCP support
 - Project folder scoped - different agent per project
 - Host your agent web chat UI (Next.js) from command line in seconds and ready for deployment
+- Create a multi-agent cluster with predefind [strategies](#multi-agents-system).
 - Checkout [Hanabi Config File](/types/HanabiConfig.d.ts) for full list of features.
 
 ## Command line interface
@@ -180,7 +181,7 @@ add `ALLOWED_ORIGIN` env to add cors protection for the API server.
 }
 ```
 
-If you do not want to store provider api key or any other tokens in `.hanabi.json`, delete the apiKey fields and save them inside working directly `.env` instead. Key names are as below. see [Providers](https://ai-sdk.dev/providers/ai-sdk-providers) or [.env.example](./.env.example) for api key env names.
+If you do not want to store provider api key or any other tokens in `.hanabi.json`, delete the `apiKey` fields and save them inside working directly `.env` instead. Key names are as below. see [Providers](https://ai-sdk.dev/providers/ai-sdk-providers) or [.env.example](./.env.example) for api key env names.
 
 ```
 OPENAI_API_KEY=xxx
@@ -275,6 +276,7 @@ It's quite important for workflow agent to output answer in a deterministic sche
 In Hanabi cli, use `/serve` to start the web server with current context (MCPs & system prompt). This will save `serve` config to your `.hanabi.json`.
 
 Use `hanabi serve` to start the web UI server directly - useful for deployments.
+Use `apiOnly` to disable chat UI.
 
 See server API details [here](/ui/README.md)
 
@@ -286,6 +288,8 @@ See server API details [here](/ui/README.md)
     	"port": 3041,
 		/** name of the agent */
 		name?: string;
+		/** disable chat UI and only expose API endpoints */
+		apiOnly?: boolean;
 	},
 	"llms": [
 		// ...

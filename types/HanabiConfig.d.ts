@@ -61,6 +61,8 @@ type ServerConfig = {
 	mcpKeys?: string[];
 	/** name of the chat bot */
 	name?: string;
+	// disable chat UI and only expose API endpoints like /api/chat, api/generate
+	apiOnly?: boolean;
 };
 
 type RoutingStrategy = {
