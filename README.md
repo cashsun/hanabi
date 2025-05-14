@@ -180,7 +180,7 @@ add `ALLOWED_ORIGIN` env to add cors protection for the API server.
 }
 ```
 
-If you do not want to store provider api key or any other tokens in `.hanabi.json`, delete the apiKey fields and save them inside working directly `.env` instead. Key names are as below. see [Providers](https://ai-sdk.dev/providers/ai-sdk-providers) or [.env.example](./env.example) for api key env names.
+If you do not want to store provider api key or any other tokens in `.hanabi.json`, delete the apiKey fields and save them inside working directly `.env` instead. Key names are as below. see [Providers](https://ai-sdk.dev/providers/ai-sdk-providers) or [.env.example](./.env.example) for api key env names.
 
 ```
 OPENAI_API_KEY=xxx
