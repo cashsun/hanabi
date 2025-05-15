@@ -86,10 +86,11 @@ async function getMultiAgentsStream(
 			console.log(`⟡ classification: ${classification}`);
 			const targetAgent = agentsByTopic[classification];
 			console.log(`⟡ worker agent: ${targetAgent?.name}`);
-			return await fetch(join(targetAgent.apiUrl, `/chat`), {
-				method: 'POST',
-				body: JSON.stringify(bodyJson),
-			});
+			return await getAgentStream(
+				targetAgent.apiUrl,
+				bodyJson.messages,
+				bodyJson.withAnswerSchema,
+			);
 		}
 		case 'workflow': {
 			const agents = multiAgents.steps;
@@ -101,9 +102,9 @@ async function getMultiAgentsStream(
 			let step = 1;
 			for (const agent of agents) {
 				console.log(`⟡ Step ${step}: ${agent.name}`);
-				if (step !== agents.length) {
+				if (step < agents.length) {
 					const answer = await fetchAgentAnswer(agent.apiUrl, stepInput);
-					console.log(`⟡ output: ${answer}`);
+					console.log(`⟡ output: ${answer}\n`);
 					step++;
 					stepInput = answer;
 				}
@@ -148,7 +149,11 @@ async function getMultiAgentsStream(
 					for await (const agent of agents) {
 						console.log(`⟡ worker - ${agent.name}: processing...`);
 						const reader = (
-							await getAgentStream(agent.apiUrl, lastMessage, false)
+							await getAgentStream(
+								agent.apiUrl,
+								lastMessage,
+								bodyJson.withAnswerSchema,
+							)
 						).body?.getReader();
 						dataStream.write(`0:"\\n## ⟡ ${agent.name}:\\n"\n`);
 						await reader?.read().then(function process({done, value}): any {

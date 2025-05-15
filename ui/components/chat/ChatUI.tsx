@@ -79,34 +79,48 @@ export default function ChatUI() {
 
 	useEffect(() => {
 		const lastMessage = messages.at(-1);
-		const lastPart = lastMessage?.parts.at(-1);
+		const formatAnswerIdx =
+			lastMessage?.parts.findIndex(
+				p =>
+					p.type === 'tool-invocation' &&
+					p.toolInvocation.toolName === 'format-answer',
+			) ?? -1;
+		const formatAnswerPart = lastMessage?.parts[formatAnswerIdx];
+		const hasFormatted =
+			formatAnswerPart &&
+			formatAnswerPart.type == 'tool-invocation' &&
+			formatAnswerPart.toolInvocation.state === 'result';
 		if (
-			status === 'ready' &&
 			lastMessage &&
-			lastPart?.type === 'tool-invocation' &&
-			lastPart.toolInvocation.toolName === 'format-answer'
+			formatAnswerPart?.type === 'tool-invocation' &&
+			!hasFormatted
 		) {
 			// extract the args as the extra message - ie formatted answer.
-			const content = JSON.stringify(lastPart.toolInvocation.args, null, 2);
+			const content = JSON.stringify(
+				formatAnswerPart.toolInvocation.args,
+				null,
+				2,
+			);
 			const formatted: UIMessage[] = [
 				...messages.slice(0, -1),
 				{
 					...lastMessage,
-					content: `\`\`\`json\n${content}\n\`\`\``,
+					content: '',
 					parts: [
-						...lastMessage.parts.slice(0, -1),
+						...lastMessage.parts.slice(0, formatAnswerIdx),
 						{
 							type: 'tool-invocation',
 							toolInvocation: {
-								...lastPart.toolInvocation,
+								...formatAnswerPart.toolInvocation,
 								state: 'result',
-								result: lastPart.toolInvocation.args,
+								result: formatAnswerPart.toolInvocation.args,
 							},
 						},
 						{
 							type: 'text',
-							text: content,
+							text: `\`\`\`json\n${content}\n\`\`\``,
 						},
+						...lastMessage.parts.slice(formatAnswerIdx + 1),
 					],
 				},
 			];

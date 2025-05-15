@@ -1,16 +1,16 @@
 'use client';
-import {useChat} from '@ai-sdk/react';
+import {Button} from '@/components/ui/button';
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
+import {UIMessage} from 'ai';
+import clipboard from 'clipboardy';
 import {Check, Copy, Plug, RefreshCw, Sparkles} from 'lucide-react';
 import {ComponentProps, memo, ReactNode, useEffect, useState} from 'react';
 import Markdown from 'react-markdown';
-import clipboard from 'clipboardy';
-import {Button} from '@/components/ui/button';
-import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface Props {
-	message: ReturnType<typeof useChat>['messages'][0];
+	message: UIMessage;
 	isLoading: boolean | undefined;
 	reload?: () => void;
 }
@@ -53,7 +53,7 @@ function WithCodeControls({
 	return (
 		<div className="flex flex-col">
 			<div className="bg-stone-700 flex items-center justify-between -mb-2 [&_button]:text-white">
-				<span className='pl-3 text-white/60'>{language ?? ''}</span>
+				<span className="pl-3 text-white/60">{language ?? ''}</span>
 				<Tooltip delayDuration={100}>
 					<TooltipTrigger asChild>
 						<CopyButton onClick={() => clipboard.write(text)}>
@@ -89,44 +89,58 @@ export function AgentMessage({message, reload, isLoading}: Props) {
 					}
 					if (part.type === 'tool-invocation') {
 						return (
-							<div
-								key={idx}
-								className="inline-flex gap-2 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold"
-							>
-								<Plug className="w-4 -mr-1" />
-								tool: {part.toolInvocation.toolName}
+							<Tooltip key={idx} delayDuration={100}>
+								<TooltipTrigger asChild>
+									<div className="inline-flex gap-2 bg-primary/20 self-start px-3 leading-6 rounded-full items-center font-semibold">
+										<Plug className="w-4 -mr-1" />
+										tool: {part.toolInvocation.toolName}
+									</div>
+								</TooltipTrigger>
+								<TooltipContent>
+									<div className="flex flex-col">
+										<div className="font-bold">Args:</div>
+										<div>
+											{JSON.stringify(part.toolInvocation.args, null, 2)}
+										</div>
+									</div>
+								</TooltipContent>
+							</Tooltip>
+						);
+					}
+					if (part.type === 'text') {
+						return (
+							<div className="markdown-body" key={idx}>
+								<Markdown
+									children={part.text}
+									components={{
+										code: memo(
+											({node, inline, className, children, ...props}: any) => {
+												const match = /language-(\w+)/.exec(className || '');
+
+												return !inline && match ? (
+													<WithCodeControls text={children} language={match[1]}>
+														<SyntaxHighlighter
+															style={vscDarkPlus}
+															PreTag="div"
+															language={match[1]}
+														>
+															{children}
+														</SyntaxHighlighter>
+													</WithCodeControls>
+												) : (
+													<code className={className} {...props}>
+														{children}
+													</code>
+												);
+											},
+										),
+									}}
+								/>
 							</div>
 						);
 					}
 				})}
-				<div className="markdown-body">
-					<Markdown
-						children={message.content}
-						components={{
-							code: memo(
-								({node, inline, className, children, ...props}: any) => {
-									const match = /language-(\w+)/.exec(className || '');
 
-									return !inline && match ? (
-										<WithCodeControls text={children} language={match[1]}>
-											<SyntaxHighlighter
-												style={vscDarkPlus}
-												PreTag="div"
-												language={match[1]}
-											>
-												{children}
-											</SyntaxHighlighter>
-										</WithCodeControls>
-									) : (
-										<code className={className} {...props}>
-											{children}
-										</code>
-									);
-								},
-							),
-						}}
-					/>
-				</div>
 				{!isLoading && (
 					<div className="flex justify-end -mb-2">
 						<Tooltip delayDuration={100}>
@@ -141,7 +155,15 @@ export function AgentMessage({message, reload, isLoading}: Props) {
 						</Tooltip>
 						<Tooltip delayDuration={100}>
 							<TooltipTrigger asChild>
-								<CopyButton onClick={() => clipboard.write(message.content)}>
+								<CopyButton
+									onClick={() =>
+										clipboard.write(
+											message.parts
+												.map(p => (p.type === 'text' ? p.text : ''))
+												.join('\n'),
+										)
+									}
+								>
 									<Copy />
 								</CopyButton>
 							</TooltipTrigger>
