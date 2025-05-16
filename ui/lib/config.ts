@@ -14,6 +14,7 @@ import {xai} from '@ai-sdk/xai';
 import {ollama} from 'ollama-ai-provider';
 
 // load .env files on start
+console.log('Loading local .env from :>> ', process.env['HANABI_PWD']);
 config({path: process.env['HANABI_PWD']});
 
 function getResourceNameFromUrl(urlString: string) {

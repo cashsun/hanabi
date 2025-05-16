@@ -208,6 +208,7 @@ function copyLastMessageToClipboard() {
 }
 
 function startServer() {
+	loadConfigToEnv();
 	const prod = !cli.flags.dev;
 	const config = getConfig();
 	const ls = spawn(
