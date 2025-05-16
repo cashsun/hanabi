@@ -2,6 +2,7 @@ import {NO_CLASSIFICATION} from '@/lib/constants';
 import {getConfig, getModel, loadConfigToEnv} from '@/lib/config';
 import {getSystemMessages} from '@/lib/systemPrompts';
 import {getMcpTools} from '@/lib/useMcpTools';
+import urlJoin from 'url-join';
 import {
 	createDataStreamResponse,
 	generateId,
@@ -23,12 +24,13 @@ async function fetchAgentAnswer(
 		return '';
 	}
 	// note: generate endpoint always uses structured answer schema
-	const result = await fetch(new URL('/generate', apiUrl).href, {
+	const result = await fetch(urlJoin(apiUrl, '/generate'), {
 		method: 'POST',
 		body: JSON.stringify(
 			typeof messages === 'string' ? {prompt: messages} : {messages},
 		),
-	}).then(res => res.json());
+	})
+	.then(res => res.json());
 
 	if (result.answer && typeof result.answer === 'string') {
 		return result.answer;
@@ -41,7 +43,7 @@ async function getAgentStream(
 	messages: UIMessage[] | string,
 	withAnswerSchema: boolean | undefined,
 ) {
-	return fetch(new URL(`/chat`, apiUrl).href, {
+	return fetch(urlJoin(apiUrl, `/chat`), {
 		method: 'POST',
 		body: JSON.stringify({
 			messages:

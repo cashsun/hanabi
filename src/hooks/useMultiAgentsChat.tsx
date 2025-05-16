@@ -4,7 +4,7 @@ import Chalk from 'chalk';
 import {useState} from 'react';
 import {NO_CLASSIFICATION} from '../constants.js';
 import {getConfig} from '../components/config/util.js';
-
+import urlJoin from 'url-join';
 async function fetchAgentAnswer(
 	apiUrl: string | undefined,
 	messages: CoreMessage[] | string,
@@ -13,7 +13,7 @@ async function fetchAgentAnswer(
 		return '';
 	}
 
-	const result = await fetch(new URL('/generate', apiUrl).href, {
+	const result = await fetch(urlJoin(apiUrl, '/generate'), {
 		method: 'POST',
 		body: JSON.stringify(
 			typeof messages === 'string' ? {prompt: messages} : {messages},
