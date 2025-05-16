@@ -1,11 +1,11 @@
 {
 	"name": "hanabi-cli",
 	"description": "A command line interface to chat with any AI models, with MCP support.",
-	"version": "1.3.6",
+	"version": "1.3.7",
 	"scripts": {
 		"build:main": "tsc",
 		"build:ui": "cd ui && next build",
-		"postbuild:ui": "cross-env cp -R ./ui/public ./dist/public && cp -R ./ui/next.config.js ./dist",
+		"postbuild:ui": "cross-env cp -R ./ui/public ./dist/public && cp -R ./ui/next.config.js ./dist && rm -R dist/.next/cache/",
 		"prebuild": "rimraf dist",
 		"build": "pnpm build:main && pnpm build:ui",
 		"prepublishOnly": "pnpm build",
