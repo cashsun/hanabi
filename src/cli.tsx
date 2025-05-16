@@ -19,14 +19,14 @@ import {
 import {resetMessages, useAppStore} from './store/appState.js';
 
 import {spawn} from 'node:child_process';
-import {dirname, resolve, join, basename, sep} from 'node:path';
+import fs from 'node:fs';
+import {basename, dirname, join, resolve} from 'node:path';
 import {ReadStream} from 'node:tty';
 import {cli} from './cli-init.js';
 import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplateGenerater} from './components/config/TemplateGenerater.js';
 import {getMcpTools} from './hooks/useMcpTools.js';
-import fs from 'node:fs';
 
 const queryClient = new QueryClient();
 

@@ -1,5 +1,5 @@
 import type {CoreSystemMessage} from 'ai';
-import {resolve} from 'node:path';
+import {join, resolve} from 'node:path';
 import fs from 'node:fs';
 import {loadConfigToEnv} from './config';
 import Chalk from 'chalk';
@@ -19,11 +19,9 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 export const getSystemMessages = (): CoreSystemMessage[] => {
 	loadConfigToEnv();
 	const messages: CoreSystemMessage[] = [getDefaultSystemMessage()];
-	const pwd = process.env['HANABI_PWD'] ?? '/do/not/exist/';
-	const systemPromptPath = resolve(
-		pwd,
-		'hanabi.system.prompt.md',
-	);
+	const pwd =
+		process.env['HANABI_PWD'] ?? join(process.cwd(), '/do/not/exist/');
+	const systemPromptPath = resolve(pwd, 'hanabi.system.prompt.md');
 	if (fs.existsSync(systemPromptPath)) {
 		const source = fs.readFileSync(systemPromptPath, 'utf8');
 		const lookupKeys = new Set(

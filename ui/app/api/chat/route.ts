@@ -13,7 +13,6 @@ import {
 	ToolChoice,
 	UIMessage,
 } from 'ai';
-import {join} from 'path';
 // Allow streaming responses up to 120 seconds
 export const maxDuration = 120;
 async function fetchAgentAnswer(
@@ -24,7 +23,7 @@ async function fetchAgentAnswer(
 		return '';
 	}
 	// note: generate endpoint always uses structured answer schema
-	const result = await fetch(join(apiUrl, '/generate'), {
+	const result = await fetch(new URL('/generate', apiUrl).href, {
 		method: 'POST',
 		body: JSON.stringify(
 			typeof messages === 'string' ? {prompt: messages} : {messages},
@@ -42,7 +41,7 @@ async function getAgentStream(
 	messages: UIMessage[] | string,
 	withAnswerSchema: boolean | undefined,
 ) {
-	return fetch(join(apiUrl, `/chat`), {
+	return fetch(new URL(`/chat`, apiUrl).href, {
 		method: 'POST',
 		body: JSON.stringify({
 			messages:

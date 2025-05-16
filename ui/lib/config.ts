@@ -2,7 +2,7 @@ import {populate, config} from 'dotenv';
 import fs from 'fs';
 import {merge, unionBy} from 'lodash-es';
 import os from 'os';
-import {resolve} from 'path';
+import {join, resolve} from 'path';
 import {anthropic} from '@ai-sdk/anthropic';
 import {createAzure} from '@ai-sdk/azure';
 import {deepseek} from '@ai-sdk/deepseek';
@@ -80,7 +80,7 @@ export const defaultConfig: HanabiConfig = {
 };
 
 const localConfigPath = resolve(
-	process.env['HANABI_PWD'] ?? '/do/not/exist/',
+	process.env['HANABI_PWD'] ?? join(process.cwd(), '/do/not/exist/'),
 	'.hanabi.json',
 );
 const userConfigPath = resolve(os.homedir(), '.hanabi.json');

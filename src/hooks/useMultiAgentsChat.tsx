@@ -1,7 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import {type CoreMessage, type LanguageModelV1, generateObject} from 'ai';
 import Chalk from 'chalk';
-import {join} from 'path';
 import {useState} from 'react';
 import {NO_CLASSIFICATION} from '../constants.js';
 import {getConfig} from '../components/config/util.js';
@@ -13,7 +12,8 @@ async function fetchAgentAnswer(
 	if (!apiUrl) {
 		return '';
 	}
-	const result = await fetch(join(apiUrl, '/generate'), {
+
+	const result = await fetch(new URL('/generate', apiUrl).href, {
 		method: 'POST',
 		body: JSON.stringify(
 			typeof messages === 'string' ? {prompt: messages} : {messages},

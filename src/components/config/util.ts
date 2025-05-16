@@ -146,6 +146,8 @@ export const loadConfigToEnv = () => {
 	const config = getConfig();
 	const envs: any = {
 		...config.envs,
+		// disable next js telmetry
+		NEXT_TELEMETRY_DISABLED: 1,
 		HANABI_PWD: process.cwd(),
 	};
 	for (const llm of config.llms) {
