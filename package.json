@@ -5,7 +5,7 @@
 	"scripts": {
 		"build:main": "tsc",
 		"build:ui": "cd ui && next build",
-		"postbuild:ui": "cross-env cp -R ./ui/public ./dist/public && cp -R ./ui/next.config.js ./dist && rm -R dist/.next/cache/",
+		"postbuild:ui": "cross-env cp -R ./ui/public ./dist/public && cp ./ui/next.config.js ./dist && rm -R dist/.next/cache/",
 		"prebuild": "rimraf dist",
 		"build": "pnpm build:main && pnpm build:ui",
 		"prepublishOnly": "pnpm build",
