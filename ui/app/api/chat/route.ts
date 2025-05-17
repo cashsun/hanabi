@@ -14,6 +14,7 @@ import {
 	ToolChoice,
 	UIMessage,
 } from 'ai';
+
 // Allow streaming responses up to 120 seconds
 export const maxDuration = 120;
 async function fetchAgentAnswer(
@@ -29,8 +30,7 @@ async function fetchAgentAnswer(
 		body: JSON.stringify(
 			typeof messages === 'string' ? {prompt: messages} : {messages},
 		),
-	})
-	.then(res => res.json());
+	}).then(res => res.json());
 
 	if (result.answer && typeof result.answer === 'string') {
 		return result.answer;
@@ -39,17 +39,44 @@ async function fetchAgentAnswer(
 }
 
 async function getAgentStream(
-	apiUrl: string,
+	agent: {apiUrl: string; name: string; prompt?: string},
 	messages: UIMessage[] | string,
 	withAnswerSchema: boolean | undefined,
 ) {
-	return fetch(urlJoin(apiUrl, `/chat`), {
+	let messagesToUse = messages;
+
+	if (agent.prompt) {
+		if (typeof messages === 'string') {
+			messagesToUse = [
+				{
+					role: 'user',
+					content: agent.prompt
+						? `${agent.prompt} \n\n\`\`\`${messages}\`\`\``
+						: messages,
+				} as UIMessage,
+			];
+		} else {
+			const lastMessage = messages.at(-1)!;
+			const withPrompt = (t?: string) => `${agent.prompt} \n\n\`\`\`${t}\`\`\``;
+			messagesToUse = [
+				{
+					...lastMessage,
+					content: withPrompt(lastMessage?.content),
+					parts: lastMessage?.parts.map(p => {
+						if (p.type === 'text') {
+							return {...p, text: withPrompt(p.text)};
+						}
+						return p;
+					}),
+				},
+			];
+		}
+	}
+
+	return fetch(urlJoin(agent.apiUrl, `/chat`), {
 		method: 'POST',
 		body: JSON.stringify({
-			messages:
-				typeof messages === 'string'
-					? [{role: 'user', content: messages} as UIMessage]
-					: messages,
+			messages: messagesToUse,
 			withAnswerSchema: withAnswerSchema,
 		}),
 	});
@@ -88,7 +115,7 @@ async function getMultiAgentsStream(
 			const targetAgent = agentsByTopic[classification];
 			console.log(`⟡ worker agent: ${targetAgent?.name}`);
 			return await getAgentStream(
-				targetAgent.apiUrl,
+				targetAgent,
 				bodyJson.messages,
 				bodyJson.withAnswerSchema,
 			);
@@ -112,7 +139,7 @@ async function getMultiAgentsStream(
 			}
 			// stream last step
 			return await getAgentStream(
-				agents[step - 1].apiUrl,
+				agents[step - 1],
 				stepInput,
 				bodyJson.withAnswerSchema,
 			);
@@ -137,8 +164,6 @@ async function getMultiAgentsStream(
 
 			if (classification === FOLLOW_UP_QUESTION) {
 				// passthrough the follow-up question to main agent.
-				console.log(FOLLOW_UP_QUESTION);
-
 				return NO_CLASSIFICATION;
 			}
 
@@ -151,7 +176,7 @@ async function getMultiAgentsStream(
 						console.log(`⟡ worker - ${agent.name}: processing...`);
 						const reader = (
 							await getAgentStream(
-								agent.apiUrl,
+								agent,
 								lastMessage,
 								bodyJson.withAnswerSchema,
 							)
