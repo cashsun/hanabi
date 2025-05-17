@@ -4,10 +4,10 @@
 - make sure all mcp severs are locally available e.g. via node_modules
 - make sure .hanabi.json contains the llm provider setup (for default model) that's copied from your `homedir`/.hanabi.json
 - make sure .hanabi.json contains `mcpServers` that's used in serve.mcpKeys
-- you can save all secrets and tokens in local .env file
+- you can save all secrets and tokens in local `.env` file, like `TAVILY_API_KEY` and `OPENAI_API_KEY` in this example
 - see [Dockerfile](./Dockerfile) for more details
 
-example `.hanabi.json`. 
+example `.hanabi.json`. Notice now all mcp servers are local scoped.
 ```
 {
   "llms": [

@@ -5,6 +5,9 @@
 
 # Run image (change port to the same port as .hanabi.json serve.port)
 # docker run -d --name hanabi-agent -p 3041:3041 hanabi-agent
+# or provide envs when run container
+# docker run -d --name hanabi-agent -p 3041:3041 -e OPENAI_API_KEY=XXX-YYY-ZZ hanabi-agent
+
 
 FROM node:23-alpine
 
@@ -21,7 +24,7 @@ WORKDIR /usr
 # make sure .hanabi.json contains mcpServers that's used in serve.mcpKeys
 COPY .hanabi.json .hanabi.json
 COPY hanabi.system.prompt.md hanabi.system.prompt.md
-# .env file contains all the secrets & tokens and should not be committed 
+# .env file contains all the secrets & tokens. Alternatively you can provide all secrets via environment variables when execute `docker run`
 COPY .env .env
 
 # copy other files, e.g. local mcp servers

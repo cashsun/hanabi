@@ -29,6 +29,7 @@
 - [Answer Schema (Deterministic Output Format)](#answer-schema)
 - [Web Chat UI Server (with APIs)](#web-chat-ui-server)
 - [Advanced - Multi Agents System](#multi-agents-system)
+- [Advanced - Deploy Your Agent](#docker-deployment)
 - [TODOs](#todos)
 
 ## Install
@@ -425,6 +426,9 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 	}
 }
 ```
+
+## Docker deployment
+See [docker-agent-example](./docker-agent-example) folder to see how to deployment your agent as a docker image.
 
 ## TODOs
 

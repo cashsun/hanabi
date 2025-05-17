@@ -53,7 +53,7 @@ export async function getMcpTools(serverKeys: string[] | undefined) {
 						const transport = new StdioClientTransport({
 							command: c.command,
 							args: c.args,
-							env: c.env,
+							env: {...c.env, ...process.env as any},
 							stderr: process.stderr,
 							cwd: c.cwd,
 						});
