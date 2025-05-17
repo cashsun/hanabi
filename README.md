@@ -437,4 +437,4 @@ see [Hanabi Config File](/types/HanabiConfig.d.ts) for more details on this stra
 - [x] add web server chat bot mode (ie api and web interface)
 - [x] improve web server mode (API keys, UX improvements, Update UI mode readme)
 - [x] [Multi Agent System](https://ai-sdk.dev/docs/foundations/agents#multi-agent-systems) (WIP)
-- [ ] local function calling
+- [ ] web ui file support
