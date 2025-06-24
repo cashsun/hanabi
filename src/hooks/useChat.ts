@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import type {
 	CoreMessage,
+	LanguageModelUsage,
 	LanguageModelV1,
 	StreamTextResult,
 	ToolChoice,
@@ -88,13 +89,14 @@ export const useChat = ({
 	const {stdout} = useStdout();
 	const [isStreaming, setIsStreaming] = useState(false);
 	const [agentMessages, setAgentMessages] = useState<CoreMessage[]>([]);
+	const [usageInfo, setUsageInfo] = useState<LanguageModelUsage>();
 	const {isFetching, data, ...rest} = useQuery({
 		queryKey: ['use-chat', model, messages, mcpKeys, streamingMode],
 		async queryFn() {
 			if (messages.at(-1)?.role !== 'user' || !model || isStreaming) {
 				return [];
 			}
-
+			setUsageInfo(undefined);
 			const config = getConfig();
 			const maxSteps = config.maxSteps ?? 10;
 			let tools = await getMcpTools(mcpKeys);
@@ -111,7 +113,9 @@ export const useChat = ({
 			}
 
 			if (streamingMode) {
-				const {fullStream, response, toolCalls} = streamText<typeof tools>({
+				const {fullStream, response, toolCalls, usage} = streamText<
+					typeof tools
+				>({
 					model,
 					messages,
 					tools,
@@ -158,6 +162,8 @@ export const useChat = ({
 					}
 				}
 				const res = await response;
+				setUsageInfo(await usage);
+
 				if (res.messages.length) {
 					const list = formatAnswer(
 						res.messages,
@@ -169,19 +175,20 @@ export const useChat = ({
 				}
 				setIsStreaming(false);
 				clearLines(chunks.split(EOL).length);
-
 				// in stream mode we will use agent messages
 				return [];
 			}
 
 			// non-streaming mode
-			const {response, toolCalls} = await generateText({
+			const {response, toolCalls, usage} = await generateText({
 				model,
 				messages,
 				tools,
 				maxSteps,
 				toolChoice,
 			});
+
+			setUsageInfo(usage);
 			return formatAnswer(
 				response.messages,
 				toolCalls,
@@ -192,6 +199,7 @@ export const useChat = ({
 	});
 	return {
 		data: streamingMode ? agentMessages : data,
+		usage: usageInfo,
 		isFetching,
 		isStreaming: isStreaming && !rest.error,
 		...rest,

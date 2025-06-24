@@ -159,6 +159,7 @@ export function useMultiAgentsChat({
 	return {
 		data: agentMessages,
 		isFetching: isFetching || isStreaming,
+		usage: undefined, // multi-agent chat does not return usage info
 		// streaming mode is not supported.
 		isStreaming: false,
 		...rest,

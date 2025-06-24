@@ -94,7 +94,7 @@ export const Chat: FC<Props> = ({
 		isMultiAgentsMode && !shouldPassThrough
 			? multiAgentResult
 			: singleAgentResult;
-	const {data, isFetching, isStreaming, error} = resultToUse;
+	const {data, isFetching, isStreaming, error, usage} = resultToUse;
 
 	const userMessageDisplay = useMemo(() => {
 		return userMessage ? (
@@ -197,6 +197,12 @@ export const Chat: FC<Props> = ({
 					}
 					return null;
 				})}
+			{usage && (
+				<Text color="gray">
+					Token usage: {usage.totalTokens} (Prompt: {usage.promptTokens},
+					Completion: {usage.completionTokens})
+				</Text>
+			)}
 		</Box>
 	);
 };
