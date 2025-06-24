@@ -26,7 +26,7 @@ export const suggestions = Object.values(chatHandles);
 export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	HELP: 'Quick help',
 	EXIT: 'Exit Hanabi CLI',
-	RESET: 'Reset current chat',
+	RESET: 'Reset current chat and reload configs',
 	CLEAR: 'Clear MCP and file selection',
 	COPY: 'Copy last agent message onto clipboard',
 	LLM: 'Change language model',

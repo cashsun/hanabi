@@ -119,6 +119,7 @@ export const useChat = ({
 					toolChoice,
 					onError({error}) {
 						process.stdin.resume();
+						setIsStreaming(false);
 						throw error;
 					},
 				});

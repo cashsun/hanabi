@@ -5,6 +5,7 @@ import {useState} from 'react';
 import {NO_CLASSIFICATION} from '../constants.js';
 import {getConfig} from '../components/config/util.js';
 import urlJoin from 'url-join';
+
 async function fetchAgentAnswer(
 	apiUrl: string | undefined,
 	messages: CoreMessage[] | string,

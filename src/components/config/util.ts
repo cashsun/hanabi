@@ -1,10 +1,10 @@
-import {populate, config} from 'dotenv';
+import {populate, config as loadEnvFiles} from 'dotenv';
 import fs from 'fs';
 import {merge, unionBy} from 'lodash-es';
 import os from 'os';
 import {resolve} from 'path';
 // load .env files on start
-config();
+loadEnvFiles();
 
 function getResourceNameFromUrl(urlString: string) {
 	try {
@@ -143,6 +143,7 @@ export const loadConfigToEnv = () => {
 	if (!hasConfig()) {
 		return;
 	}
+	loadEnvFiles();
 	const config = getConfig();
 	const envs: any = {
 		...config.envs,
