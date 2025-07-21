@@ -13,6 +13,10 @@ const getDefaultSystemMessage = (): CoreSystemMessage => ({
 	- Chat started at ${new Date().toTimeString()}
 	- Timezone is ${new Intl.DateTimeFormat().resolvedOptions().timeZone}
 
+	## Built-in Tools
+	- \`run-shell-command\`: Run a shell command in the current working directory. Always ask user for confirmation before running. 
+	If necessary, read relavant project setup files (e.g. package.json) within working directly to find the correct commands.
+
 	`,
 });
 

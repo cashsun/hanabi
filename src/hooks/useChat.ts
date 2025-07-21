@@ -13,6 +13,7 @@ import {getMcpTools} from './useMcpTools.js';
 import {useStdout} from 'ink';
 import Chalk from 'chalk';
 import {EOL} from 'node:os';
+import {runShellCommand} from '../tools/spawn-shell.js';
 
 const clearLines = (n: number) => {
 	for (let i = 0; i < n + 1; i++) {
@@ -100,6 +101,10 @@ export const useChat = ({
 			const config = getConfig();
 			const maxSteps = config.maxSteps ?? 10;
 			let tools = await getMcpTools(mcpKeys);
+			tools = {
+				...tools,
+				'run-shell-command': runShellCommand,
+			};
 			let toolChoice: ToolChoice<any> = 'auto';
 			if (config.answerSchema && useAnswerSchema) {
 				toolChoice = 'required';

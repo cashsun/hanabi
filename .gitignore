@@ -185,3 +185,5 @@ temp.*
 *hanabi-backup.json
 
 hanabi.system.prompt.md
+# Gemini context file
+GEMINI.md
