@@ -27,6 +27,7 @@ import {FilePicker} from './components/FilePicker.js';
 import {McpPicker} from './components/McpPicker.js';
 import {TemplateGenerater} from './components/config/TemplateGenerater.js';
 import {getMcpTools} from './hooks/useMcpTools.js';
+import {spawnShell} from './tools/spawn-shell.js';
 
 const queryClient = new QueryClient();
 
@@ -231,6 +232,8 @@ function startServer() {
 }
 
 function startChat() {
+	let shellMode = false;
+
 	function completer(line: string) {
 		const hits = suggestions.filter(c => c.startsWith(line));
 		if (!hits.length) {
@@ -247,12 +250,18 @@ function startChat() {
 		f: string,
 		cb: (err: any, result: any) => void,
 	) {
+		const prompt = input.trim();
+
 		if (context['mode']) {
 			cb(null, undefined);
 			return;
 		}
 
-		const prompt = input.trim();
+		if (shellMode) {
+			await spawnShell(prompt);
+			cb(null, undefined);
+			return;
+		}
 
 		if (prompt) {
 			switch (prompt) {
@@ -348,6 +357,18 @@ function startChat() {
 					));
 					break;
 				}
+				case chatHandles.SHELL: {
+					shellMode = true;
+					render(
+						<Text color="gray">
+							⟡ Shell mode started. Type <Text color="yellow">ctrl+c</Text> to
+							return to chat mode.
+						</Text>,
+					).unmount();
+					replServer.setPrompt(Chalk.yellow('Shell > '));
+					// replServer.displayPrompt();
+					break;
+				}
 				default: {
 					await renderAndComplete(onComplete => (
 						<Chat
@@ -373,7 +394,9 @@ function startChat() {
 
 	render(
 		<Text>
-			<Text color="gray">⟡ Hint: ask AI how to use this tool.</Text>
+			<Text color="gray">⟡ Hint 1: ask AI how to use this tool.</Text>
+			<Newline />
+			{!shellMode && <Text color="gray">[type ! to enter shell mode]</Text>}
 		</Text>,
 		// unmount to free the cursor
 	).unmount();
@@ -384,6 +407,22 @@ function startChat() {
 		eval: myEval,
 		completer,
 		ignoreUndefined: true,
+	});
+
+	replServer.setupHistory(
+		join(process.env['HOME'] ?? '', '.hanabi_cli_history'),
+		() => {},
+	);
+
+	replServer.on('SIGINT', () => {
+		if (shellMode) {
+			shellMode = false;
+			replServer.setPrompt(Chalk.magenta('Chat > '));
+			replServer.displayPrompt();
+		} else {
+			replServer.close();
+			process.exit(0);
+		}
 	});
 }
 

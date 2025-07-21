@@ -19,6 +19,9 @@ export const chatHandles = {
 	CLIP: '@clip',
 	SCHEMA: '@schema',
 	AGENTS: '@agents',
+
+	// modes
+	SHELL: '!',
 };
 
 export const suggestions = Object.values(chatHandles);
@@ -38,6 +41,8 @@ export const descriptions: {[key in keyof typeof chatHandles]: string} = {
 	CLIP: 'Use clipboard text',
 	SCHEMA: 'use formatted answer schema',
 	AGENTS: 'use multi-agent strategy',
+
+	SHELL: 'Enter native shell mode. ctrl+c to go back to chat mode.',
 };
 
 export const ChatHandles: FC = () => {
