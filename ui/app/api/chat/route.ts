@@ -126,7 +126,7 @@ async function getMultiAgentsStream(
 				return new Response(`missing work agents config`, {status: 500});
 			}
 			// always start with last message
-			let stepInput: UIMessage[] | string = bodyJson.messages.slice(-1);
+			let stepInput: UIMessage[] = bodyJson.messages.slice(-1);
 			let step = 1;
 			for (const agent of agents) {
 				console.log(`⟡ Step ${step}: ${agent.name}`);
@@ -134,7 +134,14 @@ async function getMultiAgentsStream(
 					const answer = await fetchAgentAnswer(agent.apiUrl, stepInput);
 					console.log(`⟡ output: ${answer}\n`);
 					step++;
-					stepInput = answer;
+					stepInput = [
+						{
+							content: answer,
+							role: 'user',
+							id: generateId(),
+							parts: [{type: 'text', text: answer}],
+						},
+					];
 				}
 			}
 			// stream last step
@@ -243,7 +250,7 @@ export async function POST(req: Request) {
 			return response;
 		}
 	}
-
+	console.log('messages :>> ', messages, typeof messages);
 	// single agent mode
 	const result = streamText({
 		model,

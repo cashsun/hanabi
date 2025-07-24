@@ -222,6 +222,10 @@ function startServer() {
 		],
 		{
 			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
+			env: {
+				...process.env,
+				NEXT_TELEMETRY_DISABLED: '1',
+			},
 			shell: true,
 		},
 	);
@@ -229,6 +233,11 @@ function startServer() {
 	ls.stdout.on('data', d => console.info(`${d}`));
 	ls.on('error', d => console.error('Exception:', `${d}`));
 	ls.on('exit', d => console.log(`Child process exited: ${d}`));
+
+	process.on('SIGINT', () => ls.kill()); // catch ctrl-c
+	process.on('SIGTERM', () => ls.kill()); // catch kill
+
+	process.on('exit', () => ls.kill());
 }
 
 function startChat() {
