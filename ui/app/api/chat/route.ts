@@ -250,7 +250,6 @@ export async function POST(req: Request) {
 			return response;
 		}
 	}
-	console.log('messages :>> ', messages, typeof messages);
 	// single agent mode
 	const result = streamText({
 		model,

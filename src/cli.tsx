@@ -212,13 +212,14 @@ function startServer() {
 	loadConfigToEnv();
 	const prod = !cli.flags.dev;
 	const config = getConfig();
+	const port = config.serve?.port ?? 3041;
 	const ls = spawn(
 		'node',
 		[
 			'../node_modules/next/dist/bin/next',
 			prod ? 'start' : 'dev',
 			'-p',
-			`${config.serve?.port ?? 3041}`,
+			`${port}`,
 		],
 		{
 			cwd: resolve(dirname(import.meta.dirname), prod ? './dist' : './ui'),
@@ -227,17 +228,26 @@ function startServer() {
 				NEXT_TELEMETRY_DISABLED: '1',
 			},
 			shell: true,
+			detached: true,
 		},
 	);
 	ls.stderr.on('data', d => console.error(`${d}`));
 	ls.stdout.on('data', d => console.info(`${d}`));
 	ls.on('error', d => console.error('Exception:', `${d}`));
 	ls.on('exit', d => console.log(`Child process exited: ${d}`));
+	const cleanup = () => {
+		if (ls.pid) {
+			try {
+				process.kill(-ls.pid);
+			} catch {
+				// Ignore errors if the process is already dead
+			}
+		}
+	};
 
-	process.on('SIGINT', () => ls.kill()); // catch ctrl-c
-	process.on('SIGTERM', () => ls.kill()); // catch kill
-
-	process.on('exit', () => ls.kill());
+	process.on('SIGINT', cleanup); // catch ctrl-c
+	process.on('SIGTERM', cleanup); // catch kill
+	process.on('exit', cleanup);
 }
 
 function startChat() {
